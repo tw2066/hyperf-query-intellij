@@ -12,7 +12,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable
-            parentId="language"
+            parentId="reference.webide.settings.project.settings.php"
             id="preferences.ekvedaras.hyperfquery"
             displayName="Hyperf Query"
             nonDefaultProject="true"
