@@ -1,1 +1,1 @@
-rootProject.name = "laravel-query"
+rootProject.name = "hyperf-query"

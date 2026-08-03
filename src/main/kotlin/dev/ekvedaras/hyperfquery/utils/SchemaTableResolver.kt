@@ -1,0 +1,20 @@
+package dev.ekvedaras.hyperfquery.utils
+
+import com.intellij.psi.util.parentOfType
+import com.jetbrains.php.lang.psi.elements.Function
+import com.jetbrains.php.lang.psi.elements.MethodReference
+import dev.ekvedaras.hyperfquery.models.DbReferenceExpression
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBlueprintMethod
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isColumnDefinitionMethod
+
+class SchemaTableResolver(private val reference: DbReferenceExpression) {
+    fun resolve(methods: MutableList<MethodReference>, method: MethodReference) {
+        if (!method.isBlueprintMethod(reference.project) && !method.isColumnDefinitionMethod(reference.project)) {
+            return
+        }
+
+        methods.add(
+            method.parentOfType<Function>()?.parentOfType() ?: return
+        )
+    }
+}

@@ -1,0 +1,99 @@
+package dev.ekvedaras.hyperfquery.models
+
+import com.intellij.database.model.DasColumn
+import com.intellij.database.model.DasForeignKey
+import com.intellij.database.model.DasIndex
+import com.intellij.database.model.DasNamespace
+import com.intellij.database.model.DasTable
+import com.intellij.database.model.DasTableKey
+import com.intellij.openapi.application.ReadAction
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.progress.ProcessCanceledException
+import com.intellij.openapi.project.DumbService
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiManager
+import com.intellij.psi.PsiTreeChangeAdapter
+import com.intellij.psi.PsiTreeChangeEvent
+import dev.ekvedaras.hyperfquery.utils.DbReferenceResolver
+import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.unquoteAndCleanup
+import dev.ekvedaras.hyperfquery.utils.TableAndAliasCollector
+
+class DbReferenceExpression(val expression: PsiElement, val type: Type) {
+    companion object {
+        enum class Type {
+            Table,
+            Column,
+            Index,
+            Key,
+            ForeignKey,
+        }
+        
+        private val LOG = Logger.getInstance(DbReferenceExpression::class.java)
+        private const val TIMEOUT_SECONDS = 5L
+    }
+
+    val project: Project = expression.project
+
+    val tablesAndAliases = mutableMapOf<String, Pair<String, String?>>()
+    val aliases = mutableMapOf<String, Pair<String, PsiElement>>()
+
+    var schema = mutableListOf<DasNamespace>()
+    var table = mutableListOf<DasTable>()
+    var column = mutableListOf<DasColumn>()
+    var index = mutableListOf<DasIndex>()
+    var key = mutableListOf<DasTableKey>()
+    var foreignKey = mutableListOf<DasForeignKey>()
+    var alias: String? = null
+
+    val parts = mutableListOf<String>()
+    val ranges = mutableListOf<TextRange>()
+
+    init {
+        parts.addAll(
+            expression.text.unquoteAndCleanup()
+                .substringBefore("->") // strip out json fields
+                .split(".")
+                .map { it.substringBefore(" as").substringBefore(" AS").trim() }
+        )
+
+        for (part in parts) {
+            ranges.add(TextRange.from(if (ranges.isNotEmpty()) ranges.last().endOffset + 1 else 1, part.length))
+        }
+
+        if (!DumbService.isDumb(project)) {
+            val expressionDisposable = Disposer.newDisposable()
+            PsiManager.getInstance(project).addPsiTreeChangeListener(object : PsiTreeChangeAdapter() {
+                override fun childrenChanged(event: PsiTreeChangeEvent) {
+                    expressionDisposable.dispose()
+                }
+            }, expressionDisposable)
+            
+            try {
+                ReadAction.nonBlocking<Unit> {
+                    try {
+                        TableAndAliasCollector(this).collect()
+                        DbReferenceResolver(this).resolve()
+                    } catch (_: ProcessCanceledException) {
+                        // Process canceled, skip resolution
+                    }
+                }
+                .inSmartMode(project)
+                .expireWith(expressionDisposable)
+                .executeSynchronously()
+            } catch (e: IllegalStateException) {
+                // Handle inSmartMode constraint failure (issue #120)
+                if (e.message?.contains("inSmartMode") == true) {
+                    LOG.debug("Cannot satisfy inSmartMode constraint, skipping DB reference resolution")
+                } else {
+                    LOG.warn("Unexpected error during DB reference resolution", e)
+                }
+            } catch (_: ProcessCanceledException) {
+                // Process was canceled, skip resolution
+                LOG.debug("Process canceled during DB reference resolution")
+            }
+        }
+    }
+}

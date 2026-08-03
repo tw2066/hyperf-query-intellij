@@ -16,32 +16,32 @@
             id="preferences.ekvedaras.hyperfquery"
             displayName="Hyperf Query"
             nonDefaultProject="true"
-            provider="dev.ekvedaras.laravelquery.services.HyperfQuerySettingsConfigurableProvider"
-            instance="dev.ekvedaras.laravelquery.services.HyperfQuerySettingsConfigurable"/>
+            provider="dev.ekvedaras.hyperfquery.services.HyperfQuerySettingsConfigurableProvider"
+            instance="dev.ekvedaras.hyperfquery.services.HyperfQuerySettingsConfigurable"/>
         <projectService
-            serviceImplementation="dev.ekvedaras.laravelquery.services.HyperfQuerySettings"/>
+            serviceImplementation="dev.ekvedaras.hyperfquery.services.HyperfQuerySettings"/>
         <notificationGroup displayType="BALLOON" id="Hyperf Query Settings" isLogByDefault="true"/>
-        <postStartupActivity implementation="dev.ekvedaras.laravelquery.services.Startup" />
+        <postStartupActivity implementation="dev.ekvedaras.hyperfquery.services.Startup" />
 
         <completion.contributor language="PHP"
-                                implementationClass="dev.ekvedaras.laravelquery.completion.IndexCompletionContributor"
+                                implementationClass="dev.ekvedaras.hyperfquery.completion.IndexCompletionContributor"
                                 order="first"/>
         <completion.contributor language="PHP"
-                                implementationClass="dev.ekvedaras.laravelquery.completion.TableOrViewCompletionContributor"
+                                implementationClass="dev.ekvedaras.hyperfquery.completion.TableOrViewCompletionContributor"
                                 order="first"/>
         <completion.contributor language="PHP"
-                                implementationClass="dev.ekvedaras.laravelquery.completion.ColumnCompletionContributor"
+                                implementationClass="dev.ekvedaras.hyperfquery.completion.ColumnCompletionContributor"
                                 order="first"/>
         <completion.contributor language="PHP"
-                                implementationClass="dev.ekvedaras.laravelquery.completion.NewMigrationCompletionContributor"
+                                implementationClass="dev.ekvedaras.hyperfquery.completion.NewMigrationCompletionContributor"
                                 order="last"/>
 
         <psi.referenceContributor language="PHP"
-                                  implementation="dev.ekvedaras.laravelquery.reference.IndexReferenceContributor"/>
+                                  implementation="dev.ekvedaras.hyperfquery.reference.IndexReferenceContributor"/>
         <psi.referenceContributor language="PHP"
-                                  implementation="dev.ekvedaras.laravelquery.reference.TableOrViewReferenceContributor"/>
+                                  implementation="dev.ekvedaras.hyperfquery.reference.TableOrViewReferenceContributor"/>
         <psi.referenceContributor language="PHP"
-                                  implementation="dev.ekvedaras.laravelquery.reference.ColumnReferenceContributor"/>
+                                  implementation="dev.ekvedaras.hyperfquery.reference.ColumnReferenceContributor"/>
 
         <localInspection language="PHP"
                          groupPath="PHP"
@@ -50,7 +50,7 @@
                          enabledByDefault="true"
                          bundle="messages.MyBundle"
                          key="unknownTableOrViewDisplayName"
-                         implementationClass="dev.ekvedaras.laravelquery.inspection.UnknownTableOrViewInspection"
+                         implementationClass="dev.ekvedaras.hyperfquery.inspection.UnknownTableOrViewInspection"
         />
         <localInspection language="PHP"
                          groupPath="PHP"
@@ -59,7 +59,7 @@
                          enabledByDefault="true"
                          bundle="messages.MyBundle"
                          key="unknownColumnDisplayName"
-                         implementationClass="dev.ekvedaras.laravelquery.inspection.UnknownColumnInspection"
+                         implementationClass="dev.ekvedaras.hyperfquery.inspection.UnknownColumnInspection"
         />
     </extensions>
 
