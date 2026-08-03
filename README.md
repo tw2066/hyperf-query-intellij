@@ -1,25 +1,16 @@
-# Laravel Query
-
-![Build](https://github.com/ekvedaras/laravel-query-intellij/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/16309.svg)](https://plugins.jetbrains.com/plugin/16309)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/16309.svg)](https://plugins.jetbrains.com/plugin/16309)
-
-<img src="https://raw.githubusercontent.com/ekvedaras/laravel-query-intellij/main/src/main/resources/META-INF/pluginIcon.svg" width="192" height="192"/>
+# Hyperf Query
 
 <!-- Plugin description -->
-This plugin provides database integration for Laravel query builder. It works with DataGrip to provide autocompletion for database schemas, tables, views, and columns.
-
-<img src="https://user-images.githubusercontent.com/3586184/110513603-b4522000-8106-11eb-9678-985bf286bf4f.gif" alt="Demo" width="350" height="353"/>
+This plugin provides database integration for Hyperf query builder (Hyperf 3.2). It works with DataGrip to provide autocompletion for database schemas, tables, views, and columns.
 
 ## Features
 
 * Schemas, tables, views and columns completion for query and schema builder methods
-* Completion for database assertion test methods
 * Completion for migrations
 * Inspection of unknown database elements
 * Table alias support
-* Table name resolving from model for eloquent builder methods
-* Model relation table name resolving for eloquent builder relation closure methods
+* Table name resolving from model for builder methods
+* Model relation table name resolving for builder relation closure methods
 * Text linking with database elements for navigation and refactoring
 * Configurable table prefix and datasource filtering
 
@@ -28,34 +19,28 @@ This plugin provides database integration for Laravel query builder. It works wi
 ### Connect your database
 See <https://www.jetbrains.com/help/phpstorm/connecting-to-a-database.html#connect-to-mysql-database> for instructions.
 
-### Laravel tools
+### Hyperf tools
 
-You also need either [Laravel Idea](https://laravel-idea.com) plugin (paid) or [Laravel IDE helper](https://github.com/barryvdh/laravel-ide-helper) added to your project and run 
+You need [hyperf/ide-helper](https://github.com/hyperf/hyperf-ide-helper) added to your project and run
 ```shell
-php artisan ide-helper:generate
-php artisan ide-helper:meta
-php artisan ide-helper:models
-php artisan artisan ide-helper:eloquent
+composer require hyperf/ide-helper --dev
+php bin/hyperf.php ide-helper:generate
 ```
-which will generate some helper files so your IDE could see Eloquent methods.
+which will generate a `.phpstorm.meta.php` helper file so your IDE could see Hyperf database builder methods.
 
-Laravel Query plugin needs either of those to work otherwise, it cannot understand for which methods to trigger autocompletion.
+Hyperf Query plugin needs it to work otherwise, it cannot understand for which methods to trigger autocompletion.
 <!-- Plugin description end -->
-
-## Future plans
-
-`V5` as a complete rewrite to reduce cognitive load, improve readability and maintainability. It is coming soon. [Branch](https://github.com/ekvedaras/laravel-query-intellij/tree/v5) already available for PRs and suggestions.
 
 ## Installation
 
 - Using IDE built-in plugin system:
-  
-  <kbd>Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "Laravel Query"</kbd> >
+
+  <kbd>Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "Hyperf Query"</kbd> >
   <kbd>Install Plugin</kbd>
-  
+
 - Manually:
 
-  Download the [latest release](https://github.com/ekvedaras/laravel-query-intellij/releases/latest) and install it manually using
+  Download the [latest release](https://github.com/ekvedaras/hyperf-query-intellij/releases/latest) and install it manually using
   <kbd>Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
 
 ---

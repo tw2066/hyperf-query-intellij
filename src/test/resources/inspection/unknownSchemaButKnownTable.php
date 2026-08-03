@@ -1,1 +1,1 @@
-<?php (new Illuminate\Database\Query\Builder())->from('testProject1.users')->get('<warning descr="Unknown schema">wrongSchema</warning>.users');
+<?php (new Hyperf\Database\Query\Builder())->from('testProject1.users')->get('<warning descr="Unknown schema">wrongSchema</warning>.users');

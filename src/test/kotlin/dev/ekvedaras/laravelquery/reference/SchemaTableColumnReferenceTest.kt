@@ -24,8 +24,8 @@ internal class SchemaTableColumnReferenceTest : BaseTestCase() {
         UsefulTestCase.assertSize(1, usages)
         TestCase.assertEquals(ColumnPsiReference::class.java, usages.first().referenceClass)
         TestCase.assertTrue(usages.first().element?.textMatches("'id'") ?: false)
-        TestCase.assertEquals(82, usages.first().navigationRange.startOffset)
-        TestCase.assertEquals(82 + column.name.length, usages.first().navigationRange.endOffset)
+        TestCase.assertEquals(78, usages.first().navigationRange.startOffset)
+        TestCase.assertEquals(78 + column.name.length, usages.first().navigationRange.endOffset)
     }
 
     fun testItDoesNotResolveColumnsFromOtherTablesBecauseOfTheContext() {
@@ -68,12 +68,12 @@ internal class SchemaTableColumnReferenceTest : BaseTestCase() {
         TestCase.assertTrue(tableUsages.last().element?.textMatches("'users.id'") ?: false)
         TestCase.assertTrue(columnUsages.first().element?.textMatches("'users.id'") ?: false)
 
-        TestCase.assertEquals(82, tableUsages.last().navigationRange.startOffset)
-        TestCase.assertEquals(82 + table.name.length + 1, columnUsages.first().navigationRange.startOffset)
+        TestCase.assertEquals(78, tableUsages.last().navigationRange.startOffset)
+        TestCase.assertEquals(78 + table.name.length + 1, columnUsages.first().navigationRange.startOffset)
 
-        TestCase.assertEquals(82 + table.name.length, tableUsages.last().navigationRange.endOffset)
+        TestCase.assertEquals(78 + table.name.length, tableUsages.last().navigationRange.endOffset)
         TestCase.assertEquals(
-            82 + table.name.length + 1 + column.name.length,
+            78 + table.name.length + 1 + column.name.length,
             columnUsages.first().navigationRange.endOffset
         )
     }
@@ -109,20 +109,20 @@ internal class SchemaTableColumnReferenceTest : BaseTestCase() {
         TestCase.assertTrue(tableUsages.last().element?.textMatches("'testProject1.users.id'") ?: false)
         TestCase.assertTrue(columnUsages.first().element?.textMatches("'testProject1.users.id'") ?: false)
 
-        TestCase.assertEquals(82, schemaUsages.last().navigationRange.startOffset)
-        TestCase.assertEquals(82 + schema.name.length + 1, tableUsages.last().navigationRange.startOffset)
+        TestCase.assertEquals(78, schemaUsages.last().navigationRange.startOffset)
+        TestCase.assertEquals(78 + schema.name.length + 1, tableUsages.last().navigationRange.startOffset)
         TestCase.assertEquals(
-            82 + schema.name.length + 1 + table.name.length + 1,
+            78 + schema.name.length + 1 + table.name.length + 1,
             columnUsages.first().navigationRange.startOffset
         )
 
-        TestCase.assertEquals(82 + schema.name.length, schemaUsages.last().navigationRange.endOffset)
+        TestCase.assertEquals(78 + schema.name.length, schemaUsages.last().navigationRange.endOffset)
         TestCase.assertEquals(
-            82 + schema.name.length + 1 + table.name.length,
+            78 + schema.name.length + 1 + table.name.length,
             tableUsages.last().navigationRange.endOffset
         )
         TestCase.assertEquals(
-            82 + schema.name.length + 1 + table.name.length + 1 + column.name.length,
+            78 + schema.name.length + 1 + table.name.length + 1 + column.name.length,
             columnUsages.first().navigationRange.endOffset
         )
     }
@@ -142,7 +142,7 @@ internal class SchemaTableColumnReferenceTest : BaseTestCase() {
         UsefulTestCase.assertSize(1, usages)
         TestCase.assertEquals(ColumnPsiReference::class.java, usages.first().referenceClass)
         TestCase.assertTrue(usages.first().element?.textMatches("'id->prop'") ?: false)
-        TestCase.assertEquals(82, usages.first().navigationRange.startOffset)
-        TestCase.assertEquals(82 + column.name.length, usages.first().navigationRange.endOffset)
+        TestCase.assertEquals(78, usages.first().navigationRange.startOffset)
+        TestCase.assertEquals(78 + column.name.length, usages.first().navigationRange.endOffset)
     }
 }

@@ -3,15 +3,15 @@ package dev.ekvedaras.laravelquery.services
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.options.SearchableConfigurable
 import com.intellij.openapi.project.Project
-import dev.ekvedaras.laravelquery.services.forms.LaravelQuerySettingsForm
+import dev.ekvedaras.laravelquery.services.forms.HyperfQuerySettingsForm
 import javax.swing.JComponent
 import org.jetbrains.annotations.Nls
 
-class LaravelQuerySettingsConfigurable(val project: Project) : SearchableConfigurable {
-    var settingsForm: LaravelQuerySettingsForm? = null
+class HyperfQuerySettingsConfigurable(val project: Project) : SearchableConfigurable {
+    var settingsForm: HyperfQuerySettingsForm? = null
 
     override fun createComponent(): JComponent? {
-        settingsForm = settingsForm ?: LaravelQuerySettingsForm(project)
+        settingsForm = settingsForm ?: HyperfQuerySettingsForm(project)
         return settingsForm?.component()
     }
 
@@ -19,7 +19,7 @@ class LaravelQuerySettingsConfigurable(val project: Project) : SearchableConfigu
 
     @Throws(ConfigurationException::class)
     override fun apply() {
-        val settings = LaravelQuerySettings.getInstance(project)
+        val settings = HyperfQuerySettings.getInstance(project)
         settings.filterDataSources = settingsForm?.shouldFilterDataSources() ?: false
         settings.filteredDataSources = settingsForm?.filteredDataSources() ?: setOf()
         settings.tablePrefix = settingsForm?.tablePrefix()?.trim() ?: ""
@@ -34,11 +34,11 @@ class LaravelQuerySettingsConfigurable(val project: Project) : SearchableConfigu
     }
 
     @Nls
-    override fun getDisplayName() = "Laravel Query"
+    override fun getDisplayName() = "Hyperf Query"
 
     override fun getId(): String = ID
 
     companion object {
-        const val ID = "preferences.ekvedaras.laravelquery"
+        const val ID = "preferences.ekvedaras.hyperfquery"
     }
 }

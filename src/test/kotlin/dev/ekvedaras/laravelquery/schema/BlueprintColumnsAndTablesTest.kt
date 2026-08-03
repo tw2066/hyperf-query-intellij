@@ -59,8 +59,8 @@ internal class BlueprintColumnsAndTablesTest : BaseTestCase() {
         UsefulTestCase.assertSize(1, usages)
         TestCase.assertEquals(ColumnPsiReference::class.java, usages.first().referenceClass)
         TestCase.assertTrue(usages.first().element?.textMatches("'email'") ?: false)
-        TestCase.assertEquals(107, usages.first().navigationRange.startOffset)
-        TestCase.assertEquals(107 + column.name.length, usages.first().navigationRange.endOffset)
+        TestCase.assertEquals(103, usages.first().navigationRange.startOffset)
+        TestCase.assertEquals(103 + column.name.length, usages.first().navigationRange.endOffset)
     }
 
     fun testResolvesTableReference() {
@@ -75,8 +75,8 @@ internal class BlueprintColumnsAndTablesTest : BaseTestCase() {
         UsefulTestCase.assertSize(1, usages)
         TestCase.assertEquals(TableOrViewPsiReference::class.java, usages.first().referenceClass)
         TestCase.assertTrue(usages.first().element?.textMatches("'failed_jobs'") ?: false)
-        TestCase.assertEquals(107, usages.first().navigationRange.startOffset)
-        TestCase.assertEquals(107 + table.name.length, usages.first().navigationRange.endOffset)
+        TestCase.assertEquals(103, usages.first().navigationRange.startOffset)
+        TestCase.assertEquals(103 + table.name.length, usages.first().navigationRange.endOffset)
     }
 
     fun testDoesNotWarnAboutUnknownColumn() {

@@ -6,7 +6,7 @@ import dev.ekvedaras.laravelquery.models.DbReferenceExpression
 import dev.ekvedaras.laravelquery.utils.DatabaseUtils.Companion.dbDataSources
 import dev.ekvedaras.laravelquery.utils.DatabaseUtils.Companion.nameWithoutPrefix
 import dev.ekvedaras.laravelquery.utils.DatabaseUtils.Companion.tables
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.canHaveAliasParam
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.canHaveAliasParam
 
 class AliasCollector(private val reference: DbReferenceExpression) {
     fun extractAliasFromString(
@@ -50,7 +50,7 @@ class AliasCollector(private val reference: DbReferenceExpression) {
         referencedTable: String,
         referencedSchema: String?
     ) {
-        val aliasParam: Int = LaravelUtils.BuilderTableAliasParams[method.name] ?: return
+        val aliasParam: Int = HyperfUtils.BuilderTableAliasParams[method.name] ?: return
         val alias: String? = (method.getParameter(aliasParam) as? StringLiteralExpressionImpl)?.contents
 
         reference.tablesAndAliases[alias ?: referencedTable] = referencedTable to referencedSchema

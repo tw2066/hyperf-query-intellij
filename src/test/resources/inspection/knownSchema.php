@@ -1,1 +1,1 @@
-<?php (new Illuminate\Database\Query\Builder())->from('testProject1');
+<?php (new Hyperf\Database\Query\Builder())->from('testProject1');

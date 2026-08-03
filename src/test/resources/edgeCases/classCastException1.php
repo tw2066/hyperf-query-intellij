@@ -1,1 +1,1 @@
-<?php $variable = Illuminate\Support\Facades\DB::query()->from('testProject1.users')->get('<caret>');
+<?php $variable = Hyperf\DbConnection\Db::query()->from('testProject1.users')->get('<caret>');

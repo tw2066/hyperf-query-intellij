@@ -4,8 +4,8 @@ import com.intellij.psi.util.parentOfType
 import com.jetbrains.php.lang.psi.elements.Function
 import com.jetbrains.php.lang.psi.elements.MethodReference
 import dev.ekvedaras.laravelquery.models.DbReferenceExpression
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBlueprintMethod
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isColumnDefinitionMethod
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBlueprintMethod
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isColumnDefinitionMethod
 
 class SchemaTableResolver(private val reference: DbReferenceExpression) {
     fun resolve(methods: MutableList<MethodReference>, method: MethodReference) {

@@ -1,9 +1,9 @@
 <?php
 
 namespace App {
-class User extends \Illuminate\Database\Eloquent\Model
+class User extends \Hyperf\Database\Model\Model
 {
-    public function scopeFirstId(\Illuminate\Database\Eloquent\Builder $query)
+    public function scopeFirstId(\Hyperf\Database\Model\Builder $query)
     {
         return $query->where('<caret>');
     }

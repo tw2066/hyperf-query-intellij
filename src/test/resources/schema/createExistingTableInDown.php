@@ -6,7 +6,7 @@
 
     public function down()
     {
-        Schema::create('users', function (\Illuminate\Database\Schema\Blueprint $table) {
+        Schema::create('users', function (\Hyperf\Database\Schema\Blueprint $table) {
             $table->string('<caret>');
         });
     }

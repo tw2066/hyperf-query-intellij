@@ -1,6 +1,6 @@
 <?php
 
-class User extends \Illuminate\Database\Eloquent\Model {
+class User extends \Hyperf\Database\Model\Model {
 }
 
 User::whereIn('id', [

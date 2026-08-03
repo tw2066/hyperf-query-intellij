@@ -11,10 +11,10 @@ import com.jetbrains.php.lang.psi.elements.ParameterList
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression
 import dev.ekvedaras.laravelquery.utils.BlueprintMethod.Companion.getColumnName
 import dev.ekvedaras.laravelquery.utils.BlueprintMethod.Companion.wantsColumnForIndexes
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBuilderMethodForColumns
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBuilderMethodForIndexes
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBuilderMethodForKeys
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBuilderMethodForUniqueIndexes
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBuilderMethodForColumns
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBuilderMethodForIndexes
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBuilderMethodForKeys
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBuilderMethodForUniqueIndexes
 import dev.ekvedaras.laravelquery.utils.PsiUtils.Companion.nextSiblingInTreeWithText
 import dev.ekvedaras.laravelquery.utils.PsiUtils.Companion.unquoteAndCleanup
 import icons.DatabaseIcons

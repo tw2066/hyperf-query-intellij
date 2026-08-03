@@ -8,15 +8,15 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
-import dev.ekvedaras.laravelquery.services.LaravelQuerySettings
-import dev.ekvedaras.laravelquery.services.LaravelQuerySettingsConfigurable
+import dev.ekvedaras.laravelquery.services.HyperfQuerySettings
+import dev.ekvedaras.laravelquery.services.HyperfQuerySettingsConfigurable
 
 class ConfigureSettingsNotification {
     private val group = NotificationGroupManager.getInstance()
-        .getNotificationGroup("Laravel Query Settings")
+        .getNotificationGroup("Hyperf Query Settings")
 
     fun notify(project: Project, content: String): Notification {
-        val settings = LaravelQuerySettings.getInstance(project)
+        val settings = HyperfQuerySettings.getInstance(project)
         val notification: Notification = group.createNotification(content, NotificationType.INFORMATION)
 
         notification.addActions(
@@ -25,7 +25,7 @@ class ConfigureSettingsNotification {
                     override fun actionPerformed(e: AnActionEvent, notification: Notification) {
                         ShowSettingsUtil
                             .getInstance()
-                            .editConfigurable(project, LaravelQuerySettingsConfigurable(project))
+                            .editConfigurable(project, HyperfQuerySettingsConfigurable(project))
                         notification.hideBalloon()
                     }
                 },

@@ -1,21 +1,21 @@
 package dev.ekvedaras.laravelquery
 
 import dev.ekvedaras.laravelquery.models.SettingsSchema
-import dev.ekvedaras.laravelquery.services.LaravelQuerySettings
+import dev.ekvedaras.laravelquery.services.HyperfQuerySettings
 
 internal class FilterTest : BaseTestCase() {
     private fun complete(method: String, caretPrefix: String = "", methodPrefix: String = "") {
         myFixture.configureByText(
             "test.php",
-            "<?php (new Illuminate\\Database\\Query\\Builder())->$methodPrefix$method('$caretPrefix<caret>')"
+            "<?php (new Hyperf\\Database\\Query\\Builder())->$methodPrefix$method('$caretPrefix<caret>')"
         )
         myFixture.completeBasic()
     }
 
     @SuppressWarnings("UnsafeCallOnNullableType")
     fun testCompletesOnlyFilteredSchemasAndTables() {
-        LaravelQuerySettings.getInstance(project).filterDataSources = true
-        LaravelQuerySettings.getInstance(project).filteredDataSources = setOf(
+        HyperfQuerySettings.getInstance(project).filterDataSources = true
+        HyperfQuerySettings.getInstance(project).filteredDataSources = setOf(
             SettingsSchema.keyFor("testProject1", dataSource().uniqueId)
         )
 
@@ -26,8 +26,8 @@ internal class FilterTest : BaseTestCase() {
     }
 
     fun testCompletesAllSchemasAndTablesWhenFilteringIsDisabled() {
-        LaravelQuerySettings.getInstance(project).filterDataSources = false
-        LaravelQuerySettings.getInstance(project).filteredDataSources = setOf(
+        HyperfQuerySettings.getInstance(project).filterDataSources = false
+        HyperfQuerySettings.getInstance(project).filteredDataSources = setOf(
             SettingsSchema.keyFor("testProject1", dataSource().uniqueId)
         )
 
@@ -38,8 +38,8 @@ internal class FilterTest : BaseTestCase() {
     }
 
     fun testCompletesOnlyFilteredColumns() {
-        LaravelQuerySettings.getInstance(project).filterDataSources = true
-        LaravelQuerySettings.getInstance(project).filteredDataSources = setOf(
+        HyperfQuerySettings.getInstance(project).filterDataSources = true
+        HyperfQuerySettings.getInstance(project).filteredDataSources = setOf(
             SettingsSchema.keyFor("testProject1", dataSource().uniqueId)
         )
 

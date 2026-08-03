@@ -1,7 +1,7 @@
 package dev.ekvedaras.laravelquery.inspection
 
 import dev.ekvedaras.laravelquery.BaseTestCase
-import dev.ekvedaras.laravelquery.services.LaravelQuerySettings
+import dev.ekvedaras.laravelquery.services.HyperfQuerySettings
 
 internal class DasObjectsInspectionTest : BaseTestCase() {
     fun testWarnsAboutUnknownSchema() {

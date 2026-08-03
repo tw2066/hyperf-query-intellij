@@ -12,16 +12,14 @@ import dev.ekvedaras.laravelquery.models.DbReferenceExpression
 import dev.ekvedaras.laravelquery.utils.DatabaseUtils.Companion.dbDataSourcesInParallel
 import dev.ekvedaras.laravelquery.utils.DatabaseUtils.Companion.schemasInParallel
 import dev.ekvedaras.laravelquery.utils.DatabaseUtils.Companion.tablesInParallel
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBuilderMethodForTableByName
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isDatabaseAssertion
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isEloquentModel
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isInsideRegularFunction
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isInteresting
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isTableParam
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isTestCase
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.shouldCompleteOnlyColumns
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.shouldCompleteOnlySchemas
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.shouldCompleteSchemas
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBuilderMethodForTableByName
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isEloquentModel
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isInsideRegularFunction
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isInteresting
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isTableParam
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.shouldCompleteOnlyColumns
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.shouldCompleteOnlySchemas
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.shouldCompleteSchemas
 import dev.ekvedaras.laravelquery.utils.LookupUtils.Companion.buildLookup
 import dev.ekvedaras.laravelquery.utils.MethodUtils
 import dev.ekvedaras.laravelquery.utils.isJoinOrRelation
@@ -101,7 +99,6 @@ class TableOrViewCompletionProvider : CompletionProvider<CompletionParameters>()
                 (method.isEloquentModel(project) || method.isJoinOrRelation(project)) &&
                     method.shouldCompleteOnlyColumns()
                 ) ||
-            (method.isTestCase(project) && !method.isDatabaseAssertion(project)) ||
             parameters.isInsideRegularFunction() ||
             !method.isInteresting(project)
 }

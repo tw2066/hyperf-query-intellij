@@ -4,7 +4,7 @@ import com.intellij.database.util.DbUtil
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReferenceBase
 import dev.ekvedaras.laravelquery.models.DbReferenceExpression
-import dev.ekvedaras.laravelquery.services.LaravelQuerySettings
+import dev.ekvedaras.laravelquery.services.HyperfQuerySettings
 import dev.ekvedaras.laravelquery.utils.DatabaseUtils.Companion.nameWithoutPrefix
 
 class IndexPsiReference(element: PsiElement) : PsiReferenceBase<PsiElement>(element) {
@@ -15,7 +15,7 @@ class IndexPsiReference(element: PsiElement) : PsiReferenceBase<PsiElement>(elem
         rangeInElement = target.ranges.last()
 
         DbUtil.getDataSources(element.project).filter {
-            LaravelQuerySettings.getInstance(element.project).interestedIn(it)
+            HyperfQuerySettings.getInstance(element.project).interestedIn(it)
         }.forEach { dataSource ->
             val dbIndex = dataSource.findElement(target.index.find {
                 tables.contains(it.table?.nameWithoutPrefix(element.project))

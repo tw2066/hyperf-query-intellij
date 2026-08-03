@@ -1,7 +1,7 @@
 <?php
 
 namespace App {
-class DemoOneButActuallyUsers extends \Illuminate\Database\Eloquent\Model {
+class DemoOneButActuallyUsers extends \Hyperf\Database\Model\Model {
 }
 class User extends DemoOneButActuallyUsers {
 }

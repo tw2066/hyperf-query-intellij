@@ -1,10 +1,10 @@
 <?php
 
-class Customer extends \Illuminate\Database\Eloquent\Model {
+class Customer extends \Hyperf\Database\Model\Model {
 }
 
-class User extends \Illuminate\Database\Eloquent\Model {
-    public function customers() : \Illuminate\Database\Eloquent\Relations\HasMany
+class User extends \Hyperf\Database\Model\Model {
+    public function customers() : \Hyperf\Database\Model\Relations\HasMany
     {
         return $this->hasMany(Customer::class);
     }

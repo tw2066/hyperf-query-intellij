@@ -20,20 +20,18 @@ import dev.ekvedaras.laravelquery.utils.DatabaseUtils.Companion.nameWithoutPrefi
 import dev.ekvedaras.laravelquery.utils.DatabaseUtils.Companion.schemasInParallel
 import dev.ekvedaras.laravelquery.utils.DatabaseUtils.Companion.tables
 import dev.ekvedaras.laravelquery.utils.DatabaseUtils.Companion.tablesInParallel
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.canHaveColumnsInArrayValues
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.canOnlyHaveColumnsInArrayValues
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isAssocArrayValue
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBlueprintMethod
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBuilderMethodForColumns
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isColumnDefinitionMethod
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isColumnIn
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isDatabaseAssertion
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isEloquentModel
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isInsidePhpArrayOrValue
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isInsideRegularFunction
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isInteresting
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isTestCase
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.shouldCompleteOnlyColumns
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.canHaveColumnsInArrayValues
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.canOnlyHaveColumnsInArrayValues
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isAssocArrayValue
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBlueprintMethod
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBuilderMethodForColumns
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isColumnDefinitionMethod
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isColumnIn
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isEloquentModel
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isInsidePhpArrayOrValue
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isInsideRegularFunction
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isInteresting
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.shouldCompleteOnlyColumns
 import dev.ekvedaras.laravelquery.utils.LookupUtils
 import dev.ekvedaras.laravelquery.utils.LookupUtils.Companion.buildLookup
 import dev.ekvedaras.laravelquery.utils.MethodUtils
@@ -223,7 +221,6 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
                     method.shouldCompleteOnlyColumns() &&
                     method.isEloquentModel(project)
                 ) ||
-            (method.isTestCase(project) && !method.isDatabaseAssertion(project)) ||
             !method.isInteresting(project)
 
     }

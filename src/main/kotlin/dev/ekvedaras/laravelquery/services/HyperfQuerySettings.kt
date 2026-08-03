@@ -12,8 +12,8 @@ import com.intellij.util.xmlb.XmlSerializerUtil.copyBean
 import dev.ekvedaras.laravelquery.models.SettingsSchema
 import org.jetbrains.annotations.Nullable
 
-@State(name = "LaravelQuerySettings", storages = [Storage("laravel-query-settings.xml")])
-class LaravelQuerySettings : PersistentStateComponent<LaravelQuerySettings> {
+@State(name = "HyperfQuerySettings", storages = [Storage("hyperf-query-settings.xml")])
+class HyperfQuerySettings : PersistentStateComponent<HyperfQuerySettings> {
     var filterDataSources = false
     var filteredDataSources = setOf<String>()
     var ignoreSettings = false
@@ -22,12 +22,12 @@ class LaravelQuerySettings : PersistentStateComponent<LaravelQuerySettings> {
     @Nullable
     override fun getState() = this
 
-    override fun loadState(state: LaravelQuerySettings) {
+    override fun loadState(state: HyperfQuerySettings) {
         copyBean(state, this)
     }
 
     companion object {
-        fun getInstance(project: Project): LaravelQuerySettings {
+        fun getInstance(project: Project): HyperfQuerySettings {
             return project.service()
         }
     }

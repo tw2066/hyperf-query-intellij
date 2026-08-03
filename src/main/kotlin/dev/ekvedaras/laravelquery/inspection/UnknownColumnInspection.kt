@@ -16,18 +16,16 @@ import com.jetbrains.php.lang.psi.elements.impl.ArrayIndexImpl
 import com.jetbrains.php.lang.psi.visitors.PhpElementVisitor
 import dev.ekvedaras.laravelquery.MyBundle
 import dev.ekvedaras.laravelquery.models.DbReferenceExpression
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.canHaveColumnsInArrayValues
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBlueprintMethod
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBuilderMethodForColumns
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isColumnIn
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isDatabaseAssertion
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isInsidePhpArrayOrValue
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isInsideRegularFunction
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isInteresting
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isOperatorParam
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isSchemaBuilderMethod
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isTestCase
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.selectsAllColumns
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.canHaveColumnsInArrayValues
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBlueprintMethod
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBuilderMethodForColumns
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isColumnIn
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isInsidePhpArrayOrValue
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isInsideRegularFunction
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isInteresting
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isOperatorParam
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isSchemaBuilderMethod
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.selectsAllColumns
 import dev.ekvedaras.laravelquery.utils.MethodUtils
 import dev.ekvedaras.laravelquery.utils.PsiUtils.Companion.containsVariable
 import org.jetbrains.annotations.NonNls
@@ -136,7 +134,6 @@ class UnknownColumnInspection : PhpInspection() {
                     expression.isInsideRegularFunction() ||
                     (expression.isInsidePhpArrayOrValue() && !method.canHaveColumnsInArrayValues()) ||
                     (expression.parent.parent is ArrayCreationExpression && expression.parent.parent.parent.parent is ArrayHashElement) ||
-                    (method.isTestCase(project) && !method.isDatabaseAssertion(project)) ||
                     !method.isInteresting(project) ||
                     method.isSchemaBuilderMethod(project) ||
                     method.isBlueprintMethod(project)

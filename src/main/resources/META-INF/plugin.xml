@@ -1,7 +1,7 @@
 <!--suppress PluginXmlValidity -->
 <idea-plugin>
-    <id>dev.ekvedaras.laravelquery</id>
-    <name>Laravel Query</name>
+    <id>dev.ekvedaras.hyperfquery</id>
+    <name>Hyperf Query</name>
     <vendor email="kvedarasernestas@gmail.com" url="https://ekvedaras.github.io">Ernestas Kvedaras</vendor>
 
     <!-- Product and plugin compatibility requirements -->
@@ -13,14 +13,14 @@
     <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable
             parentId="language"
-            id="preferences.ekvedaras.laravelquery"
-            displayName="Laravel Query"
+            id="preferences.ekvedaras.hyperfquery"
+            displayName="Hyperf Query"
             nonDefaultProject="true"
-            provider="dev.ekvedaras.laravelquery.services.LaravelQuerySettingsConfigurableProvider"
-            instance="dev.ekvedaras.laravelquery.services.LaravelQuerySettingsConfigurable"/>
+            provider="dev.ekvedaras.laravelquery.services.HyperfQuerySettingsConfigurableProvider"
+            instance="dev.ekvedaras.laravelquery.services.HyperfQuerySettingsConfigurable"/>
         <projectService
-            serviceImplementation="dev.ekvedaras.laravelquery.services.LaravelQuerySettings"/>
-        <notificationGroup displayType="BALLOON" id="Laravel Query Settings" isLogByDefault="true"/>
+            serviceImplementation="dev.ekvedaras.laravelquery.services.HyperfQuerySettings"/>
+        <notificationGroup displayType="BALLOON" id="Hyperf Query Settings" isLogByDefault="true"/>
         <postStartupActivity implementation="dev.ekvedaras.laravelquery.services.Startup" />
 
         <completion.contributor language="PHP"

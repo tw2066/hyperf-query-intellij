@@ -19,7 +19,7 @@ import com.jetbrains.php.lang.psi.elements.Variable
 import com.jetbrains.php.lang.psi.elements.impl.VariableImpl
 import com.jetbrains.rd.util.first
 import dev.ekvedaras.laravelquery.models.DbReferenceExpression
-import dev.ekvedaras.laravelquery.services.LaravelQuerySettings
+import dev.ekvedaras.laravelquery.services.HyperfQuerySettings
 import dev.ekvedaras.laravelquery.utils.BlueprintMethod.Companion.createsTable
 import dev.ekvedaras.laravelquery.utils.BlueprintMethod.Companion.dbIcon
 import dev.ekvedaras.laravelquery.utils.BlueprintMethod.Companion.getColumnDefinitionReference
@@ -37,11 +37,11 @@ import dev.ekvedaras.laravelquery.utils.BlueprintMethod.Companion.isTimestamps
 import dev.ekvedaras.laravelquery.utils.BlueprintMethod.Companion.wantsColumn
 import dev.ekvedaras.laravelquery.utils.BlueprintMethod.Companion.wantsColumnForIndexes
 import dev.ekvedaras.laravelquery.utils.DatabaseUtils.Companion.tables
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBlueprintMethod
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBuilderMethodForIndexes
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBuilderMethodForKeys
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBuilderMethodForUniqueIndexes
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isInsideRegularFunction
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBlueprintMethod
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBuilderMethodForIndexes
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBuilderMethodForKeys
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBuilderMethodForUniqueIndexes
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isInsideRegularFunction
 import dev.ekvedaras.laravelquery.utils.MethodUtils
 import dev.ekvedaras.laravelquery.utils.MethodUtils.Companion.isSameInSameFile
 import dev.ekvedaras.laravelquery.utils.PsiUtils.Companion.references
@@ -73,7 +73,7 @@ class NewMigrationCompletionProvider : CompletionProvider<CompletionParameters>(
         var table: DasTable? = null;
 
         DbUtil.getDataSources(project).filter {
-            LaravelQuerySettings.getInstance(project).interestedIn(it)
+            HyperfQuerySettings.getInstance(project).interestedIn(it)
         }.forEach { dataSource ->
             val dasTable = dataSource.tables().firstOrNull { it.name == target.tablesAndAliases.first().key }
             if (dasTable != null) {

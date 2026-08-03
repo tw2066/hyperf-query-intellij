@@ -11,7 +11,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.sql.database.SqlCommonTestUtils
 import com.intellij.testFramework.TestDataFile
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import dev.ekvedaras.laravelquery.services.LaravelQuerySettings
+import dev.ekvedaras.laravelquery.services.HyperfQuerySettings
 import java.io.File
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -29,7 +29,7 @@ internal abstract class BaseTestCase : BasePlatformTestCase() {
 
         myFixture.copyFileToProject("stubs.php")
 
-        LaravelQuerySettings.getInstance(project).filterDataSources = false
+        HyperfQuerySettings.getInstance(project).filterDataSources = false
 
         db = SqlCommonTestUtils.createDataSourceFromSql(
             project,
@@ -48,7 +48,7 @@ internal abstract class BaseTestCase : BasePlatformTestCase() {
     }
 
     override fun tearDown() {
-        LaravelQuerySettings.getInstance(project).tablePrefix = ""
+        HyperfQuerySettings.getInstance(project).tablePrefix = ""
         LocalDataSourceManager.getInstance(project).removeDataSource(db)
 
         super.tearDown()
@@ -57,7 +57,7 @@ internal abstract class BaseTestCase : BasePlatformTestCase() {
     protected fun dataSource(): DasDataSource = db
 
     protected fun useTablePrefix(prefix: String): String {
-        LaravelQuerySettings.getInstance(project).tablePrefix = prefix
+        HyperfQuerySettings.getInstance(project).tablePrefix = prefix
         return prefix
     }
 
@@ -76,7 +76,7 @@ internal abstract class BaseTestCase : BasePlatformTestCase() {
             "test.php",
             run {
                 val args = caretAfterArgs(argument, prefix)
-                "<?php (new Illuminate\\Database\\Query\\Builder())->from('$from')->$method($args);"
+                "<?php (new Hyperf\\Database\\Query\\Builder())->from('$from')->$method($args);"
             }
         )
     }

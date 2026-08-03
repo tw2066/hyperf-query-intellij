@@ -1,1 +1,1 @@
-<?php \Illuminate\Support\Facades\DB::table('users', 'alias')->where('alias.<caret>');
+<?php \Hyperf\DbConnection\Db::table('users', 'alias')->where('alias.<caret>');

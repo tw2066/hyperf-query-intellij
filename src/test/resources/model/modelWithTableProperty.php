@@ -1,7 +1,7 @@
 <?php
 
 namespace App {
-class DemoButActuallyUsers extends \Illuminate\Database\Eloquent\Model
+class DemoButActuallyUsers extends \Hyperf\Database\Model\Model
 {
     protected $table = 'users';
 }

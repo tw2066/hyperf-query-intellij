@@ -1,7 +1,7 @@
 <?php
 
 namespace App {
-class User extends \Illuminate\Database\Eloquent\Model
+class User extends \Hyperf\Database\Model\Model
 {
 }
 }

@@ -1,1 +1,1 @@
-<?php \Illuminate\Support\Facades\DB::table('<caret>');
+<?php \Hyperf\DbConnection\Db::table('<caret>');

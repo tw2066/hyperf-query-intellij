@@ -1,6 +1,6 @@
 <?php
 
-namespace Illuminate\Database\Eloquent\Concerns {
+namespace Hyperf\Database\Model\Concerns {
     trait HasRelationships {
         /**
          * Define a one-to-one relationship.
@@ -8,7 +8,7 @@ namespace Illuminate\Database\Eloquent\Concerns {
          * @param  string  $related
          * @param  string|null  $foreignKey
          * @param  string|null  $localKey
-         * @return \Illuminate\Database\Eloquent\Relations\HasOne
+         * @return \Hyperf\Database\Model\Relations\HasOne
          */
         public function hasOne($related, $foreignKey = null, $localKey = null)
         {
@@ -17,11 +17,11 @@ namespace Illuminate\Database\Eloquent\Concerns {
         /**
          * Instantiate a new HasOne relationship.
          *
-         * @param  \Illuminate\Database\Eloquent\Builder  $query
-         * @param  \Illuminate\Database\Eloquent\Model  $parent
+         * @param  \Hyperf\Database\Model\Builder  $query
+         * @param  \Hyperf\Database\Model\Model  $parent
          * @param  string  $foreignKey
          * @param  string  $localKey
-         * @return \Illuminate\Database\Eloquent\Relations\HasOne
+         * @return \Hyperf\Database\Model\Relations\HasOne
          */
         protected function newHasOne(Builder $query, Model $parent, $foreignKey, $localKey)
         {
@@ -36,7 +36,7 @@ namespace Illuminate\Database\Eloquent\Concerns {
          * @param  string|null  $secondKey
          * @param  string|null  $localKey
          * @param  string|null  $secondLocalKey
-         * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
+         * @return \Hyperf\Database\Model\Relations\HasOneThrough
          */
         public function hasOneThrough($related, $through, $firstKey = null, $secondKey = null, $localKey = null, $secondLocalKey = null)
         {
@@ -45,14 +45,14 @@ namespace Illuminate\Database\Eloquent\Concerns {
         /**
          * Instantiate a new HasOneThrough relationship.
          *
-         * @param  \Illuminate\Database\Eloquent\Builder  $query
-         * @param  \Illuminate\Database\Eloquent\Model  $farParent
-         * @param  \Illuminate\Database\Eloquent\Model  $throughParent
+         * @param  \Hyperf\Database\Model\Builder  $query
+         * @param  \Hyperf\Database\Model\Model  $farParent
+         * @param  \Hyperf\Database\Model\Model  $throughParent
          * @param  string  $firstKey
          * @param  string  $secondKey
          * @param  string  $localKey
          * @param  string  $secondLocalKey
-         * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
+         * @return \Hyperf\Database\Model\Relations\HasOneThrough
          */
         protected function newHasOneThrough(Builder $query, Model $farParent, Model $throughParent, $firstKey, $secondKey, $localKey, $secondLocalKey)
         {
@@ -66,7 +66,7 @@ namespace Illuminate\Database\Eloquent\Concerns {
          * @param  string|null  $type
          * @param  string|null  $id
          * @param  string|null  $localKey
-         * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+         * @return \Hyperf\Database\Model\Relations\MorphOne
          */
         public function morphOne($related, $name, $type = null, $id = null, $localKey = null)
         {
@@ -75,12 +75,12 @@ namespace Illuminate\Database\Eloquent\Concerns {
         /**
          * Instantiate a new MorphOne relationship.
          *
-         * @param  \Illuminate\Database\Eloquent\Builder  $query
-         * @param  \Illuminate\Database\Eloquent\Model  $parent
+         * @param  \Hyperf\Database\Model\Builder  $query
+         * @param  \Hyperf\Database\Model\Model  $parent
          * @param  string  $type
          * @param  string  $id
          * @param  string  $localKey
-         * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+         * @return \Hyperf\Database\Model\Relations\MorphOne
          */
         protected function newMorphOne(Builder $query, Model $parent, $type, $id, $localKey)
         {
@@ -93,7 +93,7 @@ namespace Illuminate\Database\Eloquent\Concerns {
          * @param  string|null  $foreignKey
          * @param  string|null  $ownerKey
          * @param  string|null  $relation
-         * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+         * @return \Hyperf\Database\Model\Relations\BelongsTo
          */
         public function belongsTo($related, $foreignKey = null, $ownerKey = null, $relation = null)
         {
@@ -102,12 +102,12 @@ namespace Illuminate\Database\Eloquent\Concerns {
         /**
          * Instantiate a new BelongsTo relationship.
          *
-         * @param  \Illuminate\Database\Eloquent\Builder  $query
-         * @param  \Illuminate\Database\Eloquent\Model  $child
+         * @param  \Hyperf\Database\Model\Builder  $query
+         * @param  \Hyperf\Database\Model\Model  $child
          * @param  string  $foreignKey
          * @param  string  $ownerKey
          * @param  string  $relation
-         * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+         * @return \Hyperf\Database\Model\Relations\BelongsTo
          */
         protected function newBelongsTo(Builder $query, Model $child, $foreignKey, $ownerKey, $relation)
         {
@@ -120,7 +120,7 @@ namespace Illuminate\Database\Eloquent\Concerns {
          * @param  string|null  $type
          * @param  string|null  $id
          * @param  string|null  $ownerKey
-         * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+         * @return \Hyperf\Database\Model\Relations\MorphTo
          */
         public function morphTo($name = null, $type = null, $id = null, $ownerKey = null)
         {
@@ -133,7 +133,7 @@ namespace Illuminate\Database\Eloquent\Concerns {
          * @param  string  $type
          * @param  string  $id
          * @param  string  $ownerKey
-         * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+         * @return \Hyperf\Database\Model\Relations\MorphTo
          */
         protected function morphEagerTo($name, $type, $id, $ownerKey)
         {
@@ -147,7 +147,7 @@ namespace Illuminate\Database\Eloquent\Concerns {
          * @param  string  $type
          * @param  string  $id
          * @param  string  $ownerKey
-         * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+         * @return \Hyperf\Database\Model\Relations\MorphTo
          */
         protected function morphInstanceTo($target, $name, $type, $id, $ownerKey)
         {
@@ -156,13 +156,13 @@ namespace Illuminate\Database\Eloquent\Concerns {
         /**
          * Instantiate a new MorphTo relationship.
          *
-         * @param  \Illuminate\Database\Eloquent\Builder  $query
-         * @param  \Illuminate\Database\Eloquent\Model  $parent
+         * @param  \Hyperf\Database\Model\Builder  $query
+         * @param  \Hyperf\Database\Model\Model  $parent
          * @param  string  $foreignKey
          * @param  string  $ownerKey
          * @param  string  $type
          * @param  string  $relation
-         * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+         * @return \Hyperf\Database\Model\Relations\MorphTo
          */
         protected function newMorphTo(Builder $query, Model $parent, $foreignKey, $ownerKey, $type, $relation)
         {
@@ -174,7 +174,7 @@ namespace Illuminate\Database\Eloquent\Concerns {
          * @param  string  $related
          * @param  string|null  $foreignKey
          * @param  string|null  $localKey
-         * @return \Illuminate\Database\Eloquent\Relations\HasMany
+         * @return \Hyperf\Database\Model\Relations\HasMany
          */
         public function hasMany($related, $foreignKey = null, $localKey = null)
         {
@@ -183,11 +183,11 @@ namespace Illuminate\Database\Eloquent\Concerns {
         /**
          * Instantiate a new HasMany relationship.
          *
-         * @param  \Illuminate\Database\Eloquent\Builder  $query
-         * @param  \Illuminate\Database\Eloquent\Model  $parent
+         * @param  \Hyperf\Database\Model\Builder  $query
+         * @param  \Hyperf\Database\Model\Model  $parent
          * @param  string  $foreignKey
          * @param  string  $localKey
-         * @return \Illuminate\Database\Eloquent\Relations\HasMany
+         * @return \Hyperf\Database\Model\Relations\HasMany
          */
         protected function newHasMany(Builder $query, Model $parent, $foreignKey, $localKey)
         {
@@ -202,7 +202,7 @@ namespace Illuminate\Database\Eloquent\Concerns {
          * @param  string|null  $secondKey
          * @param  string|null  $localKey
          * @param  string|null  $secondLocalKey
-         * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+         * @return \Hyperf\Database\Model\Relations\HasManyThrough
          */
         public function hasManyThrough($related, $through, $firstKey = null, $secondKey = null, $localKey = null, $secondLocalKey = null)
         {
@@ -211,14 +211,14 @@ namespace Illuminate\Database\Eloquent\Concerns {
         /**
          * Instantiate a new HasManyThrough relationship.
          *
-         * @param  \Illuminate\Database\Eloquent\Builder  $query
-         * @param  \Illuminate\Database\Eloquent\Model  $farParent
-         * @param  \Illuminate\Database\Eloquent\Model  $throughParent
+         * @param  \Hyperf\Database\Model\Builder  $query
+         * @param  \Hyperf\Database\Model\Model  $farParent
+         * @param  \Hyperf\Database\Model\Model  $throughParent
          * @param  string  $firstKey
          * @param  string  $secondKey
          * @param  string  $localKey
          * @param  string  $secondLocalKey
-         * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+         * @return \Hyperf\Database\Model\Relations\HasManyThrough
          */
         protected function newHasManyThrough(Builder $query, Model $farParent, Model $throughParent, $firstKey, $secondKey, $localKey, $secondLocalKey)
         {
@@ -232,7 +232,7 @@ namespace Illuminate\Database\Eloquent\Concerns {
          * @param  string|null  $type
          * @param  string|null  $id
          * @param  string|null  $localKey
-         * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+         * @return \Hyperf\Database\Model\Relations\MorphMany
          */
         public function morphMany($related, $name, $type = null, $id = null, $localKey = null)
         {
@@ -241,12 +241,12 @@ namespace Illuminate\Database\Eloquent\Concerns {
         /**
          * Instantiate a new MorphMany relationship.
          *
-         * @param  \Illuminate\Database\Eloquent\Builder  $query
-         * @param  \Illuminate\Database\Eloquent\Model  $parent
+         * @param  \Hyperf\Database\Model\Builder  $query
+         * @param  \Hyperf\Database\Model\Model  $parent
          * @param  string  $type
          * @param  string  $id
          * @param  string  $localKey
-         * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+         * @return \Hyperf\Database\Model\Relations\MorphMany
          */
         protected function newMorphMany(Builder $query, Model $parent, $type, $id, $localKey)
         {
@@ -262,7 +262,7 @@ namespace Illuminate\Database\Eloquent\Concerns {
          * @param  string|null  $parentKey
          * @param  string|null  $relatedKey
          * @param  string|null  $relation
-         * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+         * @return \Hyperf\Database\Model\Relations\BelongsToMany
          */
         public function belongsToMany($related, $table = null, $foreignPivotKey = null, $relatedPivotKey = null,
                                       $parentKey = null, $relatedKey = null, $relation = null)
@@ -272,15 +272,15 @@ namespace Illuminate\Database\Eloquent\Concerns {
         /**
          * Instantiate a new BelongsToMany relationship.
          *
-         * @param  \Illuminate\Database\Eloquent\Builder  $query
-         * @param  \Illuminate\Database\Eloquent\Model  $parent
+         * @param  \Hyperf\Database\Model\Builder  $query
+         * @param  \Hyperf\Database\Model\Model  $parent
          * @param  string  $table
          * @param  string  $foreignPivotKey
          * @param  string  $relatedPivotKey
          * @param  string  $parentKey
          * @param  string  $relatedKey
          * @param  string|null  $relationName
-         * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+         * @return \Hyperf\Database\Model\Relations\BelongsToMany
          */
         protected function newBelongsToMany(Builder $query, Model $parent, $table, $foreignPivotKey, $relatedPivotKey,
                                             $parentKey, $relatedKey, $relationName = null)
@@ -298,7 +298,7 @@ namespace Illuminate\Database\Eloquent\Concerns {
          * @param  string|null  $parentKey
          * @param  string|null  $relatedKey
          * @param  bool  $inverse
-         * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+         * @return \Hyperf\Database\Model\Relations\MorphToMany
          */
         public function morphToMany($related, $name, $table = null, $foreignPivotKey = null,
                                     $relatedPivotKey = null, $parentKey = null,
@@ -309,8 +309,8 @@ namespace Illuminate\Database\Eloquent\Concerns {
         /**
          * Instantiate a new MorphToMany relationship.
          *
-         * @param  \Illuminate\Database\Eloquent\Builder  $query
-         * @param  \Illuminate\Database\Eloquent\Model  $parent
+         * @param  \Hyperf\Database\Model\Builder  $query
+         * @param  \Hyperf\Database\Model\Model  $parent
          * @param  string  $name
          * @param  string  $table
          * @param  string  $foreignPivotKey
@@ -319,7 +319,7 @@ namespace Illuminate\Database\Eloquent\Concerns {
          * @param  string  $relatedKey
          * @param  string|null  $relationName
          * @param  bool  $inverse
-         * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+         * @return \Hyperf\Database\Model\Relations\MorphToMany
          */
         protected function newMorphToMany(Builder $query, Model $parent, $name, $table, $foreignPivotKey,
                                           $relatedPivotKey, $parentKey, $relatedKey,
@@ -337,7 +337,7 @@ namespace Illuminate\Database\Eloquent\Concerns {
          * @param  string|null  $relatedPivotKey
          * @param  string|null  $parentKey
          * @param  string|null  $relatedKey
-         * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+         * @return \Hyperf\Database\Model\Relations\MorphToMany
          */
         public function morphedByMany($related, $name, $table = null, $foreignPivotKey = null,
                                       $relatedPivotKey = null, $parentKey = null, $relatedKey = null)
@@ -346,14 +346,14 @@ namespace Illuminate\Database\Eloquent\Concerns {
     }
 }
 
-namespace Illuminate\Database\Eloquent {
+namespace Hyperf\Database\Model {
     class Model {
-        use \Illuminate\Database\Eloquent\Concerns\HasRelationships;
+        use \Hyperf\Database\Model\Concerns\HasRelationships;
 
         /**
          * Begin querying the model.
          *
-         * @return \Illuminate\Database\Eloquent\Builder
+         * @return \Hyperf\Database\Model\Builder
          */
         public static function query()
         {
@@ -362,7 +362,7 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Get a new query builder for the model's table.
          *
-         * @return \Illuminate\Database\Eloquent\Builder
+         * @return \Hyperf\Database\Model\Builder
          */
         public function newQuery()
         {
@@ -371,7 +371,7 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Get a new query builder that doesn't have any global scopes or eager loading.
          *
-         * @return \Illuminate\Database\Eloquent\Builder|static
+         * @return \Hyperf\Database\Model\Builder|static
          */
         public function newModelQuery()
         {
@@ -380,7 +380,7 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Get a new query builder with no relationships loaded.
          *
-         * @return \Illuminate\Database\Eloquent\Builder
+         * @return \Hyperf\Database\Model\Builder
          */
         public function newQueryWithoutRelationships()
         {
@@ -389,7 +389,7 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Get a new query builder that doesn't have any global scopes.
          *
-         * @return \Illuminate\Database\Eloquent\Builder|static
+         * @return \Hyperf\Database\Model\Builder|static
          */
         public function newQueryWithoutScopes()
         {
@@ -398,8 +398,8 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Get a new query instance without a given scope.
          *
-         * @param  \Illuminate\Database\Eloquent\Scope|string  $scope
-         * @return \Illuminate\Database\Eloquent\Builder
+         * @param  \Hyperf\Database\Model\Scope|string  $scope
+         * @return \Hyperf\Database\Model\Builder
          */
         public function newQueryWithoutScope($scope)
         {
@@ -409,7 +409,7 @@ namespace Illuminate\Database\Eloquent {
          * Get a new query to restore one or more models by their queueable IDs.
          *
          * @param  array|int  $ids
-         * @return \Illuminate\Database\Eloquent\Builder
+         * @return \Hyperf\Database\Model\Builder
          */
         public function newQueryForRestoration($ids)
         {
@@ -418,8 +418,8 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Create a new Eloquent query builder for the model.
          *
-         * @param  \Illuminate\Database\Query\Builder  $query
-         * @return \Illuminate\Database\Eloquent\Builder|static
+         * @param  \Hyperf\Database\Query\Builder  $query
+         * @return \Hyperf\Database\Model\Builder|static
          */
         public function newEloquentBuilder($query)
         {
@@ -428,7 +428,7 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Get a new query builder instance for the connection.
          *
-         * @return \Illuminate\Database\Query\Builder
+         * @return \Hyperf\Database\Query\Builder
          */
         protected function newBaseQueryBuilder()
         {
@@ -438,7 +438,7 @@ namespace Illuminate\Database\Eloquent {
     /**
      * @property-read HigherOrderBuilderProxy $orWhere
      *
-     * @mixin \Illuminate\Database\Query\Builder
+     * @mixin \Hyperf\Database\Query\Builder
      */
     class Builder
     {
@@ -446,7 +446,7 @@ namespace Illuminate\Database\Eloquent {
          * Create and return an un-saved model instance.
          *
          * @param  array  $attributes
-         * @return \Illuminate\Database\Eloquent\Model|static
+         * @return \Hyperf\Database\Model\Model|static
          */
         public function make(array $attributes = [])
         {
@@ -455,7 +455,7 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Add a basic where clause to the query.
          *
-         * @param  \Closure|string|array|\Illuminate\Database\Query\Expression  $column
+         * @param  \Closure|string|array|\Hyperf\Database\Query\Expression  $column
          * @param  mixed  $operator
          * @param  mixed  $value
          * @param  string  $boolean
@@ -468,11 +468,11 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Add a basic where clause to the query, and return the first result.
          *
-         * @param  \Closure|string|array|\Illuminate\Database\Query\Expression  $column
+         * @param  \Closure|string|array|\Hyperf\Database\Query\Expression  $column
          * @param  mixed  $operator
          * @param  mixed  $value
          * @param  string  $boolean
-         * @return \Illuminate\Database\Eloquent\Model|static
+         * @return \Hyperf\Database\Model\Model|static
          */
         public function firstWhere($column, $operator = null, $value = null, $boolean = 'and')
         {
@@ -481,7 +481,7 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Add an "or where" clause to the query.
          *
-         * @param  \Closure|array|string|\Illuminate\Database\Query\Expression  $column
+         * @param  \Closure|array|string|\Hyperf\Database\Query\Expression  $column
          * @param  mixed  $operator
          * @param  mixed  $value
          * @return $this
@@ -493,7 +493,7 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Add an "order by" clause for a timestamp to the query.
          *
-         * @param  string|\Illuminate\Database\Query\Expression  $column
+         * @param  string|\Hyperf\Database\Query\Expression  $column
          * @return $this
          */
         public function latest($column = null)
@@ -503,7 +503,7 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Add an "order by" clause for a timestamp to the query.
          *
-         * @param  string|\Illuminate\Database\Query\Expression  $column
+         * @param  string|\Hyperf\Database\Query\Expression  $column
          * @return $this
          */
         public function oldest($column = null)
@@ -515,7 +515,7 @@ namespace Illuminate\Database\Eloquent {
          *
          * @param  mixed  $id
          * @param  array  $columns
-         * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection|static[]|static|null
+         * @return \Hyperf\Database\Model\Model|\Hyperf\Database\Model\Collection|static[]|static|null
          */
         public function find($id, $columns = ['*'])
         {
@@ -524,9 +524,9 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Find multiple models by their primary keys.
          *
-         * @param  \Illuminate\Contracts\Support\Arrayable|array  $ids
+         * @param  \Hyperf\Contract\Arrayable|array  $ids
          * @param  array  $columns
-         * @return \Illuminate\Database\Eloquent\Collection
+         * @return \Hyperf\Database\Model\Collection
          */
         public function findMany($ids, $columns = ['*'])
         {
@@ -537,9 +537,9 @@ namespace Illuminate\Database\Eloquent {
          *
          * @param  mixed  $id
          * @param  array  $columns
-         * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection|static|static[]
+         * @return \Hyperf\Database\Model\Model|\Hyperf\Database\Model\Collection|static|static[]
          *
-         * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+         * @throws \Hyperf\Database\Model\ModelNotFoundException
          */
         public function findOrFail($id, $columns = ['*'])
         {
@@ -550,7 +550,7 @@ namespace Illuminate\Database\Eloquent {
          *
          * @param  mixed  $id
          * @param  array  $columns
-         * @return \Illuminate\Database\Eloquent\Model|static
+         * @return \Hyperf\Database\Model\Model|static
          */
         public function findOrNew($id, $columns = ['*'])
         {
@@ -561,7 +561,7 @@ namespace Illuminate\Database\Eloquent {
          *
          * @param  array  $attributes
          * @param  array  $values
-         * @return \Illuminate\Database\Eloquent\Model|static
+         * @return \Hyperf\Database\Model\Model|static
          */
         public function firstOrNew(array $attributes = [], array $values = [])
         {
@@ -572,7 +572,7 @@ namespace Illuminate\Database\Eloquent {
          *
          * @param  array  $attributes
          * @param  array  $values
-         * @return \Illuminate\Database\Eloquent\Model|static
+         * @return \Hyperf\Database\Model\Model|static
          */
         public function firstOrCreate(array $attributes = [], array $values = [])
         {
@@ -583,7 +583,7 @@ namespace Illuminate\Database\Eloquent {
          *
          * @param  array  $attributes
          * @param  array  $values
-         * @return \Illuminate\Database\Eloquent\Model|static
+         * @return \Hyperf\Database\Model\Model|static
          */
         public function updateOrCreate(array $attributes, array $values = [])
         {
@@ -593,9 +593,9 @@ namespace Illuminate\Database\Eloquent {
          * Execute the query and get the first result or throw an exception.
          *
          * @param  array  $columns
-         * @return \Illuminate\Database\Eloquent\Model|static
+         * @return \Hyperf\Database\Model\Model|static
          *
-         * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+         * @throws \Hyperf\Database\Model\ModelNotFoundException
          */
         public function firstOrFail($columns = ['*'])
         {
@@ -606,7 +606,7 @@ namespace Illuminate\Database\Eloquent {
          *
          * @param  \Closure|array  $columns
          * @param  \Closure|null  $callback
-         * @return \Illuminate\Database\Eloquent\Model|static|mixed
+         * @return \Hyperf\Database\Model\Model|static|mixed
          */
         public function firstOr($columns = ['*'], Closure $callback = null)
         {
@@ -616,10 +616,10 @@ namespace Illuminate\Database\Eloquent {
          * Execute the query and get the first result if it's the sole matching record.
          *
          * @param  array|string  $columns
-         * @return \Illuminate\Database\Eloquent\Model
+         * @return \Hyperf\Database\Model\Model
          *
-         * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
-         * @throws \Illuminate\Database\MultipleRecordsFoundException
+         * @throws \Hyperf\Database\Model\ModelNotFoundException
+         * @throws \Hyperf\Database\Exception\MultipleRecordsFoundException
          */
         public function sole($columns = ['*'])
         {
@@ -628,7 +628,7 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Get a single column's value from the first result of a query.
          *
-         * @param  string|\Illuminate\Database\Query\Expression  $column
+         * @param  string|\Hyperf\Database\Query\Expression  $column
          * @return mixed
          */
         public function value($column)
@@ -639,7 +639,7 @@ namespace Illuminate\Database\Eloquent {
          * Execute the query as a "select" statement.
          *
          * @param  array|string  $columns
-         * @return \Illuminate\Database\Eloquent\Collection|static[]
+         * @return \Hyperf\Database\Model\Collection|static[]
          */
         public function get($columns = ['*'])
         {
@@ -649,7 +649,7 @@ namespace Illuminate\Database\Eloquent {
          * Get the hydrated models without eager loading.
          *
          * @param  array|string  $columns
-         * @return \Illuminate\Database\Eloquent\Model[]|static[]
+         * @return \Hyperf\Database\Model\Model[]|static[]
          */
         public function getModels($columns = ['*'])
         {
@@ -659,7 +659,7 @@ namespace Illuminate\Database\Eloquent {
          * Get the relation instance for the given relation name.
          *
          * @param  string  $name
-         * @return \Illuminate\Database\Eloquent\Relations\Relation
+         * @return \Hyperf\Database\Model\Relations\Relation
          */
         public function getRelation($name)
         {
@@ -668,9 +668,9 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Get an array with the values of a given column.
          *
-         * @param  string|\Illuminate\Database\Query\Expression  $column
+         * @param  string|\Hyperf\Database\Query\Expression  $column
          * @param  string|null  $key
-         * @return \Illuminate\Support\Collection
+         * @return \Hyperf\Collection\Collection
          */
         public function pluck($column, $key = null)
         {
@@ -683,7 +683,7 @@ namespace Illuminate\Database\Eloquent {
          * @param  array  $columns
          * @param  string  $pageName
          * @param  int|null  $page
-         * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+         * @return \Hyperf\Contract\LengthAwarePaginatorInterface
          *
          * @throws \InvalidArgumentException
          */
@@ -698,7 +698,7 @@ namespace Illuminate\Database\Eloquent {
          * @param  array  $columns
          * @param  string  $pageName
          * @param  int|null  $page
-         * @return \Illuminate\Contracts\Pagination\Paginator
+         * @return \Hyperf\Contract\PaginatorInterface
          */
         public function simplePaginate($perPage = null, $columns = ['*'], $pageName = 'page', $page = null)
         {
@@ -708,7 +708,7 @@ namespace Illuminate\Database\Eloquent {
          * Save a new model and return the instance.
          *
          * @param  array  $attributes
-         * @return \Illuminate\Database\Eloquent\Model|$this
+         * @return \Hyperf\Database\Model\Model|$this
          */
         public function create(array $attributes = [])
         {
@@ -718,7 +718,7 @@ namespace Illuminate\Database\Eloquent {
          * Save a new model and return the instance. Allow mass-assignment.
          *
          * @param  array  $attributes
-         * @return \Illuminate\Database\Eloquent\Model|$this
+         * @return \Hyperf\Database\Model\Model|$this
          */
         public function forceCreate(array $attributes)
         {
@@ -749,7 +749,7 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Increment a column's value by a given amount.
          *
-         * @param  string|\Illuminate\Database\Query\Expression  $column
+         * @param  string|\Hyperf\Database\Query\Expression  $column
          * @param  float|int  $amount
          * @param  array  $extra
          * @return int
@@ -761,7 +761,7 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Decrement a column's value by a given amount.
          *
-         * @param  string|\Illuminate\Database\Query\Expression  $column
+         * @param  string|\Hyperf\Database\Query\Expression  $column
          * @param  float|int  $amount
          * @param  array  $extra
          * @return int
@@ -794,7 +794,7 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Get the underlying query builder instance.
          *
-         * @return \Illuminate\Database\Query\Builder
+         * @return \Hyperf\Database\Query\Builder
          */
         public function getQuery()
         {
@@ -803,7 +803,7 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Get a base query builder instance.
          *
-         * @return \Illuminate\Database\Query\Builder
+         * @return \Hyperf\Database\Query\Builder
          */
         public function toBase()
         {
@@ -812,7 +812,7 @@ namespace Illuminate\Database\Eloquent {
         /**
          * Qualify the given column name by the model's table.
          *
-         * @param  string|\Illuminate\Database\Query\Expression  $column
+         * @param  string|\Hyperf\Database\Query\Expression  $column
          * @return string
          */
         public function qualifyColumn($column)
@@ -821,8 +821,8 @@ namespace Illuminate\Database\Eloquent {
     }
 }
 
-namespace Illuminate\Database\Eloquent\Relations {
-    class Relation extends \Illuminate\Database\Eloquent\Builder {
+namespace Hyperf\Database\Model\Relations {
+    class Relation extends \Hyperf\Database\Model\Builder {
     }
 
     class BelongsTo extends Relation {
@@ -849,7 +849,7 @@ namespace Illuminate\Database\Eloquent\Relations {
     class MorphMany extends MorphOneOrMany {
     }
 
-    class Pivot extends \Illuminate\Database\Eloquent\Model {
+    class Pivot extends \Hyperf\Database\Model\Model {
     }
 
     class MorphPivot extends Pivot {
@@ -860,7 +860,7 @@ namespace Illuminate\Database\Eloquent\Relations {
 }
 
 
-namespace Illuminate\Database\Query {
+namespace Hyperf\Database\Query {
 class Builder
 {
     /**
@@ -900,7 +900,7 @@ class Builder
     /**
      * Set the table which the query is targeting.
      *
-     * @param  \Closure|\Illuminate\Database\Query\Builder|string  $table
+     * @param  \Closure|\Hyperf\Database\Query\Builder|string  $table
      * @param  string|null  $as
      * @return $this
      */
@@ -940,7 +940,7 @@ class Builder
     /**
      * Add a subquery join clause to the query.
      *
-     * @param  \Closure|\Illuminate\Database\Query\Builder|string  $query
+     * @param  \Closure|\Hyperf\Database\Query\Builder|string  $query
      * @param  string  $as
      * @param  \Closure|string  $first
      * @param  string|null  $operator
@@ -984,7 +984,7 @@ class Builder
     /**
      * Add a subquery left join to the query.
      *
-     * @param  \Closure|\Illuminate\Database\Query\Builder|string  $query
+     * @param  \Closure|\Hyperf\Database\Query\Builder|string  $query
      * @param  string  $as
      * @param  \Closure|string  $first
      * @param  string|null  $operator
@@ -1024,7 +1024,7 @@ class Builder
     /**
      * Add a subquery right join to the query.
      *
-     * @param  \Closure|\Illuminate\Database\Query\Builder|string  $query
+     * @param  \Closure|\Hyperf\Database\Query\Builder|string  $query
      * @param  string  $as
      * @param  \Closure|string  $first
      * @param  string|null  $operator
@@ -1149,7 +1149,7 @@ class Builder
      * Add a "where in raw" clause for integer values to the query.
      *
      * @param  string  $column
-     * @param  \Illuminate\Contracts\Support\Arrayable|array  $values
+     * @param  \Hyperf\Contract\Arrayable|array  $values
      * @param  string  $boolean
      * @param  bool  $not
      * @return $this
@@ -1162,7 +1162,7 @@ class Builder
      * Add an "or where in raw" clause for integer values to the query.
      *
      * @param  string  $column
-     * @param  \Illuminate\Contracts\Support\Arrayable|array  $values
+     * @param  \Hyperf\Contract\Arrayable|array  $values
      * @return $this
      */
     public function orWhereIntegerInRaw($column, $values)
@@ -1173,7 +1173,7 @@ class Builder
      * Add a "where not in raw" clause for integer values to the query.
      *
      * @param  string  $column
-     * @param  \Illuminate\Contracts\Support\Arrayable|array  $values
+     * @param  \Hyperf\Contract\Arrayable|array  $values
      * @param  string  $boolean
      * @return $this
      */
@@ -1185,7 +1185,7 @@ class Builder
      * Add an "or where not in raw" clause for integer values to the query.
      *
      * @param  string  $column
-     * @param  \Illuminate\Contracts\Support\Arrayable|array  $values
+     * @param  \Hyperf\Contract\Arrayable|array  $values
      * @return $this
      */
     public function orWhereIntegerNotInRaw($column, $values)
@@ -1604,7 +1604,7 @@ class Builder
     /**
      * Add an "order by" clause to the query.
      *
-     * @param  \Closure|\Illuminate\Database\Query\Builder|\Illuminate\Database\Query\Expression|string  $column
+     * @param  \Closure|\Hyperf\Database\Query\Builder|\Hyperf\Database\Query\Expression|string  $column
      * @param  string  $direction
      * @return $this
      *
@@ -1704,7 +1704,7 @@ class Builder
      * Execute the query as a "select" statement.
      *
      * @param  array|string  $columns
-     * @return \Illuminate\Support\Collection
+     * @return \Hyperf\Collection\Collection
      */
     public function get($columns = ['*'])
     {
@@ -1717,7 +1717,7 @@ class Builder
      * @param  array  $columns
      * @param  string  $pageName
      * @param  int|null  $page
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return \Hyperf\Contract\LengthAwarePaginatorInterface
      */
     public function paginate($perPage = 15, $columns = ['*'], $pageName = 'page', $page = null)
     {
@@ -1732,7 +1732,7 @@ class Builder
      * @param  array  $columns
      * @param  string  $pageName
      * @param  int|null  $page
-     * @return \Illuminate\Contracts\Pagination\Paginator
+     * @return \Hyperf\Contract\PaginatorInterface
      */
     public function simplePaginate($perPage = 15, $columns = ['*'], $pageName = 'page', $page = null)
     {
@@ -1753,7 +1753,7 @@ class Builder
      *
      * @param  string  $column
      * @param  string|null  $key
-     * @return \Illuminate\Support\Collection
+     * @return \Hyperf\Collection\Collection
      */
     public function pluck($column, $key = null)
     {
@@ -1887,7 +1887,7 @@ class Builder
      * Insert new records into the table using a subquery.
      *
      * @param  array  $columns
-     * @param  \Closure|\Illuminate\Database\Query\Builder|string  $query
+     * @param  \Closure|\Hyperf\Database\Query\Builder|string  $query
      * @return int
      */
     public function insertUsing(array $columns, $query)
@@ -1946,7 +1946,7 @@ class Builder
     /**
      * Get a new instance of the query builder.
      *
-     * @return \Illuminate\Database\Query\Builder
+     * @return \Hyperf\Database\Query\Builder
      */
     public function newQuery()
     {
@@ -1956,7 +1956,7 @@ class Builder
      * Create a raw database expression.
      *
      * @param  mixed  $value
-     * @return \Illuminate\Database\Query\Expression
+     * @return \Hyperf\Database\Query\Expression
      */
     public function raw($value)
     {
@@ -1991,7 +1991,7 @@ class JoinClause extends Builder {
      *
      * @param  \Closure|string  $first
      * @param  string|null  $operator
-     * @param  \Illuminate\Database\Query\Expression|string|null  $second
+     * @param  \Hyperf\Database\Query\Expression|string|null  $second
      * @param  string  $boolean
      * @return $this
      *
@@ -2007,7 +2007,7 @@ class JoinClause extends Builder {
      * @param  \Closure|string  $first
      * @param  string|null  $operator
      * @param  string|null  $second
-     * @return \Illuminate\Database\Query\JoinClause
+     * @return \Hyperf\Database\Query\JoinClause
      */
     public function orOn($first, $operator = null, $second = null)
     {
@@ -2016,7 +2016,7 @@ class JoinClause extends Builder {
     /**
      * Get a new instance of the join clause builder.
      *
-     * @return \Illuminate\Database\Query\JoinClause
+     * @return \Hyperf\Database\Query\JoinClause
      */
     public function newQuery()
     {
@@ -2024,7 +2024,7 @@ class JoinClause extends Builder {
 }
 }
 
-namespace Illuminate\Database\Schema {
+namespace Hyperf\Database\Schema {
 class Builder {
     /**
      * Create a database in the schema.
@@ -2182,7 +2182,7 @@ class Blueprint {
      * Indicate that the given columns should be dropped.
      *
      * @param  array|mixed  $columns
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     public function dropColumn($columns)
     {
@@ -2193,7 +2193,7 @@ class Blueprint {
      *
      * @param  string  $from
      * @param  string  $to
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     public function renameColumn($from, $to)
     {
@@ -2203,7 +2203,7 @@ class Blueprint {
      * Indicate that the given primary key should be dropped.
      *
      * @param  string|array|null  $index
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     public function dropPrimary($index = null)
     {
@@ -2213,7 +2213,7 @@ class Blueprint {
      * Indicate that the given unique key should be dropped.
      *
      * @param  string|array  $index
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     public function dropUnique($index)
     {
@@ -2223,7 +2223,7 @@ class Blueprint {
      * Indicate that the given index should be dropped.
      *
      * @param  string|array  $index
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     public function dropIndex($index)
     {
@@ -2233,7 +2233,7 @@ class Blueprint {
      * Indicate that the given spatial index should be dropped.
      *
      * @param  string|array  $index
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     public function dropSpatialIndex($index)
     {
@@ -2243,7 +2243,7 @@ class Blueprint {
      * Indicate that the given foreign key should be dropped.
      *
      * @param  string|array  $index
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     public function dropForeign($index)
     {
@@ -2253,7 +2253,7 @@ class Blueprint {
      * Indicate that the given column and foreign key should be dropped.
      *
      * @param  string  $column
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     public function dropConstrainedForeignId($column)
     {
@@ -2264,7 +2264,7 @@ class Blueprint {
      *
      * @param  string  $from
      * @param  string  $to
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     public function renameIndex($from, $to)
     {
@@ -2307,7 +2307,7 @@ class Blueprint {
      * Rename the table to a given name.
      *
      * @param  string  $to
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     public function rename($to)
     {
@@ -2319,7 +2319,7 @@ class Blueprint {
      * @param  string|array  $columns
      * @param  string|null  $name
      * @param  string|null  $algorithm
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     public function primary($columns, $name = null, $algorithm = null)
     {
@@ -2331,7 +2331,7 @@ class Blueprint {
      * @param  string|array  $columns
      * @param  string|null  $name
      * @param  string|null  $algorithm
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     public function unique($columns, $name = null, $algorithm = null)
     {
@@ -2343,7 +2343,7 @@ class Blueprint {
      * @param  string|array  $columns
      * @param  string|null  $name
      * @param  string|null  $algorithm
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     public function index($columns, $name = null, $algorithm = null)
     {
@@ -2354,7 +2354,7 @@ class Blueprint {
      *
      * @param  string|array  $columns
      * @param  string|null  $name
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     public function spatialIndex($columns, $name = null)
     {
@@ -2365,7 +2365,7 @@ class Blueprint {
      *
      * @param  string  $expression
      * @param  string  $name
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     public function rawIndex($expression, $name)
     {
@@ -2376,7 +2376,7 @@ class Blueprint {
      *
      * @param  string|array  $columns
      * @param  string|null  $name
-     * @return \Illuminate\Database\Schema\ForeignKeyDefinition
+     * @return \Hyperf\Database\Schema\ForeignKeyDefinition
      */
     public function foreign($columns, $name = null)
     {
@@ -2386,7 +2386,7 @@ class Blueprint {
      * Create a new auto-incrementing big integer (8-byte) column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function id($column = 'id')
     {
@@ -2396,7 +2396,7 @@ class Blueprint {
      * Create a new auto-incrementing integer (4-byte) column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function increments($column)
     {
@@ -2406,7 +2406,7 @@ class Blueprint {
      * Create a new auto-incrementing integer (4-byte) column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function integerIncrements($column)
     {
@@ -2416,7 +2416,7 @@ class Blueprint {
      * Create a new auto-incrementing tiny integer (1-byte) column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function tinyIncrements($column)
     {
@@ -2426,7 +2426,7 @@ class Blueprint {
      * Create a new auto-incrementing small integer (2-byte) column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function smallIncrements($column)
     {
@@ -2436,7 +2436,7 @@ class Blueprint {
      * Create a new auto-incrementing medium integer (3-byte) column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function mediumIncrements($column)
     {
@@ -2446,7 +2446,7 @@ class Blueprint {
      * Create a new auto-incrementing big integer (8-byte) column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function bigIncrements($column)
     {
@@ -2457,7 +2457,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  int|null  $length
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function char($column, $length = null)
     {
@@ -2468,7 +2468,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  int|null  $length
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function string($column, $length = null)
     {
@@ -2478,7 +2478,7 @@ class Blueprint {
      * Create a new text column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function text($column)
     {
@@ -2488,7 +2488,7 @@ class Blueprint {
      * Create a new medium text column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function mediumText($column)
     {
@@ -2498,7 +2498,7 @@ class Blueprint {
      * Create a new long text column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function longText($column)
     {
@@ -2510,7 +2510,7 @@ class Blueprint {
      * @param  string  $column
      * @param  bool  $autoIncrement
      * @param  bool  $unsigned
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function integer($column, $autoIncrement = false, $unsigned = false)
     {
@@ -2522,7 +2522,7 @@ class Blueprint {
      * @param  string  $column
      * @param  bool  $autoIncrement
      * @param  bool  $unsigned
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function tinyInteger($column, $autoIncrement = false, $unsigned = false)
     {
@@ -2534,7 +2534,7 @@ class Blueprint {
      * @param  string  $column
      * @param  bool  $autoIncrement
      * @param  bool  $unsigned
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function smallInteger($column, $autoIncrement = false, $unsigned = false)
     {
@@ -2546,7 +2546,7 @@ class Blueprint {
      * @param  string  $column
      * @param  bool  $autoIncrement
      * @param  bool  $unsigned
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function mediumInteger($column, $autoIncrement = false, $unsigned = false)
     {
@@ -2558,7 +2558,7 @@ class Blueprint {
      * @param  string  $column
      * @param  bool  $autoIncrement
      * @param  bool  $unsigned
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function bigInteger($column, $autoIncrement = false, $unsigned = false)
     {
@@ -2569,7 +2569,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  bool  $autoIncrement
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function unsignedInteger($column, $autoIncrement = false)
     {
@@ -2580,7 +2580,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  bool  $autoIncrement
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function unsignedTinyInteger($column, $autoIncrement = false)
     {
@@ -2591,7 +2591,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  bool  $autoIncrement
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function unsignedSmallInteger($column, $autoIncrement = false)
     {
@@ -2602,7 +2602,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  bool  $autoIncrement
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function unsignedMediumInteger($column, $autoIncrement = false)
     {
@@ -2613,7 +2613,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  bool  $autoIncrement
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function unsignedBigInteger($column, $autoIncrement = false)
     {
@@ -2623,7 +2623,7 @@ class Blueprint {
      * Create a new unsigned big integer (8-byte) column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ForeignIdColumnDefinition
+     * @return \Hyperf\Database\Schema\ForeignIdColumnDefinition
      */
     public function foreignId($column)
     {
@@ -2632,9 +2632,9 @@ class Blueprint {
     /**
      * Create a foreign ID column for the given model.
      *
-     * @param  \Illuminate\Database\Eloquent\Model|string  $model
+     * @param  \Hyperf\Database\Model\Model|string  $model
      * @param  string|null  $column
-     * @return \Illuminate\Database\Schema\ForeignIdColumnDefinition
+     * @return \Hyperf\Database\Schema\ForeignIdColumnDefinition
      */
     public function foreignIdFor($model, $column = null)
     {
@@ -2647,7 +2647,7 @@ class Blueprint {
      * @param  int  $total
      * @param  int  $places
      * @param  bool  $unsigned
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function float($column, $total = 8, $places = 2, $unsigned = false)
     {
@@ -2660,7 +2660,7 @@ class Blueprint {
      * @param  int|null  $total
      * @param  int|null  $places
      * @param  bool  $unsigned
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function double($column, $total = null, $places = null, $unsigned = false)
     {
@@ -2673,7 +2673,7 @@ class Blueprint {
      * @param  int  $total
      * @param  int  $places
      * @param  bool  $unsigned
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function decimal($column, $total = 8, $places = 2, $unsigned = false)
     {
@@ -2685,7 +2685,7 @@ class Blueprint {
      * @param  string  $column
      * @param  int  $total
      * @param  int  $places
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function unsignedFloat($column, $total = 8, $places = 2)
     {
@@ -2697,7 +2697,7 @@ class Blueprint {
      * @param  string  $column
      * @param  int  $total
      * @param  int  $places
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function unsignedDouble($column, $total = null, $places = null)
     {
@@ -2709,7 +2709,7 @@ class Blueprint {
      * @param  string  $column
      * @param  int  $total
      * @param  int  $places
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function unsignedDecimal($column, $total = 8, $places = 2)
     {
@@ -2719,7 +2719,7 @@ class Blueprint {
      * Create a new boolean column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function boolean($column)
     {
@@ -2730,7 +2730,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  array  $allowed
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function enum($column, array $allowed)
     {
@@ -2741,7 +2741,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  array  $allowed
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function set($column, array $allowed)
     {
@@ -2751,7 +2751,7 @@ class Blueprint {
      * Create a new json column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function json($column)
     {
@@ -2761,7 +2761,7 @@ class Blueprint {
      * Create a new jsonb column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function jsonb($column)
     {
@@ -2771,7 +2771,7 @@ class Blueprint {
      * Create a new date column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function date($column)
     {
@@ -2782,7 +2782,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  int  $precision
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function dateTime($column, $precision = 0)
     {
@@ -2793,7 +2793,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  int  $precision
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function dateTimeTz($column, $precision = 0)
     {
@@ -2804,7 +2804,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  int  $precision
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function time($column, $precision = 0)
     {
@@ -2815,7 +2815,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  int  $precision
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function timeTz($column, $precision = 0)
     {
@@ -2826,7 +2826,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  int  $precision
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function timestamp($column, $precision = 0)
     {
@@ -2837,7 +2837,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  int  $precision
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function timestampTz($column, $precision = 0)
     {
@@ -2848,7 +2848,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  int  $precision
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function softDeletes($column = 'deleted_at', $precision = 0)
     {
@@ -2859,7 +2859,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  int  $precision
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function softDeletesTz($column = 'deleted_at', $precision = 0)
     {
@@ -2869,7 +2869,7 @@ class Blueprint {
      * Create a new year column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function year($column)
     {
@@ -2879,7 +2879,7 @@ class Blueprint {
      * Create a new binary column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function binary($column)
     {
@@ -2889,7 +2889,7 @@ class Blueprint {
      * Create a new uuid column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function uuid($column)
     {
@@ -2899,7 +2899,7 @@ class Blueprint {
      * Create a new UUID column on the table with a foreign key constraint.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ForeignIdColumnDefinition
+     * @return \Hyperf\Database\Schema\ForeignIdColumnDefinition
      */
     public function foreignUuid($column)
     {
@@ -2909,7 +2909,7 @@ class Blueprint {
      * Create a new IP address column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function ipAddress($column)
     {
@@ -2919,7 +2919,7 @@ class Blueprint {
      * Create a new MAC address column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function macAddress($column)
     {
@@ -2929,7 +2929,7 @@ class Blueprint {
      * Create a new geometry column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function geometry($column)
     {
@@ -2940,7 +2940,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  int|null  $srid
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function point($column, $srid = null)
     {
@@ -2950,7 +2950,7 @@ class Blueprint {
      * Create a new linestring column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function lineString($column)
     {
@@ -2960,7 +2960,7 @@ class Blueprint {
      * Create a new polygon column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function polygon($column)
     {
@@ -2970,7 +2970,7 @@ class Blueprint {
      * Create a new geometrycollection column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function geometryCollection($column)
     {
@@ -2980,7 +2980,7 @@ class Blueprint {
      * Create a new multipoint column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function multiPoint($column)
     {
@@ -2990,7 +2990,7 @@ class Blueprint {
      * Create a new multilinestring column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function multiLineString($column)
     {
@@ -3000,7 +3000,7 @@ class Blueprint {
      * Create a new multipolygon column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function multiPolygon($column)
     {
@@ -3010,7 +3010,7 @@ class Blueprint {
      * Create a new multipolygon column on the table.
      *
      * @param  string  $column
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function multiPolygonZ($column)
     {
@@ -3021,7 +3021,7 @@ class Blueprint {
      *
      * @param  string  $column
      * @param  string  $expression
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function computed($column, $expression)
     {
@@ -3112,7 +3112,7 @@ class Blueprint {
      * @param  string|array  $columns
      * @param  string  $index
      * @param  string|null  $algorithm
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     protected function indexCommand($type, $columns, $index, $algorithm = null)
     {
@@ -3124,7 +3124,7 @@ class Blueprint {
      * @param  string  $command
      * @param  string  $type
      * @param  string|array  $index
-     * @return \Illuminate\Support\Fluent
+     * @return \Hyperf\Support\Fluent
      */
     protected function dropIndexCommand($command, $type, $index)
     {
@@ -3147,7 +3147,7 @@ class Blueprint {
      * @param  string  $type
      * @param  string  $name
      * @param  array  $parameters
-     * @return \Illuminate\Database\Schema\ColumnDefinition
+     * @return \Hyperf\Database\Schema\ColumnDefinition
      */
     public function addColumn($type, $name, array $parameters = [])
     {
@@ -3205,13 +3205,13 @@ class ColumnDefinition
 }
 }
 
-namespace Illuminate\Support\Facades {
-class Schema extends \Illuminate\Database\Schema\Builder {}
+namespace Hyperf\DbConnection {
+class Schema extends \Hyperf\Database\Schema\Builder {}
 
 /**
- * @method static \Illuminate\Database\ConnectionInterface connection(string $name = null)
- * @method static \Illuminate\Database\Query\Builder table(string $table, string $as = null)
- * @method static \Illuminate\Database\Query\Expression raw($value)
+ * @method static \Hyperf\Database\ConnectionInterface connection(string $name = null)
+ * @method static \Hyperf\Database\Query\Builder table(string $table, string $as = null)
+ * @method static \Hyperf\Database\Query\Expression raw($value)
  * @method static array prepareBindings(array $bindings)
  * @method static array pretend(\Closure $callback)
  * @method static array select(string $query, array $bindings = [], bool $useReadPdo = true)
@@ -3233,14 +3233,14 @@ class Schema extends \Illuminate\Database\Schema\Builder {}
  */
 class DB {
     /**
-     * @return \Illuminate\Database\Query\Builder
+     * @return \Hyperf\Database\Query\Builder
      */
     public static function query()
     {
     }
 
     /**
-     * @return \Illuminate\Database\Query\Builder
+     * @return \Hyperf\Database\Query\Builder
      */
     public static function table(string $table)
     {
@@ -3249,86 +3249,6 @@ class DB {
 }
 
 namespace {
-    class DB extends \Illuminate\Support\Facades\DB {}
-    class Schema extends \Illuminate\Support\Facades\Schema {}
-}
-
-namespace Illuminate\Foundation\Testing\Concerns {
-    trait InteractsWithDatabase
-    {
-        /**
-         * Assert that a given where condition exists in the database.
-         *
-         * @param  \Illuminate\Database\Eloquent\Model|string  $table
-         * @param  array  $data
-         * @param  string|null  $connection
-         * @return $this
-         */
-        protected function assertDatabaseHas($table, array $data, $connection = null)
-        {
-        }
-
-        /**
-         * Assert that a given where condition does not exist in the database.
-         *
-         * @param  \Illuminate\Database\Eloquent\Model|string  $table
-         * @param  array  $data
-         * @param  string|null  $connection
-         * @return $this
-         */
-        protected function assertDatabaseMissing($table, array $data, $connection = null)
-        {
-        }
-
-        /**
-         * Assert the count of table entries.
-         *
-         * @param  \Illuminate\Database\Eloquent\Model|string  $table
-         * @param  int  $count
-         * @param  string|null  $connection
-         * @return $this
-         */
-        protected function assertDatabaseCount($table, int $count, $connection = null)
-        {
-        }
-
-        /**
-         * Assert the given record has been deleted.
-         *
-         * @param  \Illuminate\Database\Eloquent\Model|string  $table
-         * @param  array  $data
-         * @param  string|null  $connection
-         * @return $this
-         */
-        protected function assertDeleted($table, array $data = [], $connection = null)
-        {
-        }
-
-        /**
-         * Assert the given record has been "soft deleted".
-         *
-         * @param  \Illuminate\Database\Eloquent\Model|string  $table
-         * @param  array  $data
-         * @param  string|null  $connection
-         * @param  string|null  $deletedAtColumn
-         * @return $this
-         */
-        protected function assertSoftDeleted($table, array $data = [], $connection = null, $deletedAtColumn = 'deleted_at')
-        {
-        }
-    }
-}
-
-namespace Illuminate\Foundation\Testing {
-    abstract class TestCase extends \PHPUnit\Framework\TestCase
-    {
-        use Concerns\InteractsWithDatabase;
-    }
-}
-
-namespace Tests {
-    use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-
-    abstract class TestCase extends BaseTestCase {
-    }
+    class DB extends \Hyperf\DbConnection\Db {}
+    class Schema extends \Hyperf\DbConnection\Schema {}
 }

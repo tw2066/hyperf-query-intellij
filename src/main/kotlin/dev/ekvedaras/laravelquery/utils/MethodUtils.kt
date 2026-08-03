@@ -19,7 +19,7 @@ import com.jetbrains.php.lang.psi.elements.impl.FunctionImpl
 import com.jetbrains.php.lang.psi.elements.impl.PhpClassAliasImpl
 import com.jetbrains.php.lang.psi.elements.impl.PhpClassImpl
 import dev.ekvedaras.laravelquery.utils.ClassUtils.Companion.isChildOf
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isJoinOrRelation
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isJoinOrRelation
 
 class MethodUtils private constructor() {
     companion object {
@@ -175,7 +175,7 @@ fun MethodReference.isInsideModelQueryClosure(project: Project): Boolean =
     (this.getParentOfClosure()?.classReference as? MethodReference)
         ?.classReference
         ?.getClass(project)
-        ?.isChildOf(LaravelClasses.Model) == true
+        ?.isChildOf(HyperfClasses.Model) == true
 
 fun MethodReference.firstChildOfParentStatement(): PhpPsiElement? =
     this.parentOfType<Statement>()?.firstPsiChild

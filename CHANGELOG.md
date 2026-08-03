@@ -1,8 +1,17 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-# Laravel Query Changelog
+# Hyperf Query Changelog
 
 ## Unreleased
+
+### Changed
+- Adapted plugin for Hyperf 3.2: now recognizes `Hyperf\Database\*` query builder, model and schema builder classes instead of `Illuminate\Database\*`
+- Renamed `LaravelUtils` to `HyperfUtils` and settings classes to `HyperfQuerySettings`
+- Plugin display name changed to "Hyperf Query"
+
+### Removed
+- Removed Laravel `Illuminate\Foundation\Testing\TestCase` database assertion support (`assertDatabaseHas`, `assertDeleted`, etc.) which is not available in Hyperf
+- Removed `\DB` and `\Schema` facade aliases which don't exist in Hyperf
 
 ## 4.0.5 - 2026-02-18
 

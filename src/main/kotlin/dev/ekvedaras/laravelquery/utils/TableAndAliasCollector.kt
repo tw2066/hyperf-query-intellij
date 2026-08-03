@@ -20,8 +20,8 @@ import dev.ekvedaras.laravelquery.utils.ClassUtils.Companion.isChildOf
 import dev.ekvedaras.laravelquery.utils.DatabaseUtils.Companion.dbDataSources
 import dev.ekvedaras.laravelquery.utils.DatabaseUtils.Companion.nameWithoutPrefix
 import dev.ekvedaras.laravelquery.utils.DatabaseUtils.Companion.tables
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isInteresting
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.tableName
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isInteresting
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.tableName
 import dev.ekvedaras.laravelquery.utils.PsiUtils.Companion.containsAlias
 import dev.ekvedaras.laravelquery.utils.PsiUtils.Companion.statementFirstPsiChild
 import dev.ekvedaras.laravelquery.utils.PsiUtils.Companion.unquoteAndCleanup
@@ -50,7 +50,7 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
         schemaTableResolver.resolve(methods, method)
 
         methods
-            .filter { LaravelUtils.BuilderTableMethods.contains(it.name) }
+            .filter { HyperfUtils.BuilderTableMethods.contains(it.name) }
             .forEach {
                 ProgressManager.checkCanceled()
                 scanMethodReference(it)
@@ -153,7 +153,7 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
                 ?.nextSibling as? PhpTypedElement
             ?: methods.find { // Inside scope method inside model
                 it.isInteresting(it.project) &&
-                    it.parentOfType<PhpClassImpl>()?.isChildOf(LaravelClasses.Model) ?: false
+                    it.parentOfType<PhpClassImpl>()?.isChildOf(HyperfClasses.Model) ?: false
             }?.parentOfType<PhpClassImpl>() as? PhpTypedElement
 
         if (method is VariableImpl) {
@@ -172,7 +172,7 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
             ?.nextSibling
             ?.nextSibling as? ClassReferenceImpl
 
-        val isModel = classReference?.getClass(reference.project)?.isChildOf(LaravelClasses.Model) == true
+        val isModel = classReference?.getClass(reference.project)?.isChildOf(HyperfClasses.Model) == true
 
         return methodReference.firstChild is ParenthesizedExpressionImpl && isModel
     }
@@ -181,10 +181,10 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
         return when (methodReference.firstPsiChild) {
             is ClassReferenceImpl -> (methodReference.firstChild as ClassReferenceImpl)
                 .getClass(reference.project)
-                ?.isChildOf(LaravelClasses.Model) ?: false
+                ?.isChildOf(HyperfClasses.Model) ?: false
             is VariableImpl -> (methodReference.firstChild as VariableImpl)
                 .getClass(reference.project)
-                ?.isChildOf(LaravelClasses.Model) ?: false
+                ?.isChildOf(HyperfClasses.Model) ?: false
             else -> false
         }
     }

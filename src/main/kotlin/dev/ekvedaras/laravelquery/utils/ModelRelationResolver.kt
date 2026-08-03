@@ -12,7 +12,7 @@ import com.jetbrains.php.lang.psi.elements.impl.PhpReturnImpl
 import com.jetbrains.php.lang.psi.elements.impl.StringLiteralExpressionImpl
 import dev.ekvedaras.laravelquery.models.DbReferenceExpression
 import dev.ekvedaras.laravelquery.utils.ClassUtils.Companion.isChildOf
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isInsideRelationClosure
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isInsideRelationClosure
 import dev.ekvedaras.laravelquery.utils.PsiUtils.Companion.unquoteAndCleanup
 
 class ModelRelationResolver(
@@ -26,7 +26,7 @@ class ModelRelationResolver(
         // $user->customer()->create(['']). Detect customer() and resolve table name as customers table only
         val relationMethod = methods.lastOrNull { mm ->
             MethodUtils.resolveMethodTypeClasses(mm, method.project).any {
-                it.isChildOf(LaravelClasses.Relation)
+                it.isChildOf(HyperfClasses.Relation)
             }
         }
 

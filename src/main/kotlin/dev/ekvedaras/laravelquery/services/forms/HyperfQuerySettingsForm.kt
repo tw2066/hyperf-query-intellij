@@ -7,7 +7,7 @@ import com.intellij.ui.BooleanTableCellRenderer
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.table.JBTable
 import dev.ekvedaras.laravelquery.models.SettingsSchema
-import dev.ekvedaras.laravelquery.services.LaravelQuerySettings
+import dev.ekvedaras.laravelquery.services.HyperfQuerySettings
 import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import javax.swing.JCheckBox
@@ -17,13 +17,13 @@ import javax.swing.JTable
 import javax.swing.JTextField
 import javax.swing.table.DefaultTableModel
 
-class LaravelQuerySettingsForm(val project: Project) {
+class HyperfQuerySettingsForm(val project: Project) {
     private var panel: JPanel? = null
     private var filterDataSources: JCheckBox? = null
     private var dataSources: JTable? = null
     private var tablePrefix: JTextField? = null
 
-    private val settings: LaravelQuerySettings = LaravelQuerySettings.getInstance(project)
+    private val settings: HyperfQuerySettings = HyperfQuerySettings.getInstance(project)
 
     fun component(): JComponent? = panel
 

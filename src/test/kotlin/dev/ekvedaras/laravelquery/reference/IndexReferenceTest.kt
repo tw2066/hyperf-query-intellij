@@ -24,7 +24,7 @@ internal class IndexReferenceTest : BaseTestCase() {
         UsefulTestCase.assertSize(1, usages)
         TestCase.assertEquals(KeyPsiReference::class.java, usages.first().referenceClass)
         TestCase.assertTrue(usages.first().element?.textMatches("'users_email_uindex'") ?: false)
-        TestCase.assertEquals(111, usages.first().navigationRange.startOffset)
-        TestCase.assertEquals(111 + index.name.length, usages.first().navigationRange.endOffset)
+        TestCase.assertEquals(107, usages.first().navigationRange.startOffset)
+        TestCase.assertEquals(107 + index.name.length, usages.first().navigationRange.endOffset)
     }
 }

@@ -1,7 +1,7 @@
 <?php return new class extends Migration {
     public function up()
     {
-        Schema::table('users', function (\Illuminate\Database\Schema\Blueprint $table) {
+        Schema::table('users', function (\Hyperf\Database\Schema\Blueprint $table) {
               $table->id();
               $table->string('branch')->index();
               $table->integer('amount');

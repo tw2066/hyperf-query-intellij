@@ -1,1 +1,1 @@
-<?php (new Illuminate\Database\Query\Builder())->from('users');
+<?php (new Hyperf\Database\Query\Builder())->from('users');

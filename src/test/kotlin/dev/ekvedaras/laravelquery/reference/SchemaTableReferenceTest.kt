@@ -5,7 +5,7 @@ import com.intellij.database.util.DbImplUtil
 import com.intellij.database.util.DbUtil
 import com.intellij.testFramework.UsefulTestCase
 import dev.ekvedaras.laravelquery.BaseTestCase
-import dev.ekvedaras.laravelquery.services.LaravelQuerySettings
+import dev.ekvedaras.laravelquery.services.HyperfQuerySettings
 import junit.framework.TestCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -23,8 +23,8 @@ internal class SchemaTableReferenceTest : BaseTestCase() {
         UsefulTestCase.assertSize(1, usages)
         TestCase.assertEquals(SchemaPsiReference::class.java, usages.first().referenceClass)
         TestCase.assertTrue(usages.first().element?.textMatches("'testProject1'") ?: false)
-        TestCase.assertEquals(55, usages.first().navigationRange.startOffset)
-        TestCase.assertEquals(55 + schema.name.length, usages.first().navigationRange.endOffset)
+        TestCase.assertEquals(51, usages.first().navigationRange.startOffset)
+        TestCase.assertEquals(51 + schema.name.length, usages.first().navigationRange.endOffset)
     }
 
     fun testResolvesTableReference() {
@@ -39,8 +39,8 @@ internal class SchemaTableReferenceTest : BaseTestCase() {
         UsefulTestCase.assertSize(1, usages)
         TestCase.assertEquals(TableOrViewPsiReference::class.java, usages.first().referenceClass)
         TestCase.assertTrue(usages.first().element?.textMatches("'users'") ?: false)
-        TestCase.assertEquals(55, usages.first().navigationRange.startOffset)
-        TestCase.assertEquals(55 + table.name.length, usages.first().navigationRange.endOffset)
+        TestCase.assertEquals(51, usages.first().navigationRange.startOffset)
+        TestCase.assertEquals(51 + table.name.length, usages.first().navigationRange.endOffset)
     }
 
 //    Does not run through plugin files if non-existent table is provided in php file 🤷.
@@ -85,12 +85,12 @@ internal class SchemaTableReferenceTest : BaseTestCase() {
         TestCase.assertTrue(schemaUsages.first().element?.textMatches("'testProject1.users'") ?: false)
         TestCase.assertTrue(tableUsages.first().element?.textMatches("'testProject1.users'") ?: false)
 
-        TestCase.assertEquals(55, schemaUsages.first().navigationRange.startOffset)
-        TestCase.assertEquals(55 + schema.name.length + 1, tableUsages.first().navigationRange.startOffset)
+        TestCase.assertEquals(51, schemaUsages.first().navigationRange.startOffset)
+        TestCase.assertEquals(51 + schema.name.length + 1, tableUsages.first().navigationRange.startOffset)
 
-        TestCase.assertEquals(55 + schema.name.length, schemaUsages.first().navigationRange.endOffset)
+        TestCase.assertEquals(51 + schema.name.length, schemaUsages.first().navigationRange.endOffset)
         TestCase.assertEquals(
-            55 + schema.name.length + 1 + table.name.length,
+            51 + schema.name.length + 1 + table.name.length,
             tableUsages.first().navigationRange.endOffset
         )
     }

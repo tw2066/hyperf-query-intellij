@@ -20,50 +20,43 @@ import dev.ekvedaras.laravelquery.utils.PsiUtils.Companion.isPhpArray
 import dev.ekvedaras.laravelquery.utils.PsiUtils.Companion.unquoteAndCleanup
 import org.eclipse.xtend2.lib.StringConcatenation
 
-object LaravelClasses {
-    const val QueryBuilder = "\\Illuminate\\Database\\Query\\Builder"
-    const val EloquentBuilder = "\\Illuminate\\Database\\Eloquent\\Builder"
-    const val SchemaBuilder = "\\Illuminate\\Database\\Schema\\Builder"
-    const val Blueprint = "\\Illuminate\\Database\\Schema\\Blueprint"
-    const val JoinClause = "\\Illuminate\\Database\\Query\\JoinClause"
-    const val Relation = "\\Illuminate\\Database\\Eloquent\\Relations\\Relation"
-    const val Model = "\\Illuminate\\Database\\Eloquent\\Model"
-    const val DbFacade = "\\Illuminate\\Support\\Facades\\DB"
-    const val DbFacadeAlias = "\\DB"
-    const val SchemaFacade = "\\Illuminate\\Support\\Facades\\Schema"
-    const val SchemaFacadeAlias = "\\Schema"
-    const val ColumnDefinition = "\\Illuminate\\Database\\Schema\\ColumnDefinition"
-    const val TestCase = "\\Illuminate\\Foundation\\Testing\\TestCase"
+object HyperfClasses {
+    const val QueryBuilder = "\\Hyperf\\Database\\Query\\Builder"
+    const val EloquentBuilder = "\\Hyperf\\Database\\Model\\Builder"
+    const val SchemaBuilder = "\\Hyperf\\Database\\Schema\\Builder"
+    const val Blueprint = "\\Hyperf\\Database\\Schema\\Blueprint"
+    const val JoinClause = "\\Hyperf\\Database\\Query\\JoinClause"
+    const val Relation = "\\Hyperf\\Database\\Model\\Relations\\Relation"
+    const val Model = "\\Hyperf\\Database\\Model\\Model"
+    const val DbFacade = "\\Hyperf\\DbConnection\\Db"
+    const val SchemaFacade = "\\Hyperf\\Database\\Schema\\Schema"
+    const val ColumnDefinition = "\\Hyperf\\Database\\Schema\\ColumnDefinition"
 }
 
 @Suppress("TooManyFunctions")
-class LaravelUtils private constructor() {
+class HyperfUtils private constructor() {
     companion object {
-        // <editor-fold desc="\Illuminate\Database query builder classes" defaultstate="collapsed">
+        // <editor-fold desc="\Hyperf\Database query builder classes" defaultstate="collapsed">
         @JvmStatic
         val InterestingClasses = listOf(
-            LaravelClasses.QueryBuilder,
-            LaravelClasses.EloquentBuilder,
-            LaravelClasses.JoinClause,
-            LaravelClasses.Relation,
-            LaravelClasses.Model,
-            LaravelClasses.DbFacade,
-            LaravelClasses.DbFacadeAlias,
-            LaravelClasses.SchemaBuilder,
-            LaravelClasses.SchemaFacade,
-            LaravelClasses.SchemaFacadeAlias,
-            LaravelClasses.Blueprint,
-            LaravelClasses.ColumnDefinition,
-            LaravelClasses.TestCase,
+            HyperfClasses.QueryBuilder,
+            HyperfClasses.EloquentBuilder,
+            HyperfClasses.JoinClause,
+            HyperfClasses.Relation,
+            HyperfClasses.Model,
+            HyperfClasses.DbFacade,
+            HyperfClasses.SchemaBuilder,
+            HyperfClasses.SchemaFacade,
+            HyperfClasses.Blueprint,
+            HyperfClasses.ColumnDefinition,
         )
         // </editor-fold>
 
-        // <editor-fold desc="\Illuminate\Database schema builder classes" defaultstate="collapsed">
+        // <editor-fold desc="\Hyperf\Database schema builder classes" defaultstate="collapsed">
         @JvmStatic
         val SchemaBuilderClasses = listOf(
-            LaravelClasses.SchemaBuilder,
-            LaravelClasses.SchemaFacade,
-            LaravelClasses.SchemaFacadeAlias,
+            HyperfClasses.SchemaBuilder,
+            HyperfClasses.SchemaFacade,
         )
         // </editor-fold>
 
@@ -79,14 +72,6 @@ class LaravelUtils private constructor() {
             "hasColumn", "hasColumns", "getColumnType",
             "table", "create", "drop", "dropIfExists",
             "dropColumns", "rename", "createDatabase", "dropDatabaseIfExists",
-            "assertDatabaseHas", "assertDatabaseMissing", "assertDatabaseCount", "assertDeleted", "assertSoftDeleted",
-        )
-        // </editor-fold>
-
-        // <editor-fold desc="TestCase methods where table name should be completed" defaultstate="collapsed">
-        @JvmStatic
-        val TestCaseDatabaseAssertionMethods = listOf(
-            "assertDatabaseHas", "assertDatabaseMissing", "assertDatabaseCount", "assertDeleted", "assertSoftDeleted",
         )
         // </editor-fold>
 
@@ -289,10 +274,6 @@ class LaravelUtils private constructor() {
             "fill" to listOf(0),
             "updateOrCreate" to listOf(0, 1),
             "updateOrInsert" to listOf(0, 1),
-            "assertDatabaseHas" to listOf(1),
-            "assertDatabaseMissing" to listOf(1),
-            "assertDeleted" to listOf(1),
-            "assertSoftDeleted" to listOf(1),
         )
         // </editor-fold>
 
@@ -410,16 +391,8 @@ class LaravelUtils private constructor() {
 
         fun MethodReference.isEloquentModel(project: Project): Boolean =
             MethodUtils.resolveMethodClasses(this, project).any { clazz ->
-                clazz.isChildOf(LaravelClasses.Model)
+                clazz.isChildOf(HyperfClasses.Model)
             }
-
-        fun MethodReference.isTestCase(project: Project): Boolean =
-            MethodUtils.resolveMethodClasses(this, project).any { clazz ->
-                clazz.isChildOf(LaravelClasses.TestCase)
-            }
-
-        fun MethodReference.isDatabaseAssertion(@Suppress("UNUSED_PARAMETER") project: Project): Boolean =
-            TestCaseDatabaseAssertionMethods.contains(this.name)
 
         fun MethodReference.shouldCompleteSchemas(project: Project): Boolean =
             this.shouldCompleteOnlySchemas() || !this.isSchemaBuilderMethod(project)
@@ -439,12 +412,12 @@ class LaravelUtils private constructor() {
 
         fun MethodReference.isBlueprintMethod(project: Project): Boolean =
             MethodUtils.resolveMethodClasses(this, project).any { clazz ->
-                clazz.isChildOf(LaravelClasses.Blueprint)
+                clazz.isChildOf(HyperfClasses.Blueprint)
             }
 
         fun MethodReference.isColumnDefinitionMethod(project: Project): Boolean =
             MethodUtils.resolveMethodClasses(this, project).any { clazz ->
-                clazz.isChildOf(LaravelClasses.ColumnDefinition)
+                clazz.isChildOf(HyperfClasses.ColumnDefinition)
             }
 
         fun PhpClass.tableName(resolveFromName: Boolean = true): String? {
@@ -479,7 +452,7 @@ class LaravelUtils private constructor() {
             this is ArrayHashElementImpl && this.parentOfType<MethodReferenceImpl>()?.name == "with"
 
         fun PhpClassImpl.isJoinOrRelation(): Boolean =
-            this.isChildOf(LaravelClasses.JoinClause) || this.isChildOf(LaravelClasses.Relation)
+            this.isChildOf(HyperfClasses.JoinClause) || this.isChildOf(HyperfClasses.Relation)
 
         fun MethodReference.isBuilderMethodForTableByName(): Boolean =
             BuilderTableMethods.contains(this.name)

@@ -1,19 +1,19 @@
 <?php
 
 namespace App {
-class User extends \Illuminate\Database\Eloquent\Model
+class User extends \Hyperf\Database\Model\Model
 {
-    public function customer(): \Illuminate\Database\Eloquent\Relations\Relation
+    public function customer(): \Hyperf\Database\Model\Relations\Relation
     {
         return $this->hasOne(Customer::class);
     }
 }
 
-class Customer extends \Illuminate\Database\Eloquent\Model
+class Customer extends \Hyperf\Database\Model\Model
 {
 }
 }
 
-(new \App\User())->newQuery()->with(['customer' => function (\Illuminate\Database\Eloquent\Relations\Relation $customer) {
+(new \App\User())->newQuery()->with(['customer' => function (\Hyperf\Database\Model\Relations\Relation $customer) {
     $customer->where('<caret>');
 }]);

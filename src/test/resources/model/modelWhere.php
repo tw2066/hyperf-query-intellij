@@ -2,9 +2,9 @@
 
 namespace App {
 /**
- * @method static \Illuminate\Database\Eloquent\Builder|DemoButActuallyUsers where($column, $operator, $value)
+ * @method static \Hyperf\Database\Model\Builder|DemoButActuallyUsers where($column, $operator, $value)
  */
-class User extends \Illuminate\Database\Eloquent\Model
+class User extends \Hyperf\Database\Model\Model
 {
 }
 }

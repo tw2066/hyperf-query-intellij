@@ -1,1 +1,1 @@
-<?php (new Illuminate\Database\Query\Builder())->from('<warning descr="Unknown table or view">wrongTable</warning>');
+<?php (new Hyperf\Database\Query\Builder())->from('<warning descr="Unknown table or view">wrongTable</warning>');

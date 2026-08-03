@@ -12,15 +12,13 @@ import com.jetbrains.php.lang.psi.elements.impl.ArrayIndexImpl
 import com.jetbrains.php.lang.psi.visitors.PhpElementVisitor
 import dev.ekvedaras.laravelquery.MyBundle
 import dev.ekvedaras.laravelquery.models.DbReferenceExpression
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBlueprintMethod
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isBuilderMethodForTableByName
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isDatabaseAssertion
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isInsideRegularFunction
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isInteresting
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isSchemaBuilderMethod
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isTableParam
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.isTestCase
-import dev.ekvedaras.laravelquery.utils.LaravelUtils.Companion.shouldCompleteOnlyColumns
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBlueprintMethod
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isBuilderMethodForTableByName
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isInsideRegularFunction
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isInteresting
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isSchemaBuilderMethod
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.isTableParam
+import dev.ekvedaras.laravelquery.utils.HyperfUtils.Companion.shouldCompleteOnlyColumns
 import dev.ekvedaras.laravelquery.utils.MethodUtils
 
 class UnknownTableOrViewInspection : PhpInspection() {
@@ -66,7 +64,6 @@ class UnknownTableOrViewInspection : PhpInspection() {
                     method.shouldCompleteOnlyColumns() ||
                     !expression.isTableParam() ||
                     expression.isInsideRegularFunction() ||
-                    (method.isTestCase(project) && !method.isDatabaseAssertion(project)) ||
                     !method.isInteresting(project) ||
                     method.isSchemaBuilderMethod(project) ||
                     method.isBlueprintMethod(project)

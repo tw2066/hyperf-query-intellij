@@ -2,7 +2,7 @@
 {
     public function up()
     {
-        Schema::create('orders', function (\Illuminate\Database\Schema\Blueprint $table) {
+        Schema::create('orders', function (\Hyperf\Database\Schema\Blueprint $table) {
             $table->id();
             $table->string('branch')->index();
             $table->integer('amount');
