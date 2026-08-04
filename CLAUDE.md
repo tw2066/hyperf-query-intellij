@@ -96,6 +96,7 @@ JetBrains IDE 插件(PhpStorm/DataGrip)，为 **Hyperf 3.2** 查询构建器提�
 ## 新增/修改时的关键约束
 
 1. **新增 Hyperf 类识别**：改 `HyperfClasses` + `InterestingClasses`/`SchemaBuilderClasses`，并在 `src/test/resources/stubs.php` 中补充同名同包 stub，否则测试无法解析
+2. **设置面板 parentId**：`projectConfigurable` 的 `parentId` 必须用 `reference.webide.settings.project.settings.php`（官方 Hyperf 插件同款）。`parentId="language"` 在 PhpStorm 2023+ 上会导致设置面板显示占位文案（`createComponent()` 不被调用）
 2. **stubs.php 的 Schema 继承链**:`namespace Hyperf\Database\Schema { class Builder {...} }` → `namespace Hyperf\DbConnection { class Schema extends \Hyperf\Database\Schema\Builder {} }` → `namespace { class Schema extends \Hyperf\DbConnection\Schema {} }`，三层链不能断，否则 `Schema::table()` 解析失败
 3. **测试偏移量**：很多 reference 测试断言硬编码 `navigationRange.startOffset` 数值(如 51/78/103)，改 stubs.php 中类名长度后要同步更新这些断言
 4. **README 的 Plugin description 区块**(`<!-- Plugin description -->` 与 `<!-- Plugin description end -->` 之间)会被 `patchPluginXml` 打进插件描述，改功能特性时同步更新

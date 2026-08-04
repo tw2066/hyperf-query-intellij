@@ -1,7 +1,9 @@
 # Hyperf Query
 
 <!-- Plugin description -->
-This plugin provides database integration for Hyperf query builder (Hyperf 3.2). It works with DataGrip to provide autocompletion for database schemas, tables, views, and columns.
+This plugin provides database integration for Hyperf query builder. It works with DataGrip to provide autocompletion for database schemas, tables, views, and columns.
+
+This is a fork of [laravel-query-intellij](https://github.com/ekvedaras/laravel-query-intellij) (MIT licensed), adapted to target `Hyperf\Database\*` instead of `Illuminate\Database\*`.
 
 ## Features
 
@@ -40,7 +42,7 @@ Hyperf Query plugin needs it to work otherwise, it cannot understand for which m
 
 - Manually:
 
-  Download the [latest release](https://github.com/ekvedaras/hyperf-query-intellij/releases/latest) and install it manually using
+  Download the [latest release](https://github.com/tw2066/hyperf-query-intellij/releases/latest) and install it manually using
   <kbd>Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
 
 ---
