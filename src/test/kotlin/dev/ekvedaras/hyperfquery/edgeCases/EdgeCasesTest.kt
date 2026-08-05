@@ -71,6 +71,13 @@ internal class EdgeCasesTest : BaseTestCase() {
         assertNoCompletion("trial_ends_at")
     }
 
+    fun testWhenClauseAfterOtherBuilderMethods() {
+        myFixture.configureByFile("edgeCases/whenClauseAfterWhere.php")
+        myFixture.completeBasic()
+        assertCompletion("first_name", "last_name")
+        assertNoCompletion("trial_ends_at")
+    }
+
     /* Code works, but test fails due to some internal code
     fun testDbTable() {
         myFixture.configureByFile("edgeCases/dbTable.php")

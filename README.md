@@ -15,22 +15,6 @@ This is a fork of [laravel-query-intellij](https://github.com/ekvedaras/laravel-
 * Model relation table name resolving for builder relation closure methods
 * Text linking with database elements for navigation and refactoring
 * Configurable table prefix and datasource filtering
-
-## Prerequisites
-
-### Connect your database
-See <https://www.jetbrains.com/help/phpstorm/connecting-to-a-database.html#connect-to-mysql-database> for instructions.
-
-### Hyperf tools
-
-You need [hyperf/ide-helper](https://github.com/hyperf/hyperf-ide-helper) added to your project and run
-```shell
-composer require hyperf/ide-helper --dev
-php bin/hyperf.php ide-helper:generate
-```
-which will generate a `.phpstorm.meta.php` helper file so your IDE could see Hyperf database builder methods.
-
-Hyperf Query plugin needs it to work otherwise, it cannot understand for which methods to trigger autocompletion.
 <!-- Plugin description end -->
 
 ## Installation

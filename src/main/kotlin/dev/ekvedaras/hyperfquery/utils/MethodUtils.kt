@@ -171,11 +171,23 @@ fun PsiElement.findParameterListDown(): ParameterList? =
 fun MethodReference.isJoinOrRelation(project: Project): Boolean =
     MethodUtils.resolveMethodClasses(this, project).any { it.isJoinOrRelation() }
 
-fun MethodReference.isInsideModelQueryClosure(project: Project): Boolean =
-    (this.getParentOfClosure()?.classReference as? MethodReference)
-        ?.classReference
-        ?.getClass(project)
-        ?.isChildOf(HyperfClasses.Model) == true
+fun MethodReference.isInsideModelQueryClosure(project: Project): Boolean {
+    val closureHost = this.getParentOfClosure()?.classReference as? MethodReference ?: return false
+
+    // Model::query()->when(..., closure) — the closure host resolves directly to a model.
+    if (closureHost.classReference?.getClass(project)?.isChildOf(HyperfClasses.Model) == true) {
+        return true
+    }
+
+    // Model::query()->where(...)->when(..., closure) — the host is a builder chain,
+    // so resolve its type instead of expecting a model class reference directly.
+    return MethodUtils.resolveMethodTypeClasses(closureHost, project).any { clazz ->
+        clazz.isChildOf(HyperfClasses.QueryBuilder) ||
+            clazz.isChildOf(HyperfClasses.EloquentBuilder) ||
+            clazz.isChildOf(HyperfClasses.Model) ||
+            clazz.isChildOf(HyperfClasses.Relation)
+    }
+}
 
 fun MethodReference.firstChildOfParentStatement(): PhpPsiElement? =
     this.parentOfType<Statement>()?.firstPsiChild

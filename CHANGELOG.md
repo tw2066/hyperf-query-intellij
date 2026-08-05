@@ -4,6 +4,11 @@
 
 ## Unreleased
 
+## 1.0.3 - 2026-08-05
+
+### Fixed
+- Column completion and reference resolution now work inside `when()`/`when`-style closures even when other builder methods are chained before `when()` (e.g. `Model::query()->where(...)->when(..., function (Builder $query) { $query->where('<caret>'); })`). Previously the closure was only recognized when `when()` directly followed `Model::query()`
+
 ## 1.0.2 - 2026-08-04
 
 ### Fixed
