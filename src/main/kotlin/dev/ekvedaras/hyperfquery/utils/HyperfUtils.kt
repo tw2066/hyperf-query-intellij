@@ -274,6 +274,9 @@ class HyperfUtils private constructor() {
             "fill" to listOf(0),
             "updateOrCreate" to listOf(0, 1),
             "updateOrInsert" to listOf(0, 1),
+            "insert" to listOf(0),
+            "insertGetId" to listOf(0),
+            "insertOrIgnore" to listOf(0),
         )
         // </editor-fold>
 
@@ -325,7 +328,7 @@ class HyperfUtils private constructor() {
         // <editor-fold desc="Methods where only columns should be completed" defaultstate="collapsed">
         @JvmStatic
         private val MethodsWhereOnlyColumnsShouldBeCompleted = listOf(
-            "create", "update", "fill",
+            "create", "update", "fill", "insert", "insertGetId", "insertOrIgnore",
         )
         // </editor-fold>
 

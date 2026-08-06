@@ -124,6 +124,34 @@ internal class EdgeCasesTest : BaseTestCase() {
         assertNoCompletion("customers", "testProject1", "testProject2", "migrations", "failed_jobs")
     }
 
+    fun testItOnlyCompletesColumnsOnInsertMethod() {
+        myFixture.configureByFile("edgeCases/insertModel.php")
+        myFixture.completeBasic()
+        assertCompletion("first_name", "last_name")
+        assertNoCompletion("customers", "testProject1", "testProject2", "migrations", "failed_jobs")
+    }
+
+    fun testItOnlyCompletesColumnsOnBatchInsertMethod() {
+        myFixture.configureByFile("edgeCases/insertModelBatch.php")
+        myFixture.completeBasic()
+        assertCompletion("first_name", "last_name")
+        assertNoCompletion("customers", "testProject1", "testProject2", "migrations", "failed_jobs")
+    }
+
+    fun testItOnlyCompletesColumnsOnInsertGetIdMethod() {
+        myFixture.configureByFile("edgeCases/insertGetIdModel.php")
+        myFixture.completeBasic()
+        assertCompletion("first_name", "last_name")
+        assertNoCompletion("customers", "testProject1", "testProject2", "migrations", "failed_jobs")
+    }
+
+    fun testItOnlyCompletesColumnsOnInsertOrIgnoreMethod() {
+        myFixture.configureByFile("edgeCases/insertOrIgnoreModel.php")
+        myFixture.completeBasic()
+        assertCompletion("first_name", "last_name")
+        assertNoCompletion("customers", "testProject1", "testProject2", "migrations", "failed_jobs")
+    }
+
     fun testItOnlyCompletesColumnsOnRelationCreateMethodWhenOnlyTheKeyIsPresent() {
         myFixture.configureByFile("edgeCases/createRelationNewKey.php")
         myFixture.completeBasic()

@@ -9,6 +9,9 @@
 ### Fixed
 - Column completion and reference resolution now work inside `when()`/`when`-style closures even when other builder methods are chained before `when()` (e.g. `Model::query()->where(...)->when(..., function (Builder $query) { $query->where('<caret>'); })`). Previously the closure was only recognized when `when()` directly followed `Model::query()`
 
+### Added
+- Column completion for `insert()`, `insertGetId()` and `insertOrIgnore()` array keys, including batch (nested array) `insert()` calls. Keys complete only columns of the resolved model/table, matching the existing `update()` behavior
+
 ## 1.0.2 - 2026-08-04
 
 ### Fixed
