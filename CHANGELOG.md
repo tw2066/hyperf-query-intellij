@@ -11,6 +11,7 @@
 
 ### Added
 - Column completion for `insert()`, `insertGetId()` and `insertOrIgnore()` array keys, including batch (nested array) `insert()` calls. Keys complete only columns of the resolved model/table, matching the existing `update()` behavior
+- Column completion for `first()` column array values (e.g. `Model::query()->first(['id', '<caret>'])`), matching the existing `get()` behavior
 
 ## 1.0.2 - 2026-08-04
 

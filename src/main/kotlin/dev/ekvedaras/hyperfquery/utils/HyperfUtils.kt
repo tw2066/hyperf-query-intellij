@@ -164,6 +164,7 @@ class HyperfUtils private constructor() {
             "find" to listOf(1),
             "value" to listOf(0),
             "get" to listOf(-1),
+            "first" to listOf(-1),
             "paginate" to listOf(1),
             "simplePaginate" to listOf(1),
             "getCountForPagination" to listOf(0),
@@ -315,7 +316,7 @@ class HyperfUtils private constructor() {
         // <editor-fold desc="Methods where params may accept columns as array values" defaultstate="collapsed">
         @JvmStatic
         private val BuilderMethodsWithTableColumnsInArrayValues = listOf(
-            "get", "select",
+            "get", "select", "first",
             "whereBetweenColumns", "orWhereBetweenColumns",
             "whereNotBetweenColumns", "orWhereNotBetweenColumns",
             "hasColumns", "dropColumns", "dropColumns",

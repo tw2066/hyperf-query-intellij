@@ -152,6 +152,12 @@ internal class EdgeCasesTest : BaseTestCase() {
         assertNoCompletion("customers", "testProject1", "testProject2", "migrations", "failed_jobs")
     }
 
+    fun testItCompletesColumnsOnFirstMethodArrayValues() {
+        myFixture.configureByFile("edgeCases/firstWithColumns.php")
+        myFixture.completeBasic()
+        assertCompletion("first_name", "last_name", "email")
+    }
+
     fun testItOnlyCompletesColumnsOnRelationCreateMethodWhenOnlyTheKeyIsPresent() {
         myFixture.configureByFile("edgeCases/createRelationNewKey.php")
         myFixture.completeBasic()
