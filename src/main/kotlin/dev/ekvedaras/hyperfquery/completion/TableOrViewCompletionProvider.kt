@@ -13,6 +13,7 @@ import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.dbDataSourcesInPa
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.schemasInParallel
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.tablesInParallel
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBuilderMethodForTableByName
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isDbFacadeSqlBindingMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isEloquentModel
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsideRegularFunction
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
@@ -93,6 +94,7 @@ class TableOrViewCompletionProvider : CompletionProvider<CompletionParameters>()
 
     private fun shouldNotComplete(project: Project, method: MethodReference, parameters: CompletionParameters) =
         !ApplicationManager.getApplication().isReadAccessAllowed ||
+            method.isDbFacadeSqlBindingMethod(project) ||
             !method.isBuilderMethodForTableByName() ||
             !parameters.isTableParam() ||
             (

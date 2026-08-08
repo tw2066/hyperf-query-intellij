@@ -398,6 +398,19 @@ class HyperfUtils private constructor() {
                 clazz.isChildOf(HyperfClasses.Model)
             }
 
+        // <editor-fold desc="Db facade methods with (query, bindings) signature" defaultstate="collapsed">
+        @JvmStatic
+        val DbFacadeSqlBindingMethods = listOf(
+            "select", "selectOne", "insert", "update", "delete", "statement", "affectingStatement",
+        )
+        // </editor-fold>
+
+        fun MethodReference.isDbFacadeSqlBindingMethod(project: Project): Boolean =
+            DbFacadeSqlBindingMethods.contains(this.name) &&
+                MethodUtils.resolveMethodClasses(this, project).any { clazz ->
+                    clazz.isChildOf(HyperfClasses.DbFacade)
+                }
+
         fun MethodReference.shouldCompleteSchemas(project: Project): Boolean =
             this.shouldCompleteOnlySchemas() || !this.isSchemaBuilderMethod(project)
 

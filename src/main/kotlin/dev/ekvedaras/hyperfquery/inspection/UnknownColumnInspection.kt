@@ -20,6 +20,7 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.canHaveColumnsInArr
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBlueprintMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBuilderMethodForColumns
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isColumnIn
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isDbFacadeSqlBindingMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsidePhpArrayOrValue
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsideRegularFunction
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
@@ -124,6 +125,7 @@ class UnknownColumnInspection : PhpInspection() {
                     (method.name?.startsWith("where") ?: false)
 
                 return !ApplicationManager.getApplication().isReadAccessAllowed ||
+                    method.isDbFacadeSqlBindingMethod(project) ||
                     expression.parent is ArrayIndexImpl ||
                     (expression.parent is ParameterList && expression.parent.parent != method) ||
                     expression.containsVariable() ||

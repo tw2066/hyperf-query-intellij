@@ -4,6 +4,19 @@
 
 ## Unreleased
 
+## 1.0.4 - 2026-08-08
+
+### Added
+- Completion of SQL named placeholders for `\Hyperf\DbConnection\Db` methods with a `$bindings` array (`select`, `selectOne`, `insert`, `update`, `delete`, `statement`, `affectingStatement`): binding array keys complete against the `:name` placeholders found in the query string, suggested both as `name` and `:name`. Placeholders already bound as keys are skipped. The query string may be an inline literal or a variable assignment (`$sql = '...'`)
+- Navigation from a binding array key (`'id'` or `':id'`) to the corresponding placeholder in the query string for the same `Db` methods
+- Column/table completion, references and unknown-element inspections are now suppressed on these `Db` SQL methods, where the query string and binding keys were previously treated as database columns
+
+### Fixed
+- Completion form follows the typed prefix: an empty key (`['' => ...]`) suggests only the plain `name` form, while a colon prefix (`[':' => ...]`) suggests only the `:name` form
+- Completion now triggers on a bare empty element (`['']`) inside the bindings array, not only on an explicit `=>` key
+- Navigation and completion resolve to the nearest `$sql = '...'` assignment before the call when the variable is reassigned, instead of always the first assignment
+- Fixed a `StackOverflowError` in the background highlighter: resolving the SQL variable's assignment via a reference search recursively invoked this plugin's own reference provider. Assignment lookup now walks the PSI tree backwards from the call site, which is both recursion-free and resolves the nearest preceding assignment
+
 ## 1.0.3 - 2026-08-05
 
 ### Fixed
