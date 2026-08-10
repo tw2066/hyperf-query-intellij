@@ -48,6 +48,9 @@
         <psi.referenceContributor language="PHP"
                                   implementation="dev.ekvedaras.hyperfquery.reference.BindingsReferenceContributor"/>
 
+        <lang.documentationProvider language="PHP"
+                                    implementationClass="dev.ekvedaras.hyperfquery.reference.ColumnDocumentationProvider"/>
+
         <localInspection language="PHP"
                          groupPath="PHP"
                          groupKey="databaseGroupName"
