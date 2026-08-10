@@ -14,6 +14,7 @@ import dev.ekvedaras.hyperfquery.MyBundle
 import dev.ekvedaras.hyperfquery.models.DbReferenceExpression
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBlueprintMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBuilderMethodForTableByName
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isDbFacadeSqlBindingMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsideRegularFunction
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isSchemaBuilderMethod
@@ -59,6 +60,7 @@ class UnknownTableOrViewInspection : PhpInspection() {
                 expression: StringLiteralExpression
             ) =
                 !ApplicationManager.getApplication().isReadAccessAllowed ||
+                    method.isDbFacadeSqlBindingMethod(project) ||
                     expression.parent is ArrayIndexImpl ||
                     !method.isBuilderMethodForTableByName() ||
                     method.shouldCompleteOnlyColumns() ||

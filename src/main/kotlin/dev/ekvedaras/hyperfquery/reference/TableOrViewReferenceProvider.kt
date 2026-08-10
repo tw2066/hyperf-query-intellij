@@ -9,6 +9,7 @@ import com.intellij.util.ProcessingContext
 import com.jetbrains.php.lang.psi.elements.MethodReference
 import dev.ekvedaras.hyperfquery.models.DbReferenceExpression
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBuilderMethodForTableByName
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isDbFacadeSqlBindingMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isEloquentModel
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsideRegularFunction
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
@@ -33,6 +34,7 @@ class TableOrViewReferenceProvider : PsiReferenceProvider() {
 
     private fun shouldNotInspect(project: Project, method: MethodReference, element: PsiElement) =
         !ApplicationManager.getApplication().isReadAccessAllowed ||
+            method.isDbFacadeSqlBindingMethod(project) ||
             !method.isBuilderMethodForTableByName() ||
             !element.isTableParam() ||
             element.isInsideRegularFunction() ||

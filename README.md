@@ -14,6 +14,7 @@ This is a fork of [laravel-query-intellij](https://github.com/ekvedaras/laravel-
 * Table name resolving from model for builder methods
 * Model relation table name resolving for builder relation closure methods
 * Text linking with database elements for navigation and refactoring
+* SQL named-placeholder (`:name`) completion and navigation for `Db::select()`, `Db::update()` and other `Hyperf\DbConnection\Db` methods with `$bindings` — binding array keys complete against the placeholders in the query string (both `name` and `:name` forms), and Ctrl+Click on a key navigates to the placeholder in the SQL
 * Configurable table prefix and datasource filtering
 <!-- Plugin description end -->
 

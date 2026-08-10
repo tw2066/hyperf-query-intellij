@@ -33,6 +33,9 @@
                                 implementationClass="dev.ekvedaras.hyperfquery.completion.ColumnCompletionContributor"
                                 order="first"/>
         <completion.contributor language="PHP"
+                                implementationClass="dev.ekvedaras.hyperfquery.completion.BindingsCompletionContributor"
+                                order="first"/>
+        <completion.contributor language="PHP"
                                 implementationClass="dev.ekvedaras.hyperfquery.completion.NewMigrationCompletionContributor"
                                 order="last"/>
 
@@ -42,6 +45,8 @@
                                   implementation="dev.ekvedaras.hyperfquery.reference.TableOrViewReferenceContributor"/>
         <psi.referenceContributor language="PHP"
                                   implementation="dev.ekvedaras.hyperfquery.reference.ColumnReferenceContributor"/>
+        <psi.referenceContributor language="PHP"
+                                  implementation="dev.ekvedaras.hyperfquery.reference.BindingsReferenceContributor"/>
 
         <localInspection language="PHP"
                          groupPath="PHP"

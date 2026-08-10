@@ -10,6 +10,7 @@ import com.jetbrains.php.lang.psi.elements.MethodReference
 import dev.ekvedaras.hyperfquery.models.DbReferenceExpression
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.canHaveColumnsInArrayValues
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBuilderMethodForColumns
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isDbFacadeSqlBindingMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isColumnIn
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsideRegularFunction
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
@@ -46,6 +47,7 @@ class ColumnReferenceProvider : PsiReferenceProvider() {
 
         return !ApplicationManager.getApplication().isReadAccessAllowed ||
             element.containsVariable() ||
+            method.isDbFacadeSqlBindingMethod(project) ||
             !method.isBuilderMethodForColumns() ||
             !element.isColumnIn(method, allowArray) ||
             element.isInsideRegularFunction() ||

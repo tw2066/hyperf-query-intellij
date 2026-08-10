@@ -27,6 +27,7 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBlueprintMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBuilderMethodForColumns
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isColumnDefinitionMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isColumnIn
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isDbFacadeSqlBindingMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isEloquentModel
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsidePhpArrayOrValue
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsideRegularFunction
@@ -206,6 +207,7 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
 
         return !ApplicationManager.getApplication().isReadAccessAllowed ||
             parameters.containsVariable() ||
+            method.isDbFacadeSqlBindingMethod(project) ||
             !method.isBuilderMethodForColumns() ||
             (method.isBlueprintMethod(project) && method.isColumnDefinition() && method.isInsideUpMigration() && method.createsTable()) ||
             !parameters.isColumnIn(method, allowArray) ||

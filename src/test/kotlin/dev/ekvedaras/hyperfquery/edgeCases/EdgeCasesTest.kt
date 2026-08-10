@@ -222,4 +222,9 @@ internal class EdgeCasesTest : BaseTestCase() {
     fun testItDoesNotReportUnknownColumnValuesWithQuotesInConcatenatedValueWithinUpdate() {
         assertInspection("edgeCases/updateWithQuotesInConcatenatedValue.php", UnknownColumnInspection())
     }
+
+    fun testDoesNotWarnAboutUnknownColumnsInDbFacadeSqlBindings() {
+        assertInspection("edgeCases/dbBindingsInspection.php", UnknownColumnInspection())
+        assertInspection("edgeCases/dbBindingsInspection.php", UnknownTableOrViewInspection())
+    }
 }
