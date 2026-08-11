@@ -4,6 +4,11 @@
 
 ## Unreleased
 
+## 1.0.5 - 2026-08-10
+
+### Added
+- Hover / quick documentation for column arguments of query builder methods (`where()`, `select()`, `orderBy()`, ...): hovering over a column name now shows the resolved database column's type, nullability, default value and comment
+
 ## 1.0.4 - 2026-08-08
 
 ### Added
