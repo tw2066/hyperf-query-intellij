@@ -1,5 +1,7 @@
 package dev.ekvedaras.hyperfquery.reference
 
+import com.intellij.database.psi.DbElement
+import com.intellij.database.psi.documentation.DbDocumentationProvider
 import com.intellij.psi.util.PsiTreeUtil
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression
 import dev.ekvedaras.hyperfquery.BaseTestCase
@@ -30,6 +32,27 @@ internal class ColumnDocumentationTest : BaseTestCase() {
         // from('users') 里悬停 id 必须解析到 users 表，而不是其他表的同名列
         assertTrue("doc should show the queried table", doc.contains("users"))
         assertTrue("doc should NOT show another table", !doc.contains("customers"))
+    }
+
+    fun testDocMatchesDataGripNativeHoverDocumentation() {
+        myFixture.configureByText(
+            "test.php",
+            "<?php (new \\Hyperf\\Database\\Query\\Builder())->from('testProject1.users')->where('id<caret>', 1);"
+        )
+        val offset = myFixture.editor.caretModel.offset
+        val literal = checkNotNull(
+            PsiTreeUtil.findElementOfClassAtOffset(
+                myFixture.file,
+                offset,
+                StringLiteralExpression::class.java,
+                false
+            )
+        )
+        val dbElement = checkNotNull(ColumnPsiReference(literal).resolve() as? DbElement)
+        val expected = DbDocumentationProvider().generateHoverDoc(dbElement, literal)
+        val actual = ColumnDocumentationProvider().generateDoc(literal, null)
+
+        assertEquals("hover documentation should be rendered by DataGrip itself", expected, actual)
     }
 
     fun testDocForSelectArrayValue() {
