@@ -49,6 +49,7 @@
                                   implementation="dev.ekvedaras.hyperfquery.reference.BindingsReferenceContributor"/>
 
         <lang.documentationProvider language="PHP"
+                                    order="first"
                                     implementationClass="dev.ekvedaras.hyperfquery.reference.ColumnDocumentationProvider"/>
 
         <localInspection language="PHP"

@@ -23,9 +23,13 @@ internal class ColumnDocumentationTest : BaseTestCase() {
         val doc = checkNotNull(docAt("<?php (new \\Hyperf\\Database\\Query\\Builder())->from('testProject1.users')->where('id<caret>', 1);")) {
             "No documentation generated"
         }
+        // DataGrip 原生风格文档：数据源/架构/表/列 + DDL
+        assertTrue("doc should have Data Source header", doc.contains("Data Source:"))
+        assertTrue("doc should have Column header", doc.contains("Column:"))
         assertTrue("doc should contain column name", doc.contains("id"))
-        assertTrue("doc should contain type row", doc.contains("类型"))
-        assertTrue("id is primary key, not nullable", doc.contains("非空: 是"))
+        // from('users') 里悬停 id 必须解析到 users 表，而不是其他表的同名列
+        assertTrue("doc should show the queried table", doc.contains("users"))
+        assertTrue("doc should NOT show another table", !doc.contains("customers"))
     }
 
     fun testDocForSelectArrayValue() {
@@ -33,7 +37,7 @@ internal class ColumnDocumentationTest : BaseTestCase() {
             "No documentation generated"
         }
         assertTrue("doc should contain column name", doc.contains("email"))
-        assertTrue("email is nullable", doc.contains("可空: 是"))
+        assertTrue("doc should show the table", doc.contains("users"))
     }
 
     fun testDocForQualifiedColumn() {
@@ -41,6 +45,20 @@ internal class ColumnDocumentationTest : BaseTestCase() {
             "No documentation generated"
         }
         assertTrue("doc should contain column name", doc.contains("id"))
+        assertTrue("doc should show the table", doc.contains("users"))
+    }
+
+    fun testDocForModelFirstResolvesToModelTable() {
+        // users 和 customers 都有 id 列；模型 User → users 表，悬停 id 必须解析到 users 而非 customers
+        val doc = checkNotNull(
+            docAt(
+                "<?php namespace App { class User extends \\Hyperf\\Database\\Model\\Model {} }" +
+                    "\\App\\User::query()->first(['id<caret>', 'email']);"
+            )
+        ) { "No documentation generated" }
+        assertTrue("doc should contain column name", doc.contains("id"))
+        assertTrue("doc should show the model's table", doc.contains("users"))
+        assertTrue("doc should NOT show customers table", !doc.contains("customers"))
     }
 
     fun testNoDocForVariableValue() {
