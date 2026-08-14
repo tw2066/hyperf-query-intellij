@@ -5,10 +5,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.TreeElement
 import com.intellij.psi.util.parentOfType
+import com.jetbrains.php.lang.psi.elements.ArrayCreationExpression
+import com.jetbrains.php.lang.psi.elements.ArrayHashElement
 import com.jetbrains.php.lang.psi.elements.ConcatenationExpression
+import com.jetbrains.php.lang.psi.elements.Field
 import com.jetbrains.php.lang.psi.elements.FunctionReference
 import com.jetbrains.php.lang.psi.elements.MethodReference
 import com.jetbrains.php.lang.psi.elements.PhpClass
+import com.jetbrains.php.lang.psi.elements.StringLiteralExpression
 import com.jetbrains.php.lang.psi.elements.impl.ArrayHashElementImpl
 import com.jetbrains.php.lang.psi.elements.impl.MethodReferenceImpl
 import com.jetbrains.php.lang.psi.elements.impl.PhpClassImpl
@@ -16,6 +20,8 @@ import dev.ekvedaras.hyperfquery.utils.ClassUtils.Companion.asTableName
 import dev.ekvedaras.hyperfquery.utils.ClassUtils.Companion.isChildOf
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.isArrayKey
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.isArrayValue
+import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.isArrayKey as isPhpArrayKey
+import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.isArrayValue as isPhpArrayValue
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.isPhpArray
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.unquoteAndCleanup
 import org.eclipse.xtend2.lib.StringConcatenation
@@ -57,6 +63,20 @@ class HyperfUtils private constructor() {
         val SchemaBuilderClasses = listOf(
             HyperfClasses.SchemaBuilder,
             HyperfClasses.SchemaFacade,
+        )
+        // </editor-fold>
+
+        // <editor-fold desc="Model properties whose array values are column names" defaultstate="collapsed">
+        @JvmStatic
+        val ModelColumnArrayProperties = listOf(
+            "fillable", "guarded", "hidden", "visible", "dates",
+        )
+        // </editor-fold>
+
+        // <editor-fold desc="Model properties whose array keys are column names" defaultstate="collapsed">
+        @JvmStatic
+        val ModelColumnHashKeyProperties = listOf(
+            "casts",
         )
         // </editor-fold>
 
@@ -467,6 +487,42 @@ class HyperfUtils private constructor() {
 
         fun PsiElement.isInsideRelationClosure(): Boolean =
             this is ArrayHashElementImpl && this.parentOfType<MethodReferenceImpl>()?.name == "with"
+
+        /**
+         * 若该元素是 Hyperf Model 子类属性数组中的列名字符串（$fillable/$guarded 等的
+         * 数组值、$casts 的数组键），返回所属模型类，否则返回 null。
+         */
+        fun PsiElement.modelColumnPropertyClass(): PhpClass? {
+            val literal = when (this) {
+                is StringLiteralExpression -> this
+                else -> this.parent as? StringLiteralExpression ?: return null
+            }
+
+            // PHP PSI 中数组值/键都有 "Array value"/"Array key" 包装元素
+            val wrapper = literal.parent ?: return null
+            val array: ArrayCreationExpression
+            val propertyNames: List<String>
+
+            when {
+                wrapper.isPhpArrayValue() && wrapper.parent is ArrayCreationExpression -> {
+                    array = wrapper.parent as ArrayCreationExpression
+                    propertyNames = ModelColumnArrayProperties
+                }
+                wrapper.isPhpArrayKey() && wrapper.parent is ArrayHashElement -> {
+                    array = wrapper.parent.parent as? ArrayCreationExpression ?: return null
+                    propertyNames = ModelColumnHashKeyProperties
+                }
+                else -> return null
+            }
+
+            val field = array.parent as? Field ?: return null
+            if (!propertyNames.contains(field.name)) {
+                return null
+            }
+
+            val clazz = field.containingClass as? PhpClassImpl ?: return null
+            return clazz.takeIf { it.isChildOf(HyperfClasses.Model) }
+        }
 
         fun PhpClassImpl.isJoinOrRelation(): Boolean =
             this.isChildOf(HyperfClasses.JoinClause) || this.isChildOf(HyperfClasses.Relation)

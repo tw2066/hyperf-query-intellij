@@ -8,6 +8,7 @@
 
 ### Added
 - Hover / quick documentation for column arguments of query builder methods (`where()`, `select()`, `orderBy()`, ...): hovering over a column name now shows the resolved database column's type, nullability, default value and comment
+- Column name completion, Ctrl+Click navigation and hover documentation for Hyperf model properties: `$fillable`/`$guarded`/`$hidden`/`$visible`/`$dates` array values and `$casts` array keys resolve against the model's table (read from the `$table` property or derived from the class name)
 
 ## 1.0.4 - 2026-08-08
 

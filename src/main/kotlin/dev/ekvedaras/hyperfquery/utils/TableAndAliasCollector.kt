@@ -21,6 +21,7 @@ import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.dbDataSources
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.nameWithoutPrefix
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.tables
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelColumnPropertyClass
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.tableName
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsAlias
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.statementFirstPsiChild
@@ -33,7 +34,12 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
     private val schemaTableResolver = SchemaTableResolver(reference)
 
     fun collect() {
-        val method = MethodUtils.resolveMethodReference(reference.expression) ?: return
+        val method = MethodUtils.resolveMethodReference(reference.expression)
+        if (method == null) {
+            // Model 属性数组($fillable/$guarded/$casts 等)没有方法调用上下文,直接注入模型表名
+            reference.expression.modelColumnPropertyClass()?.let { resolveTableName(it) }
+            return
+        }
         val methods = Collections.synchronizedList(mutableListOf<MethodReference>())
 
         ProgressManager.checkCanceled()

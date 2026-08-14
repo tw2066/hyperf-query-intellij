@@ -2,7 +2,7 @@
 <idea-plugin>
     <id>dev.ekvedaras.hyperfquery</id>
     <name>Hyperf Query</name>
-    <vendor email="kvedarasernestas@gmail.com" url="https://ekvedaras.github.io">Ernestas Kvedaras</vendor>
+    <vendor email="tw2066@163.com" url="https://github.com/tw2066">Mr.tang</vendor>
 
     <!-- Product and plugin compatibility requirements -->
     <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->

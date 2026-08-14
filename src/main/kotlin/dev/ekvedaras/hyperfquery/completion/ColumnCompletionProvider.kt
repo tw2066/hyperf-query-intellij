@@ -32,6 +32,7 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isEloquentModel
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsidePhpArrayOrValue
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsideRegularFunction
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelColumnPropertyClass
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.shouldCompleteOnlyColumns
 import dev.ekvedaras.hyperfquery.utils.LookupUtils
 import dev.ekvedaras.hyperfquery.utils.LookupUtils.Companion.buildLookup
@@ -48,7 +49,11 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         context: ProcessingContext,
         result: CompletionResultSet
     ) {
-        val method = MethodUtils.resolveMethodReference(parameters.position) ?: return
+        val method = MethodUtils.resolveMethodReference(parameters.position)
+        if (method == null) {
+            addModelPropertyCompletions(parameters, result)
+            return
+        }
         val project = method.project
 
         if (shouldNotComplete(project, method, parameters)) {
@@ -71,6 +76,41 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         result.addAllElements(
             items.distinctBy { it.lookupString }
         )
+    }
+
+    /**
+     * Model 属性数组($fillable/$guarded/$casts 等)中的列名补全:只提示模型表中的列。
+     */
+    private fun addModelPropertyCompletions(
+        parameters: CompletionParameters,
+        result: CompletionResultSet
+    ) {
+        if (!ApplicationManager.getApplication().isReadAccessAllowed || parameters.containsVariable()) {
+            return
+        }
+        val project = parameters.position.project
+        parameters.position.modelColumnPropertyClass() ?: return
+
+        val target = DbReferenceExpression(parameters.position, DbReferenceExpression.Companion.Type.Column)
+        if (target.parts.size != 1) {
+            return
+        }
+
+        val items = Collections.synchronizedList(mutableListOf<LookupElement>())
+        ApplicationManager.getApplication().runReadAction {
+            project.dbDataSourcesInParallel().forEach { dataSource ->
+                target.tablesAndAliases.forEach { tableAlias ->
+                    dataSource.tables().firstOrNull { dasTable ->
+                        dasTable.nameWithoutPrefix(project) == tableAlias.value.first &&
+                            (tableAlias.value.second == null || dasTable.dasParent?.name == tableAlias.value.second)
+                    }?.columnsInParallel()?.forEach { column ->
+                        items.add(column.buildLookup(project))
+                    }
+                }
+            }
+        }
+
+        result.addAllElements(items.distinctBy { it.lookupString })
     }
 
     private fun completeForOnePart(
