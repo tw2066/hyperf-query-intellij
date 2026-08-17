@@ -33,6 +33,9 @@
                                 implementationClass="dev.ekvedaras.hyperfquery.completion.ColumnCompletionContributor"
                                 order="first"/>
         <completion.contributor language="PHP"
+                                implementationClass="dev.ekvedaras.hyperfquery.completion.CastTypeCompletionContributor"
+                                order="first"/>
+        <completion.contributor language="PHP"
                                 implementationClass="dev.ekvedaras.hyperfquery.completion.BindingsCompletionContributor"
                                 order="first"/>
         <completion.contributor language="PHP"

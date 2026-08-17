@@ -17,11 +17,37 @@ internal class ModelPropertyCompletionTest : BaseTestCase() {
         assertCompletesUsersColumns("model/modelCastsKeyProperty.php")
     }
 
+    fun testCompletesColumnsInCastsPlainValue() {
+        // $casts 中尚未写成 key => 的裸字符串视为输入中的键,提示列名而非 cast 类型
+        assertCompletesUsersColumns("model/modelCastsPlainValueProperty.php")
+
+        assertNoCompletion("integer", "datetime", "decimal:")
+    }
+
     fun testDoesNotCompleteColumnsInCastsValue() {
         myFixture.configureByFile("model/modelCastsValueProperty.php")
 
         myFixture.completeBasic()
         assertNoCompletion(*usersColumns().toTypedArray())
+    }
+
+    fun testCompletesCastTypesInCastsValue() {
+        myFixture.configureByFile("model/modelCastsValueProperty.php")
+
+        myFixture.completeBasic()
+        assertCompletion(
+            "int", "integer", "real", "float", "double", "string",
+            "bool", "boolean", "object", "array", "json", "collection",
+            "date", "datetime", "timestamp",
+            "decimal:", "date:", "datetime:",
+        )
+    }
+
+    fun testDoesNotCompleteCastTypesOutsideModel() {
+        myFixture.configureByFile("model/notModelCastsValueProperty.php")
+
+        myFixture.completeBasic()
+        assertNoCompletion("integer", "datetime", "decimal:")
     }
 
     fun testDoesNotCompleteColumnsOutsideModel() {

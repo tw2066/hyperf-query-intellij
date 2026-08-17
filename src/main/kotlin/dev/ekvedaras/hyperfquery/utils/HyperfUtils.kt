@@ -80,6 +80,28 @@ class HyperfUtils private constructor() {
         )
         // </editor-fold>
 
+        // <editor-fold desc="\Hyperf\Database\Model\Concerns\HasAttributes cast types ($casts values)" defaultstate="collapsed">
+        @JvmStatic
+        val ModelCastTypes = listOf(
+            "int", "integer",
+            "real", "float", "double",
+            "string",
+            "bool", "boolean",
+            "object",
+            "array", "json",
+            "collection",
+            "date", "datetime", "timestamp",
+        )
+
+        /** 带参数的 cast 形式:decimal:<digits>、date:<format>、datetime:<format> */
+        @JvmStatic
+        val ModelParameterizedCastTypes = mapOf(
+            "decimal:<digits>" to "decimal:",
+            "date:<format>" to "date:",
+            "datetime:<format>" to "datetime:",
+        )
+        // </editor-fold>
+
         // <editor-fold desc="Query builder methods where table name should be completed" defaultstate="collapsed">
         @JvmStatic
         val BuilderTableMethods = listOf(
@@ -493,28 +515,57 @@ class HyperfUtils private constructor() {
          * 数组值、$casts 的数组键），返回所属模型类，否则返回 null。
          */
         fun PsiElement.modelColumnPropertyClass(): PhpClass? {
+            val (array, kind) = modelPropertyArrayEntry() ?: return null
+            val propertyNames = when (kind) {
+                // $casts 中尚未写成 key => 的裸字符串也是输入中的键
+                PropertyEntryKind.ArrayValue -> ModelColumnArrayProperties + ModelColumnHashKeyProperties
+                PropertyEntryKind.HashKey -> ModelColumnHashKeyProperties
+                else -> return null
+            }
+            return modelClassOfPropertyArray(array, propertyNames)
+        }
+
+        /**
+         * 若该元素是 Hyperf Model 子类 $casts 数组的哈希值（cast 类型位置），
+         * 返回所属模型类，否则返回 null。
+         */
+        fun PsiElement.modelCastsValueClass(): PhpClass? {
+            val (array, kind) = modelPropertyArrayEntry() ?: return null
+            if (kind != PropertyEntryKind.HashValue) {
+                return null
+            }
+            return modelClassOfPropertyArray(array, ModelColumnHashKeyProperties)
+        }
+
+        private enum class PropertyEntryKind { ArrayValue, HashKey, HashValue }
+
+        /**
+         * 解析字符串所处的模型属性数组及位置类型。
+         * PHP PSI 中数组值/键都有 "Array value"/"Array key" 包装元素。
+         */
+        private fun PsiElement.modelPropertyArrayEntry(): Pair<ArrayCreationExpression, PropertyEntryKind>? {
             val literal = when (this) {
                 is StringLiteralExpression -> this
                 else -> this.parent as? StringLiteralExpression ?: return null
             }
 
-            // PHP PSI 中数组值/键都有 "Array value"/"Array key" 包装元素
             val wrapper = literal.parent ?: return null
-            val array: ArrayCreationExpression
-            val propertyNames: List<String>
 
-            when {
-                wrapper.isPhpArrayValue() && wrapper.parent is ArrayCreationExpression -> {
-                    array = wrapper.parent as ArrayCreationExpression
-                    propertyNames = ModelColumnArrayProperties
-                }
-                wrapper.isPhpArrayKey() && wrapper.parent is ArrayHashElement -> {
-                    array = wrapper.parent.parent as? ArrayCreationExpression ?: return null
-                    propertyNames = ModelColumnHashKeyProperties
-                }
-                else -> return null
+            return when {
+                wrapper.isPhpArrayValue() && wrapper.parent is ArrayCreationExpression ->
+                    (wrapper.parent as ArrayCreationExpression) to PropertyEntryKind.ArrayValue
+                wrapper.isPhpArrayKey() && wrapper.parent is ArrayHashElement ->
+                    (wrapper.parent.parent as? ArrayCreationExpression ?: return null) to PropertyEntryKind.HashKey
+                wrapper.isPhpArrayValue() && wrapper.parent is ArrayHashElement ->
+                    (wrapper.parent.parent as? ArrayCreationExpression ?: return null) to PropertyEntryKind.HashValue
+                else -> null
             }
+        }
 
+        private fun modelClassOfPropertyArray(
+            array: ArrayCreationExpression,
+            propertyNames: List<String>
+        ): PhpClass? {
             val field = array.parent as? Field ?: return null
             if (!propertyNames.contains(field.name)) {
                 return null
