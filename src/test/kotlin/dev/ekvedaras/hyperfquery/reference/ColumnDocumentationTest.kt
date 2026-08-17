@@ -112,4 +112,42 @@ internal class ColumnDocumentationTest : BaseTestCase() {
         val doc = docAt("<?php \$x = 'id<caret>';")
         assertNull("No documentation outside builder methods", doc)
     }
+
+    fun testDocForModelFillableValue() {
+        // users 和 customers 都有 id 列;悬停 $fillable 中的 id 必须解析到模型表 users
+        val doc = checkNotNull(
+            docAt(
+                "<?php namespace App { class UserModel extends \\Hyperf\\Database\\Model\\Model {" +
+                    "protected \$table = 'users';" +
+                    "protected array \$fillable = ['id<caret>'];" +
+                    "} }"
+            )
+        ) { "No documentation generated" }
+        assertTrue("doc should contain column name", doc.contains("id"))
+        assertTrue("doc should show the model's table", doc.contains("users"))
+        assertTrue("doc should NOT show customers table", !doc.contains("customers"))
+    }
+
+    fun testDocForModelCastsKey() {
+        val doc = checkNotNull(
+            docAt(
+                "<?php namespace App { class UserModel extends \\Hyperf\\Database\\Model\\Model {" +
+                    "protected \$table = 'users';" +
+                    "protected array \$casts = ['created_at<caret>' => 'datetime'];" +
+                    "} }"
+            )
+        ) { "No documentation generated" }
+        assertTrue("doc should contain column name", doc.contains("created_at"))
+        assertTrue("doc should show the model's table", doc.contains("users"))
+    }
+
+    fun testNoDocForModelCastsValue() {
+        val doc = docAt(
+            "<?php namespace App { class UserModel extends \\Hyperf\\Database\\Model\\Model {" +
+                "protected \$table = 'users';" +
+                "protected array \$casts = ['created_at' => 'datetime<caret>'];" +
+                "} }"
+        )
+        assertNull("No documentation for a cast type value", doc)
+    }
 }

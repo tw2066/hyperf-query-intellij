@@ -14,6 +14,7 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isDbFacadeSqlBindin
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isColumnIn
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsideRegularFunction
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelColumnPropertyClass
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.shouldCompleteOnlyColumns
 import dev.ekvedaras.hyperfquery.utils.MethodUtils
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsVariable
@@ -22,7 +23,15 @@ import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.isArrayValue
 class ColumnReferenceProvider : PsiReferenceProvider() {
 
     override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<PsiReference> {
-        val method = MethodUtils.resolveMethodReference(element) ?: return PsiReference.EMPTY_ARRAY
+        val method = MethodUtils.resolveMethodReference(element)
+        if (method == null) {
+            // Model 属性数组($fillable/$guarded/$casts 等)中的列名
+            return if (!element.containsVariable() && element.modelColumnPropertyClass() != null) {
+                arrayOf(ColumnPsiReference(element))
+            } else {
+                PsiReference.EMPTY_ARRAY
+            }
+        }
         val project = method.project
 
         if (shouldNotInspect(project, method, element)) {

@@ -11,6 +11,7 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBuilderMethodForC
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isColumnIn
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isDbFacadeSqlBindingMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelColumnPropertyClass
 import dev.ekvedaras.hyperfquery.utils.MethodUtils
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsVariable
 
@@ -63,7 +64,9 @@ class ColumnDocumentationProvider : AbstractDocumentationProvider() {
         if (literal.containsVariable()) {
             return false
         }
-        val method = MethodUtils.resolveMethodReference(literal) ?: return false
+        val method = MethodUtils.resolveMethodReference(literal)
+            // Model 属性数组($fillable/$guarded/$casts 等)中的列名
+            ?: return literal.modelColumnPropertyClass() != null
         val project = method.project
 
         return method.isInteresting(project) &&
