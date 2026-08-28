@@ -87,20 +87,20 @@ class IndexCompletionProvider : CompletionProvider<CompletionParameters>() {
         val tables = target.tablesAndAliases.map { it.value.first }.distinct()
 
         when {
-            method.isForIndexes() -> completeFor(project, schemas, tables) { table ->
+            method.isForIndexes() -> completeFor(project, schemas, tables, target.connectionPrefix) { table ->
                 table.indexesInParallel()
                     .filter { !it.isUnique }
                     .forEach { result.add(it.buildLookup(project)) }
             }
-            method.isForUniqueIndexes() -> completeFor(project, schemas, tables) { table ->
+            method.isForUniqueIndexes() -> completeFor(project, schemas, tables, target.connectionPrefix) { table ->
                 table.indexesInParallel()
                     .filter { it.isUnique }
                     .forEach { result.add(it.buildLookup(project)) }
             }
-            method.isForKeys() -> completeFor(project, schemas, tables) { table ->
+            method.isForKeys() -> completeFor(project, schemas, tables, target.connectionPrefix) { table ->
                 table.keysInParallel().forEach { result.add(it.buildLookup(project)) }
             }
-            else -> completeFor(project, schemas, tables) { table ->
+            else -> completeFor(project, schemas, tables, target.connectionPrefix) { table ->
                 table.foreignKeysInParallel().forEach { result.add(it.buildLookup(project)) }
             }
         }
@@ -110,14 +110,15 @@ class IndexCompletionProvider : CompletionProvider<CompletionParameters>() {
         project: Project,
         schemas: List<String>,
         tables: List<String>,
+        connectionPrefix: String?,
         scanTableUsing: Consumer<DasTable>
     ) {
         project.dbDataSourcesInParallel().forEach { dataSource ->
             dataSource.schemasInParallel().filter {
                 schemas.isEmpty() || schemas.contains(it.name)
             }.forEach { schema ->
-                schema.tablesInParallel(project)
-                    .filter { tables.contains(it.nameWithoutPrefix(project)) }
+                schema.tablesInParallel(project, connectionPrefix)
+                    .filter { tables.contains(it.nameWithoutPrefix(project, connectionPrefix)) }
                     .forEach(scanTableUsing)
             }
         }

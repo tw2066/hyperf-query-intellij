@@ -3206,11 +3206,13 @@ class ColumnDefinition
 }
 
 namespace Hyperf\DbConnection {
+/**
+ * @method static \Hyperf\Database\Schema\Builder connection(string $name)
+ */
 class Schema extends \Hyperf\Database\Schema\Builder {}
 
 /**
  * @method static \Hyperf\Database\ConnectionInterface connection(string $name = null)
- * @method static \Hyperf\Database\Query\Builder table(string $table, string $as = null)
  * @method static \Hyperf\Database\Query\Expression raw($value)
  * @method static array prepareBindings(array $bindings)
  * @method static array pretend(\Closure $callback)
@@ -3251,4 +3253,24 @@ class DB {
 namespace {
     class DB extends \Hyperf\DbConnection\Db {}
     class Schema extends \Hyperf\DbConnection\Schema {}
+}
+
+namespace Hyperf\Database {
+    interface ConnectionInterface
+    {
+        /**
+         * @return \Hyperf\Database\Query\Builder
+         */
+        public function table(string $table, string $as = null);
+
+        /**
+         * @return \Hyperf\Database\Query\Builder
+         */
+        public function query();
+
+        /**
+         * @return array
+         */
+        public function select(string $query, array $bindings = []);
+    }
 }

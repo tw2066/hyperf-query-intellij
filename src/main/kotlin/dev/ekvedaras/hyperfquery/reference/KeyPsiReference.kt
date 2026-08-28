@@ -18,7 +18,7 @@ class KeyPsiReference(element: PsiElement) : PsiReferenceBase<PsiElement>(elemen
             HyperfQuerySettings.getInstance(element.project).interestedIn(it)
         }.forEach { dataSource ->
             val dbKey = dataSource.findElement(target.key.find {
-                tables.contains(it.table?.nameWithoutPrefix(element.project))
+                tables.contains(it.table?.nameWithoutPrefix(element.project, target.connectionPrefix))
             })
             if (dbKey != null) {
                 return dbKey

@@ -14,9 +14,10 @@ This is a fork of [laravel-query-intellij](https://github.com/ekvedaras/laravel-
 * Table name resolving from model for builder methods
 * Model relation table name resolving for builder relation closure methods
 * Text linking with database elements for navigation and refactoring
-* Hover / quick documentation for query builder column arguments — hover over a column name in `where()`, `select()`, `orderBy()` and other builder methods to see the resolved database column's type, nullability, default value and comment
+* Hover / quick documentation for query builder column arguments — hover over a column name in `where()`, `select()`, `orderBy()` and other builder methods to see the resolved database column's type, nullability, default value and comment; table names show a lightweight summary (schema + comment) instead of the full DDL
 * Column name completion, Ctrl+Click navigation and hover documentation for model properties — `$fillable`, `$guarded`, `$hidden`, `$visible`, `$dates` array values and `$casts` array keys resolve against the model's table (from `$table` or the class name convention); `$casts` array values complete Hyperf attribute cast types (`integer`, `datetime`, `decimal:<digits>`, `date:<format>`, ...)
 * SQL named-placeholder (`:name`) completion and navigation for `Db::select()`, `Db::update()` and other `Hyperf\DbConnection\Db` methods with `$bindings` — binding array keys complete against the placeholders in the query string (both `name` and `:name` forms), and Ctrl+Click on a key navigates to the placeholder in the SQL
+* Database connection names from `config/autoload/databases.php` complete in `Db::connection()` / `Schema::connection()` and the model `$connection` property, with Ctrl+Click navigation to the config entry; table/column completion, references and inspections on a chain (or model) using a connection are scoped to that connection's configured `database` schema (falling back to the `default` connection when none is specified), and the connection's `prefix` is honored for table names
 * Configurable table prefix and datasource filtering
 <!-- Plugin description end -->
 

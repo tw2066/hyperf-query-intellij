@@ -43,13 +43,14 @@ class LookupUtils private constructor() {
         fun DasTable.buildLookup(
             project: Project,
             withTablePrefix: Boolean = false,
-            triggerCompletion: Boolean = false
+            triggerCompletion: Boolean = false,
+            connectionPrefix: String? = null,
         ): LookupElement =
             PrioritizedLookupElement.withGrouping(
                 PrioritizedLookupElement.withPriority(
                     LookupElementBuilder
-                        .create(this, this.nameWithoutPrefix(project))
-                        .withLookupString("${this.dasParent?.name}.${this.nameWithoutPrefix(project)}")
+                        .create(this, this.nameWithoutPrefix(project, connectionPrefix))
+                        .withLookupString("${this.dasParent?.name}.${this.nameWithoutPrefix(project, connectionPrefix)}")
                         .withTypeText(this.dasParent?.name ?: "", true)
                         .withIcon(this.getIcon(project))
                         .withInsertHandler(
@@ -70,14 +71,15 @@ class LookupUtils private constructor() {
             project: Project,
             withTablePrefix: Boolean = false,
             withSchemaPrefix: Boolean = false,
-            alias: String? = null
+            alias: String? = null,
+            connectionPrefix: String? = null,
         ): LookupElement {
             val prefix = if (withSchemaPrefix) {
                 this.table?.dasParent?.name ?: ""
             } else {
                 ""
             } + "." + if (withTablePrefix) {
-                this.tableNameWithoutPrefix(project)
+                this.tableNameWithoutPrefix(project, connectionPrefix)
             } else {
                 ""
             }
@@ -91,9 +93,9 @@ class LookupUtils private constructor() {
                             "  ${this.dataType}${if (this.default != null) " = ${this.default}" else ""}",
                             true
                         )
-                        .withTypeText("${this.comment ?: ""} ${this.tableNameWithoutPrefix(project)}", true)
-                        .withLookupString("${alias ?: "${this.table?.dasParent?.name}.${this.tableNameWithoutPrefix(project)}"}.${this.name}")
-                        .withLookupString("${this.tableNameWithoutPrefix(project)}.${this.name}")
+                        .withTypeText("${this.comment ?: ""} ${this.tableNameWithoutPrefix(project, connectionPrefix)}", true)
+                        .withLookupString("${alias ?: "${this.table?.dasParent?.name}.${this.tableNameWithoutPrefix(project, connectionPrefix)}"}.${this.name}")
+                        .withLookupString("${this.tableNameWithoutPrefix(project, connectionPrefix)}.${this.name}")
                         .withInsertHandler(
                             project,
                             false,

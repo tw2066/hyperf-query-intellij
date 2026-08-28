@@ -37,6 +37,8 @@ object HyperfClasses {
     const val DbFacade = "\\Hyperf\\DbConnection\\Db"
     const val SchemaFacade = "\\Hyperf\\Database\\Schema\\Schema"
     const val ColumnDefinition = "\\Hyperf\\Database\\Schema\\ColumnDefinition"
+    const val Connection = "\\Hyperf\\Database\\Connection"
+    const val ConnectionInterface = "\\Hyperf\\Database\\ConnectionInterface"
 }
 
 @Suppress("TooManyFunctions")
@@ -55,6 +57,8 @@ class HyperfUtils private constructor() {
             HyperfClasses.SchemaFacade,
             HyperfClasses.Blueprint,
             HyperfClasses.ColumnDefinition,
+            HyperfClasses.Connection,
+            HyperfClasses.ConnectionInterface,
         )
         // </editor-fold>
 
@@ -450,7 +454,9 @@ class HyperfUtils private constructor() {
         fun MethodReference.isDbFacadeSqlBindingMethod(project: Project): Boolean =
             DbFacadeSqlBindingMethods.contains(this.name) &&
                 MethodUtils.resolveMethodClasses(this, project).any { clazz ->
-                    clazz.isChildOf(HyperfClasses.DbFacade)
+                    clazz.isChildOf(HyperfClasses.DbFacade) ||
+                        clazz.isChildOf(HyperfClasses.Connection) ||
+                        clazz.isChildOf(HyperfClasses.ConnectionInterface)
                 }
 
         fun MethodReference.shouldCompleteSchemas(project: Project): Boolean =
@@ -505,6 +511,62 @@ class HyperfUtils private constructor() {
             }
 
             return this.asTableName()
+        }
+
+        /**
+         * 读取模型 $connection 属性声明的连接名,沿父类上溯(基类 BaseModel 常集中声明)。
+         */
+        fun PhpClass.connectionName(depth: Int = 1): String? {
+            val connectionField = this.fields.find { it.name == "connection" }
+
+            if (ClassUtils.fieldHasDefaultValue(connectionField)) {
+                val name = connectionField?.defaultValue?.text?.unquoteAndCleanup()
+                if (!name.isNullOrEmpty() && !name.equals("null", ignoreCase = true)) {
+                    return name
+                }
+            }
+
+            if (depth > 20) {
+                return null
+            }
+
+            return (this.superClass as? PhpClass)?.connectionName(depth + 1)
+        }
+
+        /**
+         * Db::connection('...') / Schema::connection('...') 调用。
+         */
+        fun MethodReference.isConnectionCall(project: Project): Boolean =
+            this.name == "connection" &&
+                MethodUtils.resolveMethodClasses(this, project).any { clazz ->
+                    clazz.isChildOf(HyperfClasses.DbFacade) ||
+                        SchemaBuilderClasses.any { clazz.isChildOf(it) }
+                }
+
+        /**
+         * 该元素是否是 connection() 的第一个参数。
+         */
+        fun PsiElement.isConnectionParam(project: Project): Boolean {
+            val method = MethodUtils.resolveMethodReference(this) ?: return false
+            return method.isConnectionCall(project) && this.findParamIndex() == 0
+        }
+
+        /**
+         * 该元素是否是 Model 子类 $connection 属性的默认值。
+         */
+        fun PsiElement.isModelConnectionProperty(): Boolean {
+            val literal = when (this) {
+                is StringLiteralExpression -> this
+                else -> this.parent as? StringLiteralExpression ?: return false
+            }
+
+            val field = literal.parent as? Field ?: return false
+            if (field.name != "connection") {
+                return false
+            }
+
+            val clazz = field.containingClass as? PhpClassImpl ?: return false
+            return clazz.isChildOf(HyperfClasses.Model)
         }
 
         fun PsiElement.isInsideRelationClosure(): Boolean =

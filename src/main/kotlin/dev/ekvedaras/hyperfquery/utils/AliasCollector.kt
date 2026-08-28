@@ -20,7 +20,9 @@ class AliasCollector(private val reference: DbReferenceExpression) {
 
         if (referencedSchema1 == null) {
             reference.project.dbDataSources().forEach loop@{ dataSource ->
-                val dasTable = dataSource.tables().firstOrNull { it.nameWithoutPrefix(reference.project) == table } ?: return@loop
+                val dasTable = dataSource.tables(reference.connectionSchema, reference.connectionPrefix)
+                    .firstOrNull { it.nameWithoutPrefix(reference.project, reference.connectionPrefix) == table }
+                    ?: return@loop
                 referencedSchema1 = dasTable.dasParent?.name
             }
         }

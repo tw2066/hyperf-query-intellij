@@ -45,7 +45,7 @@ class TableOrViewCompletionProvider : CompletionProvider<CompletionParameters>()
         if (ApplicationManager.getApplication().isReadAccessAllowed) {
             ApplicationManager.getApplication().runReadAction {
                 when (target.parts.size) {
-                    1 -> populateWithOnePart(project, method, items)
+                    1 -> populateWithOnePart(project, method, target, items)
                     else -> populateWithTwoParts(project, target, items)
                 }
             }
@@ -61,11 +61,12 @@ class TableOrViewCompletionProvider : CompletionProvider<CompletionParameters>()
     private fun populateWithOnePart(
         project: Project,
         method: MethodReference,
+        target: DbReferenceExpression,
         result: MutableList<LookupElement>
     ) {
         project.dbDataSourcesInParallel().forEach dataSources@{ dataSource ->
             if (method.shouldCompleteSchemas(project)) {
-                dataSource.schemasInParallel().forEach { schema ->
+                dataSource.schemasInParallel(target.connectionSchema).forEach { schema ->
                     result.add(schema.buildLookup(project, dataSource))
                 }
 
@@ -74,8 +75,8 @@ class TableOrViewCompletionProvider : CompletionProvider<CompletionParameters>()
                 }
             }
 
-            dataSource.tablesInParallel().forEach { table ->
-                result.add(table.buildLookup(project))
+            dataSource.tablesInParallel(target.connectionSchema, target.connectionPrefix).forEach { table ->
+                result.add(table.buildLookup(project, connectionPrefix = target.connectionPrefix))
             }
         }
     }
@@ -86,8 +87,8 @@ class TableOrViewCompletionProvider : CompletionProvider<CompletionParameters>()
         result: MutableList<LookupElement>,
     ) {
         target.schema.parallelStream().forEach { schema ->
-            schema.tablesInParallel(project).forEach { table ->
-                result.add(table.buildLookup(project, true))
+            schema.tablesInParallel(project, target.connectionPrefix).forEach { table ->
+                result.add(table.buildLookup(project, true, connectionPrefix = target.connectionPrefix))
             }
         }
     }

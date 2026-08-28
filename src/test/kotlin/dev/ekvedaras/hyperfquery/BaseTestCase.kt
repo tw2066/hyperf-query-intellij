@@ -56,6 +56,21 @@ internal abstract class BaseTestCase : BasePlatformTestCase() {
 
     protected fun dataSource(): DasDataSource = db
 
+    /**
+     * 注入 Hyperf 连接配置:默认 default -> testProject1,goods -> testProject2。
+     */
+    protected fun addDatabasesConfig(config: String? = null) =
+        myFixture.addFileToProject(
+            "config/autoload/databases.php",
+            config ?: """
+            <?php
+            return [
+                'default' => ['driver' => 'pdo', 'database' => 'testProject1'],
+                'goods' => ['driver' => 'pdo', 'database' => 'testProject2'],
+            ];
+            """.trimIndent()
+        )
+
     protected fun useTablePrefix(prefix: String): String {
         HyperfQuerySettings.getInstance(project).tablePrefix = prefix
         return prefix

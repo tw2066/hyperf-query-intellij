@@ -98,4 +98,14 @@ internal class DasObjectsInspectionTest : BaseTestCase() {
     fun testItDoesNotWarnAboutUnknownColumnInObjectsAsCreateFunctionValues() {
         assertInspection("inspection/newObjectWithinCreateValue.php", UnknownColumnInspection())
     }
+
+    fun testWarnsAboutColumnFromOtherConnectionSchema() {
+        addDatabasesConfig()
+        assertInspection("inspection/unknownColumnOnConnection.php", UnknownColumnInspection())
+    }
+
+    fun testDoesNotWarnAboutKnownColumnOnConnection() {
+        addDatabasesConfig()
+        assertInspection("inspection/knownColumnOnConnection.php", UnknownColumnInspection())
+    }
 }

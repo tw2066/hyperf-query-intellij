@@ -17,6 +17,10 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiManager
 import com.intellij.psi.PsiTreeChangeAdapter
 import com.intellij.psi.PsiTreeChangeEvent
+import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.dbDataSources
+import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.schemas
+import dev.ekvedaras.hyperfquery.utils.DatabasesConfig.Companion.databaseConnections
+import dev.ekvedaras.hyperfquery.utils.DatabasesConnection
 import dev.ekvedaras.hyperfquery.utils.DbReferenceResolver
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.unquoteAndCleanup
 import dev.ekvedaras.hyperfquery.utils.TableAndAliasCollector
@@ -47,6 +51,40 @@ class DbReferenceExpression(val expression: PsiElement, val type: Type) {
     var key = mutableListOf<DasTableKey>()
     var foreignKey = mutableListOf<DasForeignKey>()
     var alias: String? = null
+
+    /** 链上 connection('name') 或模型 $connection 声明的连接名,由 TableAndAliasCollector 填充 */
+    var connectionName: String? = null
+
+    /** 当前生效的连接配置;无配置文件或连接配置缺失时为 null */
+    private val selectedConnection: DatabasesConnection? by lazy(LazyThreadSafetyMode.NONE) {
+        val connections = project.databaseConnections()
+        when {
+            // 显式连接: 配置中查不到 → null(全量回退, 不按 default 过滤)
+            connectionName != null -> connections[connectionName]
+            // 无显式连接: 优先 default 连接(Hyperf 运行时语义)
+            else -> connections["default"]
+        }
+    }
+
+    /**
+     * 连接配置的 database(schema) 名;null 表示不过滤(回退旧逻辑)。
+     * IDE 数据源中无同名 schema 时归一为 null。
+     */
+    val connectionSchema: String? by lazy(LazyThreadSafetyMode.NONE) {
+        selectedConnection?.database?.takeIf { schema ->
+            project.dbDataSources().anyMatch { dataSource ->
+                dataSource.schemas().anyMatch { it.name == schema }
+            }
+        }
+    }
+
+    /**
+     * 连接配置的表前缀;连接未配置 prefix 时为 null(回退全局 tablePrefix)。
+     * 配置 'prefix' => '' 可显式覆盖全局前缀。
+     */
+    val connectionPrefix: String? by lazy(LazyThreadSafetyMode.NONE) {
+        selectedConnection?.prefix
+    }
 
     val parts = mutableListOf<String>()
     val ranges = mutableListOf<TextRange>()

@@ -18,7 +18,7 @@ class ForeignKeyPsiReference(element: PsiElement) : PsiReferenceBase<PsiElement>
             HyperfQuerySettings.getInstance(element.project).interestedIn(it)
         }.forEach { dataSource ->
             val dbForeignKey = dataSource.findElement(target.foreignKey.find {
-                tables.contains(it.table?.nameWithoutPrefix(element.project))
+                tables.contains(it.table?.nameWithoutPrefix(element.project, target.connectionPrefix))
             })
             if (dbForeignKey != null) {
                 return dbForeignKey

@@ -67,7 +67,7 @@ class ClassUtils private constructor() {
 
         @JvmStatic
         fun String.asPhpClass(project: Project): PhpClass? {
-            return PhpIndex.getInstance(project).getClassesByFQN(this).firstOrNull()
+            return PhpIndex.getInstance(project).getAnyByFQN(this).firstOrNull()
         }
 
         @JvmStatic

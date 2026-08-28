@@ -19,7 +19,7 @@ class ColumnPsiReference(element: PsiElement) : PsiReferenceBase<PsiElement>(ele
             HyperfQuerySettings.getInstance(element.project).interestedIn(it)
         }.forEach { dataSource ->
             val dbColumn = dataSource.findElement(target.column.find {
-                tables.contains(it.tableNameWithoutPrefix(element.project))
+                tables.contains(it.tableNameWithoutPrefix(element.project, target.connectionPrefix))
             })
             if (dbColumn != null) {
                 return dbColumn

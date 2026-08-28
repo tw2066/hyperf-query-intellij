@@ -77,14 +77,14 @@ private class ResolverForTableMethods(
         reference.project.dbDataSources().forEach { dataSource ->
             ProgressManager.checkCanceled()
 
-            dataSource.tablesSequential().forEach { table ->
+            dataSource.tablesSequential(reference.connectionSchema, reference.connectionPrefix).forEach { table ->
                 ProgressManager.checkCanceled()
 
-                if (table.nameWithoutPrefix(reference.project) == reference.parts.last()) {
+                if (table.nameWithoutPrefix(reference.project, reference.connectionPrefix) == reference.parts.last()) {
                     tables.add(table)
-                } else if (reference.tablesAndAliases[reference.parts.last()]?.first == table.nameWithoutPrefix(reference.project)) {
+                } else if (reference.tablesAndAliases[reference.parts.last()]?.first == table.nameWithoutPrefix(reference.project, reference.connectionPrefix)) {
                     tables.add(table)
-                    reference.alias = table.nameWithoutPrefix(reference.project)
+                    reference.alias = table.nameWithoutPrefix(reference.project, reference.connectionPrefix)
                 }
             }
         }
@@ -102,9 +102,9 @@ private class ResolverForTableMethods(
                 .forEach { schema ->
                     ProgressManager.checkCanceled()
 
-                    dataSource.tablesSequential()
+                    dataSource.tablesSequential(null, reference.connectionPrefix)
                         .filter { it.dasParent?.name == schema.name }
-                        .filter { it.nameWithoutPrefix(reference.project) == reference.parts.last() }
+                        .filter { it.nameWithoutPrefix(reference.project, reference.connectionPrefix) == reference.parts.last() }
                         .forEach { tables.add(it) }
                 }
         }
@@ -139,12 +139,12 @@ private class ResolverForColumnMethods(
                 .filter { it.name == reference.parts.first() }
                 .forEach { schemas.add(it) }
 
-            dataSource.tablesSequential().forEach { dasTable ->
+            dataSource.tablesSequential(reference.connectionSchema, reference.connectionPrefix).forEach { dasTable ->
                 ProgressManager.checkCanceled()
 
-                if (dasTable.nameWithoutPrefix(reference.project) == reference.parts.first()) {
+                if (dasTable.nameWithoutPrefix(reference.project, reference.connectionPrefix) == reference.parts.first()) {
                     tables.add(dasTable)
-                } else if (reference.tablesAndAliases[reference.parts.first()]?.first == dasTable.nameWithoutPrefix(reference.project)) {
+                } else if (reference.tablesAndAliases[reference.parts.first()]?.first == dasTable.nameWithoutPrefix(reference.project, reference.connectionPrefix)) {
                     tables.add(dasTable)
                 }
 
@@ -168,7 +168,8 @@ private class ResolverForColumnMethods(
                 .filter { it.name == reference.parts.first() }
                 .forEach { schemas.add(it) }
 
-            dataSource.tablesSequential().forEach { table ->
+            // 显式写了 schema 前缀时不按连接过滤(允许跨 schema 引用)
+            dataSource.tablesSequential(reference.connectionSchema.takeIf { schemas.isEmpty() }, reference.connectionPrefix).forEach { table ->
                 ProgressManager.checkCanceled()
 
                 if (schemas.isEmpty() || schemas.contains(table.dasParent)) {
@@ -179,7 +180,7 @@ private class ResolverForColumnMethods(
     }
 
     private fun addTablesAndTheirColumns(table: DasTable) {
-        if (table.nameWithoutPrefix(reference.project) == reference.parts.first() || table.nameWithoutPrefix(reference.project) == reference.parts.last()) {
+        if (table.nameWithoutPrefix(reference.project, reference.connectionPrefix) == reference.parts.first() || table.nameWithoutPrefix(reference.project, reference.connectionPrefix) == reference.parts.last()) {
             tables.add(table)
 
             table.columns()
@@ -187,8 +188,8 @@ private class ResolverForColumnMethods(
                 .forEach { columns.add(it) }
         } else if (schemas.isEmpty() &&
             (
-                reference.tablesAndAliases[reference.parts.first()]?.first == table.nameWithoutPrefix(reference.project) ||
-                    reference.tablesAndAliases[reference.parts.last()]?.first == table.nameWithoutPrefix(reference.project)
+                reference.tablesAndAliases[reference.parts.first()]?.first == table.nameWithoutPrefix(reference.project, reference.connectionPrefix) ||
+                    reference.tablesAndAliases[reference.parts.last()]?.first == table.nameWithoutPrefix(reference.project, reference.connectionPrefix)
                 )
         ) {
             tables.add(table)
@@ -212,20 +213,20 @@ private class ResolverForColumnMethods(
 
             ProgressManager.checkCanceled()
 
-            dataSource.tablesSequential()
+            dataSource.tablesSequential(null, reference.connectionPrefix)
                 .filter { schemas.contains(it.dasParent) }
                 .forEach { addTableAndItsColumns(it) }
         }
     }
 
     private fun addTableAndItsColumns(table: DasTable) {
-        if (table.nameWithoutPrefix(reference.project) == reference.parts[1]) {
+        if (table.nameWithoutPrefix(reference.project, reference.connectionPrefix) == reference.parts[1]) {
             tables.add(table)
 
             table.columns()
                 .filter { it.name == reference.parts.last() }
                 .forEach { columns.add(it) }
-        } else if (reference.tablesAndAliases[reference.parts[1]]?.first == table.nameWithoutPrefix(reference.project)) {
+        } else if (reference.tablesAndAliases[reference.parts[1]]?.first == table.nameWithoutPrefix(reference.project, reference.connectionPrefix)) {
             tables.add(table)
 
             table.columns()
@@ -243,10 +244,10 @@ private class ResolverForIndexMethods(
         reference.project.dbDataSources().forEach { dataSource ->
             ProgressManager.checkCanceled()
 
-            dataSource.tablesSequential().filter {
-                reference.tablesAndAliases.containsKey(it.nameWithoutPrefix(reference.project))
+            dataSource.tablesSequential(null, reference.connectionPrefix).filter {
+                reference.tablesAndAliases.containsKey(it.nameWithoutPrefix(reference.project, reference.connectionPrefix))
             }.filter {
-                (reference.tablesAndAliases[it.nameWithoutPrefix(reference.project)]?.second ?: it.dasParent?.name) == it.dasParent?.name
+                (reference.tablesAndAliases[it.nameWithoutPrefix(reference.project, reference.connectionPrefix)]?.second ?: it.dasParent?.name) == it.dasParent?.name
             }.forEach { table ->
                 ProgressManager.checkCanceled()
 
@@ -266,10 +267,10 @@ private class ResolverForKeyMethods(
         reference.project.dbDataSources().forEach { dataSource ->
             ProgressManager.checkCanceled()
 
-            dataSource.tablesSequential().filter {
-                reference.tablesAndAliases.containsKey(it.nameWithoutPrefix(reference.project))
+            dataSource.tablesSequential(null, reference.connectionPrefix).filter {
+                reference.tablesAndAliases.containsKey(it.nameWithoutPrefix(reference.project, reference.connectionPrefix))
             }.filter {
-                (reference.tablesAndAliases[it.nameWithoutPrefix(reference.project)]?.second ?: it.dasParent?.name) == it.dasParent?.name
+                (reference.tablesAndAliases[it.nameWithoutPrefix(reference.project, reference.connectionPrefix)]?.second ?: it.dasParent?.name) == it.dasParent?.name
             }.forEach { table ->
                 ProgressManager.checkCanceled()
 
@@ -289,10 +290,10 @@ private class ResolverForForeignKeyMethods(
         reference.project.dbDataSources().forEach { dataSource ->
             ProgressManager.checkCanceled()
 
-            dataSource.tablesSequential().filter {
-                reference.tablesAndAliases.containsKey(it.nameWithoutPrefix(reference.project))
+            dataSource.tablesSequential(null, reference.connectionPrefix).filter {
+                reference.tablesAndAliases.containsKey(it.nameWithoutPrefix(reference.project, reference.connectionPrefix))
             }.filter {
-                (reference.tablesAndAliases[it.nameWithoutPrefix(reference.project)]?.second ?: it.dasParent?.name) == it.dasParent?.name
+                (reference.tablesAndAliases[it.nameWithoutPrefix(reference.project, reference.connectionPrefix)]?.second ?: it.dasParent?.name) == it.dasParent?.name
             }.forEach { table ->
                 ProgressManager.checkCanceled()
 

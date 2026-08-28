@@ -20,6 +20,8 @@ import dev.ekvedaras.hyperfquery.utils.ClassUtils.Companion.isChildOf
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.dbDataSources
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.nameWithoutPrefix
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.tables
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.connectionName
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isConnectionCall
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelColumnPropertyClass
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.tableName
@@ -37,7 +39,10 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
         val method = MethodUtils.resolveMethodReference(reference.expression)
         if (method == null) {
             // Model 属性数组($fillable/$guarded/$casts 等)没有方法调用上下文,直接注入模型表名
-            reference.expression.modelColumnPropertyClass()?.let { resolveTableName(it) }
+            reference.expression.modelColumnPropertyClass()?.let {
+                resolveTableName(it)
+                reference.connectionName = it.connectionName()
+            }
             return
         }
         val methods = Collections.synchronizedList(mutableListOf<MethodReference>())
@@ -50,6 +55,18 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
         ProgressManager.checkCanceled()
 
         relationResolver.resolveModelAndRelationTables(methods, method)
+
+        ProgressManager.checkCanceled()
+
+        // 模型语境(Model::query() 链、作用域方法等)下取模型 $connection 声明的连接
+        reference.connectionName = resolveModelReference(methods)
+            ?.let { (it as? PhpClass) ?: it.getClass(reference.project) }
+            ?.connectionName()
+
+        // 链上显式 connection('name') 优先于模型声明
+        methods.firstOrNull { it.isConnectionCall(reference.project) }
+            ?.let { (it.getParameter(0) as? StringLiteralExpressionImpl)?.contents }
+            ?.let { reference.connectionName = it }
 
         ProgressManager.checkCanceled()
 
@@ -209,7 +226,9 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
 
         if (referencedSchema == null) {
             reference.project.dbDataSources().forEach { dataSource ->
-                dataSource.tables().firstOrNull { it.nameWithoutPrefix(reference.project) == referencedTable }?.let {
+                dataSource.tables(reference.connectionSchema, reference.connectionPrefix).firstOrNull {
+                    it.nameWithoutPrefix(reference.project, reference.connectionPrefix) == referencedTable
+                }?.let {
                     referencedSchema = it.dasParent?.name
                 }
             }

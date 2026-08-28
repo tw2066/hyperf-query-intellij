@@ -36,6 +36,9 @@
                                 implementationClass="dev.ekvedaras.hyperfquery.completion.CastTypeCompletionContributor"
                                 order="first"/>
         <completion.contributor language="PHP"
+                                implementationClass="dev.ekvedaras.hyperfquery.completion.ConnectionCompletionContributor"
+                                order="first"/>
+        <completion.contributor language="PHP"
                                 implementationClass="dev.ekvedaras.hyperfquery.completion.BindingsCompletionContributor"
                                 order="first"/>
         <completion.contributor language="PHP"
@@ -50,10 +53,15 @@
                                   implementation="dev.ekvedaras.hyperfquery.reference.ColumnReferenceContributor"/>
         <psi.referenceContributor language="PHP"
                                   implementation="dev.ekvedaras.hyperfquery.reference.BindingsReferenceContributor"/>
+        <psi.referenceContributor language="PHP"
+                                  implementation="dev.ekvedaras.hyperfquery.reference.ConnectionReferenceContributor"/>
 
         <lang.documentationProvider language="PHP"
                                     order="first"
                                     implementationClass="dev.ekvedaras.hyperfquery.reference.ColumnDocumentationProvider"/>
+        <lang.documentationProvider language="PHP"
+                                    order="first"
+                                    implementationClass="dev.ekvedaras.hyperfquery.reference.TableDocumentationProvider"/>
 
         <localInspection language="PHP"
                          groupPath="PHP"

@@ -100,11 +100,11 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         ApplicationManager.getApplication().runReadAction {
             project.dbDataSourcesInParallel().forEach { dataSource ->
                 target.tablesAndAliases.forEach { tableAlias ->
-                    dataSource.tables().firstOrNull { dasTable ->
-                        dasTable.nameWithoutPrefix(project) == tableAlias.value.first &&
+                    dataSource.tables(target.connectionSchema, target.connectionPrefix).firstOrNull { dasTable ->
+                        dasTable.nameWithoutPrefix(project, target.connectionPrefix) == tableAlias.value.first &&
                             (tableAlias.value.second == null || dasTable.dasParent?.name == tableAlias.value.second)
                     }?.columnsInParallel()?.forEach { column ->
-                        items.add(column.buildLookup(project))
+                        items.add(column.buildLookup(project, connectionPrefix = target.connectionPrefix))
                     }
                 }
             }
@@ -127,7 +127,7 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
 
         project.dbDataSourcesInParallel().forEach { dataSource ->
             if (!onlyColumns) {
-                dataSource.schemasInParallel().filter {
+                dataSource.schemasInParallel(target.connectionSchema).filter {
                     shouldCompleteAll || schemas.isEmpty() || schemas.contains(it.name)
                 }.forEach { schema ->
                     addSchemaAndItsTables(items, schema, project, dataSource, target)
@@ -150,8 +150,15 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         items.add(schema.buildLookup(project, dataSource))
 
         if (shouldCompleteAll || target.tablesAndAliases.isEmpty()) {
-            schema.tablesInParallel(project).forEach { table ->
-                items.add(table.buildLookup(project, withTablePrefix = false, triggerCompletion = true))
+            schema.tablesInParallel(project, target.connectionPrefix).forEach { table ->
+                items.add(
+                    table.buildLookup(
+                        project,
+                        withTablePrefix = false,
+                        triggerCompletion = true,
+                        connectionPrefix = target.connectionPrefix
+                    )
+                )
             }
         }
     }
@@ -165,8 +172,8 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
     ) {
         result.addLookupAdvertisement("CTRL(CMD) + SHIFT + Space to see all options")
         target.tablesAndAliases.forEach { tableAlias ->
-            val table = dataSource.tables().firstOrNull { dasTable ->
-                dasTable.nameWithoutPrefix(project) == tableAlias.value.first &&
+            val table = dataSource.tables(target.connectionSchema, target.connectionPrefix).firstOrNull { dasTable ->
+                dasTable.nameWithoutPrefix(project, target.connectionPrefix) == tableAlias.value.first &&
                     (tableAlias.value.second == null || dasTable.dasParent?.name == tableAlias.value.second)
             }
 
@@ -177,7 +184,7 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
             }
 
             table?.columnsInParallel()?.forEach { column ->
-                items.add(column.buildLookup(project))
+                items.add(column.buildLookup(project, connectionPrefix = target.connectionPrefix))
             }
         }
     }
@@ -204,10 +211,18 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         target.table.parallelStream().forEach { table ->
             val alias = target.tablesAndAliases.entries
                 .filter { it.value.first != it.key }
-                .firstOrNull { it.value.first == table.nameWithoutPrefix(project) }?.key
+                .firstOrNull { it.value.first == table.nameWithoutPrefix(project, target.connectionPrefix) }?.key
 
             table.columnsInParallel().forEach { column ->
-                result.add(column.buildLookup(project, withTablePrefix = true, withSchemaPrefix = false, alias = alias))
+                result.add(
+                    column.buildLookup(
+                        project,
+                        withTablePrefix = true,
+                        withSchemaPrefix = false,
+                        alias = alias,
+                        connectionPrefix = target.connectionPrefix
+                    )
+                )
             }
         }
     }
@@ -218,8 +233,15 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         project: Project
     ) {
         target.schema.parallelStream().forEach { schema ->
-            schema.tablesInParallel(project).forEach { table ->
-                result.add(table.buildLookup(project, withTablePrefix = true, triggerCompletion = true))
+            schema.tablesInParallel(project, target.connectionPrefix).forEach { table ->
+                result.add(
+                    table.buildLookup(
+                        project,
+                        withTablePrefix = true,
+                        triggerCompletion = true,
+                        connectionPrefix = target.connectionPrefix
+                    )
+                )
             }
         }
     }
@@ -231,7 +253,14 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
     ) {
         target.table.parallelStream().forEach { table ->
             table.columnsInParallel().forEach { column ->
-                result.add(column.buildLookup(project, withTablePrefix = true, withSchemaPrefix = true))
+                result.add(
+                    column.buildLookup(
+                        project,
+                        withTablePrefix = true,
+                        withSchemaPrefix = true,
+                        connectionPrefix = target.connectionPrefix
+                    )
+                )
             }
         }
     }

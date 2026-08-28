@@ -82,7 +82,7 @@ class MethodUtils private constructor() {
             classes: MutableList<PhpClassImpl>
         ) {
             PhpIndex.getInstance(project)
-                .getClassesByFQN(className)
+                .getAnyByFQN(className)
                 .forEach classLoop@{ clazz ->
                     when (clazz) {
                         is PhpClassAliasImpl -> {

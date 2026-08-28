@@ -18,7 +18,7 @@ class IndexPsiReference(element: PsiElement) : PsiReferenceBase<PsiElement>(elem
             HyperfQuerySettings.getInstance(element.project).interestedIn(it)
         }.forEach { dataSource ->
             val dbIndex = dataSource.findElement(target.index.find {
-                tables.contains(it.table?.nameWithoutPrefix(element.project))
+                tables.contains(it.table?.nameWithoutPrefix(element.project, target.connectionPrefix))
             })
             if (dbIndex != null) {
                 return dbIndex
