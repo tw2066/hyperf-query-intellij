@@ -4,7 +4,8 @@
 
 ## Unreleased
 
-## 1.0.6 - 2026-08-28
+### Fixed
+- Settings: the data source checkboxes under "Filter data sources" can now be ticked by clicking them directly. The cell both had a boolean editor and a row click listener, which toggled the value twice per click so it never appeared checked
 
 ### Added
 - Database connection name completion for `Db::connection()` / `Schema::connection()` first argument and the model `$connection` property default value, sourced from the project's `config/autoload/databases.php` (values using `env('KEY', 'default')` resolve to the env default)
