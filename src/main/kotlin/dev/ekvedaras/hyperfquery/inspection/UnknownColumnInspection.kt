@@ -25,10 +25,12 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsidePhpArrayOrV
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsideRegularFunction
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isOperatorParam
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isRawExpressionMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isSchemaBuilderMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.selectsAllColumns
 import dev.ekvedaras.hyperfquery.utils.MethodUtils
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsVariable
+import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.simpleColumnExpressionSegments
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
 
@@ -46,8 +48,17 @@ class UnknownColumnInspection : PhpInspection() {
                     return
                 }
 
-                val target = DbReferenceExpression(expression, DbReferenceExpression.Companion.Type.Column)
+                if (method.isRawExpressionMethod()) {
+                    expression.text.simpleColumnExpressionSegments().forEach { segment ->
+                        inspect(DbReferenceExpression(expression, DbReferenceExpression.Companion.Type.Column, segment), expression)
+                    }
+                    return
+                }
 
+                inspect(DbReferenceExpression(expression, DbReferenceExpression.Companion.Type.Column), expression)
+            }
+
+            private fun inspect(target: DbReferenceExpression, expression: StringLiteralExpression) {
                 when (target.parts.size) {
                     1 -> inspectWithOnePart(target, expression)
                     2 -> inspectWithTwoParts(target, expression)
@@ -132,6 +143,7 @@ class UnknownColumnInspection : PhpInspection() {
                     expression.selectsAllColumns() ||
                     expression.isOperatorParam(allowArray) ||
                     !method.isBuilderMethodForColumns() ||
+                    (method.isRawExpressionMethod() && expression.text.simpleColumnExpressionSegments().isEmpty()) ||
                     !expression.isColumnIn(method, allowArray) ||
                     expression.isInsideRegularFunction() ||
                     (expression.isInsidePhpArrayOrValue() && !method.canHaveColumnsInArrayValues()) ||

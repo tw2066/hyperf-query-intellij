@@ -32,11 +32,13 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isEloquentModel
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsidePhpArrayOrValue
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsideRegularFunction
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isRawExpressionMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelColumnPropertyClass
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.shouldCompleteOnlyColumns
 import dev.ekvedaras.hyperfquery.utils.LookupUtils
 import dev.ekvedaras.hyperfquery.utils.LookupUtils.Companion.buildLookup
 import dev.ekvedaras.hyperfquery.utils.MethodUtils
+import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.completableCaretColumnSegment
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsVariable
 import java.util.Collections
 
@@ -60,20 +62,37 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
             return
         }
 
-        val target = DbReferenceExpression(parameters.position, DbReferenceExpression.Companion.Type.Column)
+        // raw SQL 片段: 只解析光标所在的逗号分段。匹配前缀绑定到当前段已输入文本
+        // (IntelliJ 默认把整串内容当前缀,逗号分段后无法匹配); 插入时保留段内表名/别名前缀。
+        var rawInsertionPrefix: String? = null
+        var resultSet = result
+        val rawSegment = if (method.isRawExpressionMethod()) {
+            val positionText = parameters.position.text
+            val caretAt = positionText.indexOf("IntellijIdeaRulezzz").takeIf { it >= 0 } ?: positionText.length
+            val segmentTyped = positionText.substring(0, caretAt)
+                .trimStart('\'', '"')
+                .substringAfterLast(',')
+                .trimStart()
+            rawInsertionPrefix = segmentTyped.substring(0, segmentTyped.lastIndexOf('.') + 1)
+            resultSet = result.withPrefixMatcher(segmentTyped)
+            parameters.position.text.completableCaretColumnSegment()
+        } else {
+            null
+        }
+        val target = DbReferenceExpression(parameters.position, DbReferenceExpression.Companion.Type.Column, rawSegment)
         val items = Collections.synchronizedList(mutableListOf<LookupElement>())
 
         if (ApplicationManager.getApplication().isReadAccessAllowed) {
             ApplicationManager.getApplication().runReadAction {
                 when (target.parts.size) {
-                    1 -> completeForOnePart(project, target, items, method, result)
-                    2 -> completeForTwoParts(project, target, items)
-                    else -> completeForThreeParts(project, target, items)
+                    1 -> completeForOnePart(project, target, items, method, resultSet, rawInsertionPrefix)
+                    2 -> completeForTwoParts(project, target, items, rawInsertionPrefix)
+                    else -> completeForThreeParts(project, target, items, rawInsertionPrefix)
                 }
             }
         }
 
-        result.addAllElements(
+        resultSet.addAllElements(
             items.distinctBy { it.lookupString }
         )
     }
@@ -119,6 +138,7 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         items: MutableList<LookupElement>,
         method: MethodReference,
         result: CompletionResultSet,
+        rawInsertionPrefix: String? = null,
     ) {
         val schemas = target.tablesAndAliases.map { it.value.second }.filterNotNull().distinct()
         onlyColumns = method.isBlueprintMethod(project) ||
@@ -135,7 +155,7 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
             }
 
             if (target.tablesAndAliases.isNotEmpty()) {
-                addTablesAndAliases(result, target, dataSource, project, items)
+                addTablesAndAliases(result, target, dataSource, project, items, rawInsertionPrefix)
             }
         }
     }
@@ -168,7 +188,8 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         target: DbReferenceExpression,
         dataSource: DbDataSource,
         project: Project,
-        items: MutableList<LookupElement>
+        items: MutableList<LookupElement>,
+        rawInsertionPrefix: String? = null,
     ) {
         result.addLookupAdvertisement("CTRL(CMD) + SHIFT + Space to see all options")
         target.tablesAndAliases.forEach { tableAlias ->
@@ -184,7 +205,9 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
             }
 
             table?.columnsInParallel()?.forEach { column ->
-                items.add(column.buildLookup(project, connectionPrefix = target.connectionPrefix))
+                items.add(
+                    column.buildLookup(project, connectionPrefix = target.connectionPrefix, verbatimInsertPrefix = rawInsertionPrefix)
+                )
             }
         }
     }
@@ -192,13 +215,14 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
     private fun completeForTwoParts(
         project: Project,
         target: DbReferenceExpression,
-        result: MutableList<LookupElement>
+        result: MutableList<LookupElement>,
+        rawInsertionPrefix: String? = null,
     ) {
         project.dbDataSourcesInParallel().forEach {
             if (target.schema.isNotEmpty()) {
                 addTables(target, result, project)
             } else {
-                addTableColumns(target, result, project)
+                addTableColumns(target, result, project, rawInsertionPrefix)
             }
         }
     }
@@ -206,21 +230,28 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
     private fun addTableColumns(
         target: DbReferenceExpression,
         result: MutableList<LookupElement>,
-        project: Project
+        project: Project,
+        rawInsertionPrefix: String? = null,
     ) {
         target.table.parallelStream().forEach { table ->
-            val alias = target.tablesAndAliases.entries
-                .filter { it.value.first != it.key }
-                .firstOrNull { it.value.first == table.nameWithoutPrefix(project, target.connectionPrefix) }?.key
+            // raw 段里插入文本保留光标前已输入的内容,列名前不再加表名/别名前缀
+            val alias = if (target.isRawExpression) {
+                null
+            } else {
+                target.tablesAndAliases.entries
+                    .filter { it.value.first != it.key }
+                    .firstOrNull { it.value.first == table.nameWithoutPrefix(project, target.connectionPrefix) }?.key
+            }
 
             table.columnsInParallel().forEach { column ->
                 result.add(
                     column.buildLookup(
                         project,
-                        withTablePrefix = true,
+                        withTablePrefix = !target.isRawExpression,
                         withSchemaPrefix = false,
                         alias = alias,
-                        connectionPrefix = target.connectionPrefix
+                        connectionPrefix = target.connectionPrefix,
+                        verbatimInsertPrefix = rawInsertionPrefix
                     )
                 )
             }
@@ -250,15 +281,17 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         project: Project,
         target: DbReferenceExpression,
         result: MutableList<LookupElement>,
+        rawInsertionPrefix: String? = null,
     ) {
         target.table.parallelStream().forEach { table ->
             table.columnsInParallel().forEach { column ->
                 result.add(
                     column.buildLookup(
                         project,
-                        withTablePrefix = true,
-                        withSchemaPrefix = true,
-                        connectionPrefix = target.connectionPrefix
+                        withTablePrefix = !target.isRawExpression,
+                        withSchemaPrefix = !target.isRawExpression,
+                        connectionPrefix = target.connectionPrefix,
+                        verbatimInsertPrefix = rawInsertionPrefix
                     )
                 )
             }
@@ -278,6 +311,7 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
             parameters.containsVariable() ||
             method.isDbFacadeSqlBindingMethod(project) ||
             !method.isBuilderMethodForColumns() ||
+            (method.isRawExpressionMethod() && parameters.position.text.completableCaretColumnSegment() == null) ||
             (method.isBlueprintMethod(project) && method.isColumnDefinition() && method.isInsideUpMigration() && method.createsTable()) ||
             !parameters.isColumnIn(method, allowArray) ||
             parameters.isInsideRegularFunction() ||

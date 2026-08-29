@@ -1,6 +1,7 @@
 package dev.ekvedaras.hyperfquery.reference
 
 import com.intellij.database.util.DbUtil
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReferenceBase
 import dev.ekvedaras.hyperfquery.models.DbReferenceExpression
@@ -8,9 +9,10 @@ import dev.ekvedaras.hyperfquery.services.HyperfQuerySettings
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.nameWithoutPrefix
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.tableNameWithoutPrefix
 
-class ColumnPsiReference(element: PsiElement) : PsiReferenceBase<PsiElement>(element) {
+class ColumnPsiReference(element: PsiElement, private val segment: TextRange? = null) :
+    PsiReferenceBase<PsiElement>(element) {
     override fun resolve(): PsiElement? {
-        val target = DbReferenceExpression(element, DbReferenceExpression.Companion.Type.Column)
+        val target = DbReferenceExpression(element, DbReferenceExpression.Companion.Type.Column, segment)
         val tables = target.tablesAndAliases.values.map { it.first }
 
         rangeInElement = target.ranges.last()

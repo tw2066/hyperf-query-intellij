@@ -1,0 +1,1 @@
+<?php (new Hyperf\Database\Query\Builder())->from('testProject1.users')->selectRaw('<warning descr="Unknown column">wrongColumn</warning>');

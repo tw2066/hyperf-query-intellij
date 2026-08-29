@@ -73,6 +73,8 @@ class LookupUtils private constructor() {
             withSchemaPrefix: Boolean = false,
             alias: String? = null,
             connectionPrefix: String? = null,
+            /** raw SQL 片段(selectRaw / Db::raw 等): 插入时逐字保留光标前已输入的前缀(含逗号分段/带前缀别名),不再拼表名 */
+            verbatimInsertPrefix: String? = null,
         ): LookupElement {
             val prefix = if (withSchemaPrefix) {
                 this.table?.dasParent?.name ?: ""
@@ -96,10 +98,19 @@ class LookupUtils private constructor() {
                         .withTypeText("${this.comment ?: ""} ${this.tableNameWithoutPrefix(project, connectionPrefix)}", true)
                         .withLookupString("${alias ?: "${this.table?.dasParent?.name}.${this.tableNameWithoutPrefix(project, connectionPrefix)}"}.${this.name}")
                         .withLookupString("${this.tableNameWithoutPrefix(project, connectionPrefix)}.${this.name}")
+                        .let { builder ->
+                            // raw 段内已输入的前缀(可能是带表前缀的别名 jc_a.): 让匹配器能命中
+                            if (verbatimInsertPrefix.isNullOrEmpty()) {
+                                builder
+                            } else {
+                                builder.withLookupString("$verbatimInsertPrefix${this.name}")
+                            }
+                        }
                         .withInsertHandler(
                             project,
                             false,
-                            alias ?: prefix.trim('.')
+                            alias ?: prefix.trim('.'),
+                            verbatimInsertPrefix
                         ),
                     ColumnPriority.toDouble()
                 ),
@@ -186,11 +197,13 @@ class LookupUtils private constructor() {
         private fun LookupElementBuilder.withInsertHandler(
             project: Project,
             triggerCompletion: Boolean = false,
-            prefix: String = ""
+            prefix: String = "",
+            verbatimPrefix: String? = null,
         ): LookupElementBuilder {
-            var lookupPrefix = prefix
-            if (prefix.isNotEmpty()) {
-                lookupPrefix += "."
+            val lookupPrefix = verbatimPrefix ?: if (prefix.isNotEmpty()) {
+                "$prefix."
+            } else {
+                ""
             }
 
             val suffix = if (triggerCompletion) {

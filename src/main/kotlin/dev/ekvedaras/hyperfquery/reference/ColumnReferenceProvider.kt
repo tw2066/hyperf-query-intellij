@@ -14,11 +14,13 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isDbFacadeSqlBindin
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isColumnIn
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsideRegularFunction
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isRawExpressionMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelColumnPropertyClass
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.shouldCompleteOnlyColumns
 import dev.ekvedaras.hyperfquery.utils.MethodUtils
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsVariable
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.isArrayValue
+import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.simpleColumnExpressionSegments
 
 class ColumnReferenceProvider : PsiReferenceProvider() {
 
@@ -40,6 +42,15 @@ class ColumnReferenceProvider : PsiReferenceProvider() {
 
         var references = arrayOf<PsiReference>()
 
+        if (method.isRawExpressionMethod()) {
+            element.text.simpleColumnExpressionSegments().forEach { segment ->
+                references += SchemaPsiReference(element, DbReferenceExpression.Companion.Type.Column, segment)
+                references += TableOrViewPsiReference(element, DbReferenceExpression.Companion.Type.Column, segment)
+                references += ColumnPsiReference(element, segment)
+            }
+            return references
+        }
+
         if (!method.shouldCompleteOnlyColumns()) {
             references += SchemaPsiReference(element, DbReferenceExpression.Companion.Type.Column)
             references += TableOrViewPsiReference(element, DbReferenceExpression.Companion.Type.Column)
@@ -58,6 +69,7 @@ class ColumnReferenceProvider : PsiReferenceProvider() {
             element.containsVariable() ||
             method.isDbFacadeSqlBindingMethod(project) ||
             !method.isBuilderMethodForColumns() ||
+            (method.isRawExpressionMethod() && element.text.simpleColumnExpressionSegments().isEmpty()) ||
             !element.isColumnIn(method, allowArray) ||
             element.isInsideRegularFunction() ||
             ((element.parent?.isArrayValue() ?: false) && !method.canHaveColumnsInArrayValues()) ||

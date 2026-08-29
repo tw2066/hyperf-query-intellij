@@ -76,6 +76,19 @@ internal abstract class BaseTestCase : BasePlatformTestCase() {
         return prefix
     }
 
+    /**
+     * 注入带表前缀的连接配置:goods -> testProject2, prefix = jc_。
+     */
+    protected fun addPrefixedGoodsConfig() = addDatabasesConfig(
+        """
+        <?php
+        return [
+            'default' => ['driver' => 'pdo', 'database' => 'testProject1'],
+            'goods' => ['driver' => 'pdo', 'database' => 'testProject2', 'prefix' => 'jc_'],
+        ];
+        """.trimIndent()
+    )
+
     private fun caretAfterArgs(at: Int, prefix: String = ""): String {
         var args = ""
 

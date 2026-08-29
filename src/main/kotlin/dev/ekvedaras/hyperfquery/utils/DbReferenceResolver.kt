@@ -126,6 +126,25 @@ private class ResolverForColumnMethods(
     }
 
     /**
+     * raw SQL 写的是带前缀的真实表名: 除无前缀名外还允许精确表名匹配(jc_goods)。
+     */
+    private fun DasTable.matchesTablePart(part: String): Boolean =
+        nameWithoutPrefix(reference.project, reference.connectionPrefix) == part ||
+            (reference.isRawExpression && name == part)
+
+    /**
+     * 别名匹配;raw SQL 中的别名带表前缀(jc_a),剥掉前缀后再查声明的别名(a)。
+     */
+    private fun matchesAlias(aliasPart: String, tableUnprefixed: String): Boolean {
+        if (reference.tablesAndAliases[aliasPart]?.first == tableUnprefixed) {
+            return true
+        }
+        val prefix = reference.tablePrefix
+        return reference.isRawExpression && prefix.isNotEmpty() && aliasPart.startsWith(prefix) &&
+            reference.tablesAndAliases[aliasPart.removePrefix(prefix)]?.first == tableUnprefixed
+    }
+
+    /**
      * 'column'
      * 'table'
      * 'schema'
@@ -142,9 +161,9 @@ private class ResolverForColumnMethods(
             dataSource.tablesSequential(reference.connectionSchema, reference.connectionPrefix).forEach { dasTable ->
                 ProgressManager.checkCanceled()
 
-                if (dasTable.nameWithoutPrefix(reference.project, reference.connectionPrefix) == reference.parts.first()) {
-                    tables.add(dasTable)
-                } else if (reference.tablesAndAliases[reference.parts.first()]?.first == dasTable.nameWithoutPrefix(reference.project, reference.connectionPrefix)) {
+                if (dasTable.matchesTablePart(reference.parts.first()) ||
+                    matchesAlias(reference.parts.first(), dasTable.nameWithoutPrefix(reference.project, reference.connectionPrefix))
+                ) {
                     tables.add(dasTable)
                 }
 
@@ -180,17 +199,16 @@ private class ResolverForColumnMethods(
     }
 
     private fun addTablesAndTheirColumns(table: DasTable) {
-        if (table.nameWithoutPrefix(reference.project, reference.connectionPrefix) == reference.parts.first() || table.nameWithoutPrefix(reference.project, reference.connectionPrefix) == reference.parts.last()) {
+        val unprefixed = table.nameWithoutPrefix(reference.project, reference.connectionPrefix)
+
+        if (table.matchesTablePart(reference.parts.first()) || table.matchesTablePart(reference.parts.last())) {
             tables.add(table)
 
             table.columns()
                 .filter { it.name == reference.parts.last() }
                 .forEach { columns.add(it) }
         } else if (schemas.isEmpty() &&
-            (
-                reference.tablesAndAliases[reference.parts.first()]?.first == table.nameWithoutPrefix(reference.project, reference.connectionPrefix) ||
-                    reference.tablesAndAliases[reference.parts.last()]?.first == table.nameWithoutPrefix(reference.project, reference.connectionPrefix)
-                )
+            (matchesAlias(reference.parts.first(), unprefixed) || matchesAlias(reference.parts.last(), unprefixed))
         ) {
             tables.add(table)
 
@@ -220,13 +238,9 @@ private class ResolverForColumnMethods(
     }
 
     private fun addTableAndItsColumns(table: DasTable) {
-        if (table.nameWithoutPrefix(reference.project, reference.connectionPrefix) == reference.parts[1]) {
-            tables.add(table)
+        val unprefixed = table.nameWithoutPrefix(reference.project, reference.connectionPrefix)
 
-            table.columns()
-                .filter { it.name == reference.parts.last() }
-                .forEach { columns.add(it) }
-        } else if (reference.tablesAndAliases[reference.parts[1]]?.first == table.nameWithoutPrefix(reference.project, reference.connectionPrefix)) {
+        if (table.matchesTablePart(reference.parts[1]) || matchesAlias(reference.parts[1], unprefixed)) {
             tables.add(table)
 
             table.columns()

@@ -79,6 +79,44 @@ internal class DasObjectsInspectionTest : BaseTestCase() {
         assertInspection("inspection/unknownTableAndColumn.php", UnknownColumnInspection())
     }
 
+    fun testDoesNotWarnAboutKnownSelectRawColumn() {
+        assertInspection("inspection/knownSelectRawColumn.php", UnknownColumnInspection())
+    }
+
+    fun testWarnsAboutUnknownSelectRawColumn() {
+        assertInspection("inspection/unknownSelectRawColumn.php", UnknownColumnInspection())
+    }
+
+    fun testDoesNotWarnAboutComplexSelectRawExpression() {
+        assertInspection("inspection/selectRawComplexExpression.php", UnknownColumnInspection())
+    }
+
+    fun testDoesNotWarnAboutKnownRawExpressionColumns() {
+        assertInspection("inspection/knownRawExpressionColumns.php", UnknownColumnInspection())
+    }
+
+    fun testWarnsAboutUnknownRawExpressionColumn() {
+        assertInspection("inspection/unknownRawExpressionColumn.php", UnknownColumnInspection())
+    }
+
+    fun testDoesNotWarnAboutKnownSelectRawCommaSeparatedColumns() {
+        assertInspection("inspection/knownSelectRawColumns.php", UnknownColumnInspection())
+    }
+
+    fun testWarnsAboutUnknownSelectRawCommaSeparatedColumn() {
+        assertInspection("inspection/unknownSelectRawColumns.php", UnknownColumnInspection())
+    }
+
+    fun testDoesNotWarnAboutPrefixedRawExpressionColumns() {
+        addPrefixedGoodsConfig()
+        assertInspection("inspection/knownPrefixedRawColumns.php", UnknownColumnInspection())
+    }
+
+    fun testWarnsAboutUnknownPrefixedRawExpressionColumn() {
+        addPrefixedGoodsConfig()
+        assertInspection("inspection/unknownPrefixedRawColumn.php", UnknownColumnInspection())
+    }
+
     fun testDoesNotWarnAboutOperatorInJoinCallWithOperator() {
         assertInspection("inspection/joinWithOperator.php", UnknownColumnInspection())
     }

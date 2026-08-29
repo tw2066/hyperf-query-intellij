@@ -1,0 +1,1 @@
+<?php \Hyperf\DbConnection\Db::connection('goods')->table('goods as a')->selectRaw('jc_a.id, jc_a.<warning descr="Unknown column">wrongColumn</warning>');

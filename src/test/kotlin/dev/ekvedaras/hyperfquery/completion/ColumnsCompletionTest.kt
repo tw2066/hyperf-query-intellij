@@ -162,6 +162,136 @@ internal class ColumnsCompletionTest : BaseTestCase() {
         }
     }
 
+    fun testCompletesColumnsInSelectRaw() {
+        val table = DasUtil.getTables(dataSource())
+            .filterNot { it.isSystem }
+            .firstOrNull() ?: return fail("Did not find any tables.")
+        val columns = DasUtil.getColumns(table).map { it.name }
+
+        completeFor(table.name, "", "selectRaw", 0)
+
+        assertCompletion(*columns.toList().toTypedArray())
+    }
+
+    fun testCompletesTableColumnsInSelectRaw() {
+        val table = DasUtil.getTables(dataSource())
+            .filterNot { it.isSystem }
+            .firstOrNull() ?: return fail("Did not find any tables.")
+        val columns = DasUtil.getColumns(table).map { it.name }
+
+        completeFor(table.name, "${table.name}.", "selectRaw", 0)
+
+        assertCompletion(*columns.toList().toTypedArray())
+    }
+
+    fun testCompletesColumnsInRawExpressionMethods() {
+        val table = DasUtil.getTables(dataSource())
+            .filterNot { it.isSystem }
+            .firstOrNull() ?: return fail("Did not find any tables.")
+        val columns = DasUtil.getColumns(table).map { it.name }
+
+        listOf("selectRaw", "whereRaw", "orWhereRaw", "havingRaw", "orHavingRaw", "orderByRaw", "groupByRaw")
+            .forEach { method ->
+                completeFor(table.name, "", method, 0)
+                assertCompletion(*columns.toList().toTypedArray())
+            }
+    }
+
+    fun testCompletesColumnsInsideDbRaw() {
+        val table = DasUtil.getTables(dataSource())
+            .filterNot { it.isSystem }
+            .firstOrNull() ?: return fail("Did not find any tables.")
+        val columns = DasUtil.getColumns(table).map { it.name }
+
+        myFixture.configureByText(
+            "test.php",
+            "<?php (new Hyperf\\Database\\Query\\Builder())->from('${table.name}')" +
+                "->select(Hyperf\\DbConnection\\Db::raw('<caret>'));"
+        )
+        myFixture.complete(CompletionType.BASIC)
+
+        assertCompletion(*columns.toList().toTypedArray())
+    }
+
+    fun testCompletesColumnsInSelectRawCommaSegments() {
+        val table = DasUtil.getTables(dataSource())
+            .filterNot { it.isSystem }
+            .firstOrNull() ?: return fail("Did not find any tables.")
+        val columns = DasUtil.getColumns(table).map { it.name }
+
+        myFixture.configureByText(
+            "test.php",
+            "<?php (new Hyperf\\Database\\Query\\Builder())->from('${table.name}')->selectRaw('id,<caret>');"
+        )
+        myFixture.complete(CompletionType.BASIC)
+
+        assertCompletion(*columns.toList().toTypedArray())
+    }
+
+    fun testCompletesColumnsInsideDbRawCommaSegments() {
+        myFixture.configureByText(
+            "test.php",
+            "<?php (new Hyperf\\Database\\Query\\Builder())->from('testProject1.users')" +
+                "->select(Hyperf\\DbConnection\\Db::raw('id,<caret>'));"
+        )
+        myFixture.complete(CompletionType.BASIC)
+
+        assertCompletion("email", "first_name", "last_name")
+    }
+
+    fun testCompletesPrefixedAliasColumnsInSelectRaw() {
+        addPrefixedGoodsConfig()
+
+        myFixture.configureByText(
+            "test.php",
+            "<?php \\Hyperf\\DbConnection\\Db::connection('goods')->table('goods as a')->selectRaw('jc_a.<caret>');"
+        )
+        myFixture.complete(CompletionType.BASIC)
+
+        assertCompletion("id", "number", "name")
+        assertNoCompletion("email", "failed_jobs")
+    }
+
+    fun testCompletingSelectRawCommaSegmentDoesNotDuplicatePreviousSegments() {
+        myFixture.configureByText(
+            "test.php",
+            "<?php (new Hyperf\\Database\\Query\\Builder())->from('testProject1.users')->selectRaw('id,<caret>')"
+        )
+        myFixture.completeBasic()
+        myFixture.type("email")
+        myFixture.finishLookup('\n')
+
+        myFixture.checkResult(
+            "<?php (new Hyperf\\Database\\Query\\Builder())->from('testProject1.users')->selectRaw('id,email')"
+        )
+    }
+
+    fun testCompletingPrefixedAliasColumnInSelectRawKeepsTypedPrefix() {
+        addPrefixedGoodsConfig()
+
+        myFixture.configureByText(
+            "test.php",
+            "<?php \\Hyperf\\DbConnection\\Db::connection('goods')->table('goods as a')->selectRaw('jc_a.<caret>');"
+        )
+        myFixture.completeBasic()
+        myFixture.type("nu")
+        myFixture.finishLookup('\n')
+
+        myFixture.checkResult(
+            "<?php \\Hyperf\\DbConnection\\Db::connection('goods')->table('goods as a')->selectRaw('jc_a.number');"
+        )
+    }
+
+    fun testDoesNotCompleteColumnsInComplexSelectRawExpression() {
+        myFixture.configureByText(
+            "test.php",
+            "<?php (new Hyperf\\Database\\Query\\Builder())->from('testProject1.users')->selectRaw('count(<caret>)');"
+        )
+        myFixture.complete(CompletionType.BASIC)
+
+        assertNoCompletion("first_name", "last_name", "deleted_at")
+    }
+
     fun testCompletesColumnsInsideJoinClause() {
         val tables = DasUtil.getTables(dataSource()).filter {
             it.name == "users" || it.name == "customers"

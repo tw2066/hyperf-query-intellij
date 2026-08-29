@@ -888,6 +888,83 @@ class Builder
     }
 
     /**
+     * Add a new "raw" select expression to the query.
+     *
+     * @param  string  $expression
+     * @param  array  $bindings
+     * @return $this
+     */
+    public function selectRaw($expression, array $bindings = [])
+    {
+    }
+
+    /**
+     * Add a raw where clause to the query.
+     *
+     * @param  string  $sql
+     * @param  array  $bindings
+     * @return $this
+     */
+    public function whereRaw($sql, $bindings = [])
+    {
+    }
+
+    /**
+     * Add a raw or where clause to the query.
+     *
+     * @param  string  $sql
+     * @param  array  $bindings
+     * @return $this
+     */
+    public function orWhereRaw($sql, $bindings = [])
+    {
+    }
+
+    /**
+     * Add a raw having clause to the query.
+     *
+     * @param  string  $sql
+     * @param  array  $bindings
+     * @return $this
+     */
+    public function havingRaw($sql, array $bindings = [])
+    {
+    }
+
+    /**
+     * Add a raw or having clause to the query.
+     *
+     * @param  string  $sql
+     * @param  array  $bindings
+     * @return $this
+     */
+    public function orHavingRaw($sql, array $bindings = [])
+    {
+    }
+
+    /**
+     * Add a raw order by clause to the query.
+     *
+     * @param  string  $sql
+     * @param  array  $bindings
+     * @return $this
+     */
+    public function orderByRaw($sql, $bindings = [])
+    {
+    }
+
+    /**
+     * Add a raw group by clause to the query.
+     *
+     * @param  string  $sql
+     * @param  array  $bindings
+     * @return $this
+     */
+    public function groupByRaw($sql, array $bindings = [])
+    {
+    }
+
+    /**
      * Add a new select column to the query.
      *
      * @param  array|mixed  $column

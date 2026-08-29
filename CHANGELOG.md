@@ -4,16 +4,17 @@
 
 ## Unreleased
 
-### Fixed
-- Settings: the data source checkboxes under "Filter data sources" can now be ticked by clicking them directly. The cell both had a boolean editor and a row click listener, which toggled the value twice per click so it never appeared checked
+## 1.0.6 - 2026-08-29
 
 ### Added
 - Database connection name completion for `Db::connection()` / `Schema::connection()` first argument and the model `$connection` property default value, sourced from the project's `config/autoload/databases.php` (values using `env('KEY', 'default')` resolve to the env default)
 - Ctrl+Click navigation from a connection name to its array key in `config/autoload/databases.php`
 - Connection-aware table/column completion, reference resolution and unknown-element inspections: chains using `Db::connection('name')` / `Schema::connection('name')` and models declaring `$connection` are scoped to the schema configured as that connection's `database`. When no connection is specified, the `default` connection's schema is used. If the connection or its schema cannot be resolved (missing config, `env()` without default, schema absent from IDE data sources), behavior falls back to scanning all data sources as before
 - Per-connection table prefix support: the connection's `prefix` from `config/autoload/databases.php` is honored when resolving and completing tables on that connection (e.g. `table('goods')` resolves `pre_goods`). The global table prefix setting is used when the connection does not define `prefix`; set `'prefix' => ''` to explicitly opt out for a connection
+- Column completion, Ctrl+Click navigation and unknown-column inspection for simple column expressions in raw SQL fragments: `selectRaw()`, `whereRaw()`, `orWhereRaw()`, `havingRaw()`, `orHavingRaw()`, `orderByRaw()`, `groupByRaw()` and expressions wrapped in `Db::raw()`. Strings matching `column`, `table.column`, `schema.table.column` or `... as alias` resolve against the query's table context, including comma-separated lists (`selectRaw('id, jc_a.id')`) and table/alias references carrying the connection's table prefix (`jc_a.id` resolves alias `a` when the connection prefix is `jc_`); complex SQL (functions, arithmetic, subqueries) is skipped to avoid false "unknown column" warnings. Hover documentation is intentionally not provided for raw fragments
 
 ### Fixed
+- Settings: the data source checkboxes under "Filter data sources" can now be ticked by clicking them directly. The cell both had a boolean editor and a row click listener, which toggled the value twice per click so it never appeared checked
 - Table name hover no longer renders the full `CREATE TABLE` DDL (slow on wide tables); it now shows a lightweight summary: schema-qualified name and the table comment. The full DDL remains available via Ctrl+Click into the database tool window
 - Query builder chains through `Db::connection(...)` (`Hyperf\Database\ConnectionInterface`) are now recognized for completion and inspection
 

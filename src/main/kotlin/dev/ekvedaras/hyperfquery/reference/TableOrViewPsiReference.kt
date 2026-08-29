@@ -1,15 +1,19 @@
 package dev.ekvedaras.hyperfquery.reference
 
 import com.intellij.database.util.DbUtil
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReferenceBase
 import dev.ekvedaras.hyperfquery.models.DbReferenceExpression
 import dev.ekvedaras.hyperfquery.services.HyperfQuerySettings
 
-class TableOrViewPsiReference(element: PsiElement, private val type: DbReferenceExpression.Companion.Type) :
-    PsiReferenceBase<PsiElement>(element) {
+class TableOrViewPsiReference(
+    element: PsiElement,
+    private val type: DbReferenceExpression.Companion.Type,
+    private val segment: TextRange? = null,
+) : PsiReferenceBase<PsiElement>(element) {
     override fun resolve(): PsiElement? {
-        val target = DbReferenceExpression(element, type)
+        val target = DbReferenceExpression(element, type, segment)
 
         rangeInElement = if (target.schema.isNotEmpty() && target.ranges.size > 1) {
             target.ranges[1]

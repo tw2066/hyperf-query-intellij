@@ -17,6 +17,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiManager
 import com.intellij.psi.PsiTreeChangeAdapter
 import com.intellij.psi.PsiTreeChangeEvent
+import dev.ekvedaras.hyperfquery.services.HyperfQuerySettings
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.dbDataSources
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.schemas
 import dev.ekvedaras.hyperfquery.utils.DatabasesConfig.Companion.databaseConnections
@@ -25,7 +26,12 @@ import dev.ekvedaras.hyperfquery.utils.DbReferenceResolver
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.unquoteAndCleanup
 import dev.ekvedaras.hyperfquery.utils.TableAndAliasCollector
 
-class DbReferenceExpression(val expression: PsiElement, val type: Type) {
+class DbReferenceExpression(
+    val expression: PsiElement,
+    val type: Type,
+    /** raw SQL 片段(selectRaw / Db::raw 等)中按 ',' 切出的段在 expression.text 中的范围;null 表示整串解析 */
+    private val segment: TextRange? = null,
+) {
     companion object {
         enum class Type {
             Table,
@@ -86,19 +92,30 @@ class DbReferenceExpression(val expression: PsiElement, val type: Type) {
         selectedConnection?.prefix
     }
 
+    /** 生效的表前缀: 连接 prefix 优先, 否则全局 tablePrefix 设置 */
+    val tablePrefix: String by lazy(LazyThreadSafetyMode.NONE) {
+        connectionPrefix ?: HyperfQuerySettings.getInstance(project).tablePrefix
+    }
+
+    /** raw SQL 片段(selectRaw / Db::raw 等)中的逗号分段;raw 里的表名/别名是带前缀的真实 SQL 写法 */
+    val isRawExpression: Boolean get() = segment != null
+
     val parts = mutableListOf<String>()
     val ranges = mutableListOf<TextRange>()
 
     init {
+        val text = segment?.let { expression.text.substring(it.startOffset, it.endOffset) } ?: expression.text
+        val baseOffset = segment?.startOffset ?: 1
+
         parts.addAll(
-            expression.text.unquoteAndCleanup()
+            text.unquoteAndCleanup()
                 .substringBefore("->") // strip out json fields
                 .split(".")
                 .map { it.substringBefore(" as").substringBefore(" AS").trim() }
         )
 
         for (part in parts) {
-            ranges.add(TextRange.from(if (ranges.isNotEmpty()) ranges.last().endOffset + 1 else 1, part.length))
+            ranges.add(TextRange.from(if (ranges.isNotEmpty()) ranges.last().endOffset + 1 else baseOffset, part.length))
         }
 
         if (!DumbService.isDumb(project)) {

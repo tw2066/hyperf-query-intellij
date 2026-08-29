@@ -142,7 +142,15 @@ class HyperfUtils private constructor() {
         @JvmStatic
         val BuilderTableColumnsParams = mapOf(
             "select" to listOf(-1),
+            "selectRaw" to listOf(0),
             "addSelect" to listOf(0),
+            "whereRaw" to listOf(0),
+            "orWhereRaw" to listOf(0),
+            "havingRaw" to listOf(0),
+            "orHavingRaw" to listOf(0),
+            "orderByRaw" to listOf(0),
+            "groupByRaw" to listOf(0),
+            "raw" to listOf(0),
             "join" to listOf(1, 2, 3),
             "joinWhere" to listOf(1),
             "joinSub" to listOf(2, 3, 4),
@@ -324,6 +332,17 @@ class HyperfUtils private constructor() {
             "insert" to listOf(0),
             "insertGetId" to listOf(0),
             "insertOrIgnore" to listOf(0),
+        )
+        // </editor-fold>
+
+        // <editor-fold desc="Methods whose string param is a raw SQL fragment (only simple column expressions are resolved)" defaultstate="collapsed">
+        @JvmStatic
+        val BuilderRawExpressionMethods = listOf(
+            "selectRaw",
+            "whereRaw", "orWhereRaw",
+            "havingRaw", "orHavingRaw",
+            "orderByRaw", "groupByRaw",
+            "raw",
         )
         // </editor-fold>
 
@@ -645,6 +664,9 @@ class HyperfUtils private constructor() {
 
         fun MethodReference.isBuilderMethodForColumns(): Boolean =
             BuilderTableColumnsParams.containsKey(this.name)
+
+        fun MethodReference.isRawExpressionMethod(): Boolean =
+            BuilderRawExpressionMethods.contains(this.name)
 
         fun MethodReference.isBuilderMethodForIndexes(): Boolean =
             BuilderTableIndexesParams.containsKey(this.name)

@@ -28,6 +28,91 @@ internal class SchemaTableColumnReferenceTest : BaseTestCase() {
         TestCase.assertEquals(78 + column.name.length, usages.first().navigationRange.endOffset)
     }
 
+    fun testResolvesSelectRawColumnReference() {
+        myFixture.configureByFile("inspection/knownSelectRawColumn.php")
+
+        val column = DasUtil.getTables(dataSource())
+            .first { it.name == "users" }
+            .getDasChildren(ObjectKind.COLUMN)
+            .first { it.name == "id" }
+        val dbColumn = DbImplUtil.findElement(DbUtil.getDataSources(project).first(), column)
+            ?: return fail("Failed to resolve DB column")
+
+        val usages = myFixture.findUsages(dbColumn)
+
+        UsefulTestCase.assertSize(1, usages)
+        TestCase.assertEquals(ColumnPsiReference::class.java, usages.first().referenceClass)
+        val expectedStart = myFixture.file.text.indexOf("'id'") + 1
+        TestCase.assertEquals(expectedStart, usages.first().navigationRange.startOffset)
+        TestCase.assertEquals(expectedStart + column.name.length, usages.first().navigationRange.endOffset)
+    }
+
+    fun testResolvesDbRawColumnReference() {
+        myFixture.configureByFile("reference/dbRawColumn.php")
+
+        val column = DasUtil.getTables(dataSource())
+            .first { it.name == "users" }
+            .getDasChildren(ObjectKind.COLUMN)
+            .first { it.name == "id" }
+        val dbColumn = DbImplUtil.findElement(DbUtil.getDataSources(project).first(), column)
+            ?: return fail("Failed to resolve DB column")
+
+        val usages = myFixture.findUsages(dbColumn)
+
+        UsefulTestCase.assertSize(1, usages)
+        TestCase.assertEquals(ColumnPsiReference::class.java, usages.first().referenceClass)
+        val expectedStart = myFixture.file.text.indexOf("'id'") + 1
+        TestCase.assertEquals(expectedStart, usages.first().navigationRange.startOffset)
+        TestCase.assertEquals(expectedStart + column.name.length, usages.first().navigationRange.endOffset)
+    }
+
+    fun testResolvesSelectRawCommaSegmentColumnReference() {
+        myFixture.configureByFile("reference/selectRawColumns.php")
+
+        val column = DasUtil.getTables(dataSource())
+            .first { it.name == "users" }
+            .getDasChildren(ObjectKind.COLUMN)
+            .first { it.name == "email" }
+        val dbColumn = DbImplUtil.findElement(DbUtil.getDataSources(project).first(), column)
+            ?: return fail("Failed to resolve DB column")
+
+        val usages = myFixture.findUsages(dbColumn)
+
+        UsefulTestCase.assertSize(1, usages)
+        TestCase.assertEquals(ColumnPsiReference::class.java, usages.first().referenceClass)
+        val expectedStart = myFixture.file.text.indexOf("email")
+        TestCase.assertEquals(expectedStart, usages.first().navigationRange.startOffset)
+        TestCase.assertEquals(expectedStart + column.name.length, usages.first().navigationRange.endOffset)
+    }
+
+    fun testResolvesPrefixedRawAliasAndTableReference() {
+        addPrefixedGoodsConfig()
+        myFixture.configureByFile("reference/prefixedRawColumn.php")
+
+        val table = DasUtil.getTables(dataSource()).first { it.name == "jc_goods" }
+        val column = table.getDasChildren(ObjectKind.COLUMN).first { it.name == "number" }
+
+        val dbTable = DbImplUtil.findElement(DbUtil.getDataSources(project).first(), table)
+            ?: return fail("Failed to resolve DB table")
+        val dbColumn = DbImplUtil.findElement(DbUtil.getDataSources(project).first(), column)
+            ?: return fail("Failed to resolve DB column")
+
+        val columnUsages = myFixture.findUsages(dbColumn)
+        UsefulTestCase.assertSize(1, columnUsages)
+        TestCase.assertEquals(ColumnPsiReference::class.java, columnUsages.first().referenceClass)
+        val expectedColumnStart = myFixture.file.text.indexOf("number")
+        TestCase.assertEquals(expectedColumnStart, columnUsages.first().navigationRange.startOffset)
+
+        // jc_a 段同时通过 TableOrViewPsiReference 解析到 jc_goods 表。
+        // 注意: 不能用 findUsages(dbTable) —— 它按元素名 jc_goods 做文本预过滤,
+        // 而带前缀的写法文件里只有 jc_a/goods 字样(与 SchemaTableReferenceTest 中注释掉的用例同因)。
+        val aliasReferences = myFixture.file.findElementAt(myFixture.file.text.indexOf("jc_a") + 1)
+            ?.parent?.references ?: emptyArray()
+        TestCase.assertTrue(
+            aliasReferences.filterIsInstance<TableOrViewPsiReference>().any { it.resolve() == dbTable }
+        )
+    }
+
     fun testItDoesNotResolveColumnsFromOtherTablesBecauseOfTheContext() {
         myFixture.configureByFile("inspection/knownColumn.php")
 

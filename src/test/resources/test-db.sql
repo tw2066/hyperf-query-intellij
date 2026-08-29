@@ -52,3 +52,11 @@ create table migrations
 	migration varchar(255) not null,
 	batch int not null
 );
+
+create table jc_goods
+(
+	id bigint unsigned auto_increment
+		primary key,
+	number varchar(40),
+	name varchar(100)
+);
