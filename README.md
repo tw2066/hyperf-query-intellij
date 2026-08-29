@@ -1,5 +1,7 @@
 # Hyperf Query
 
+English | [中文文档](README_ZH.md)
+
 <!-- Plugin description -->
 This plugin provides database integration for Hyperf query builder. It works with DataGrip to provide autocompletion for database schemas, tables, views, and columns.
 
