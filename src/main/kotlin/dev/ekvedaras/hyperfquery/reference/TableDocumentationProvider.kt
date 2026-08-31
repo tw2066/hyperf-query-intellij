@@ -13,6 +13,7 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isDbFacadeSqlBindin
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsideRegularFunction
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isTableParam
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelTablePropertyClass
 import dev.ekvedaras.hyperfquery.utils.MethodUtils
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsVariable
 
@@ -71,6 +72,12 @@ class TableDocumentationProvider : AbstractDocumentationProvider() {
         if (literal.containsVariable()) {
             return false
         }
+
+        // 模型 $table 属性默认值: 与方法内表名参数一样走轻量摘要
+        if (literal.modelTablePropertyClass() != null) {
+            return true
+        }
+
         val method = MethodUtils.resolveMethodReference(literal) ?: return false
         val project = method.project
 

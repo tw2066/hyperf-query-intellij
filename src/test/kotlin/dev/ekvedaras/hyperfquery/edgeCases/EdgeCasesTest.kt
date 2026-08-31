@@ -185,6 +185,13 @@ internal class EdgeCasesTest : BaseTestCase() {
         assertNoCompletion("trial_ends_at", "billable_id")
     }
 
+    fun testCompletesColumnsOnWhereArrayPlainValue() {
+        myFixture.configureByFile("edgeCases/whereArrayPlainValue.php")
+        myFixture.completeBasic()
+        assertCompletion("first_name", "last_name", "email")
+        assertNoCompletion("trial_ends_at", "billable_id")
+    }
+
     fun testResolvesColumnReferenceOnSecondWhereArrayKey() {
         myFixture.configureByFile("edgeCases/whereAssociativeArraySecondKeyReference.php")
 

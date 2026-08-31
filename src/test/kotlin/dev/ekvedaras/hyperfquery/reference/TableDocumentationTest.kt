@@ -54,4 +54,38 @@ internal class TableDocumentationTest : BaseTestCase() {
         val doc = docAt("<?php \\Hyperf\\DbConnection\\Db::table('users')->where('i<caret>d', 1);")
         assertNull("No table documentation for a column argument", doc)
     }
+
+    fun testDocForModelTableProperty() {
+        val doc = checkNotNull(
+            docAt(
+                """
+                <?php
+                namespace App {
+                    class Goods extends \Hyperf\Database\Model\Model
+                    {
+                        protected ${'$'}table = 'use<caret>rs';
+                    }
+                }
+                """.trimIndent()
+            )
+        ) { "No documentation generated" }
+        assertTrue("doc should show the schema", doc.contains("testProject1"))
+        assertTrue("doc should show the table", doc.contains("users"))
+        assertFalse("doc should be summary-only, no counts", doc.contains("columns:"))
+    }
+
+    fun testNoDocForNonModelTableProperty() {
+        val doc = docAt(
+            """
+            <?php
+            namespace App {
+                class NotAModel
+                {
+                    protected ${'$'}table = 'use<caret>rs';
+                }
+            }
+            """.trimIndent()
+        )
+        assertNull("No table documentation for table property on non-model classes", doc)
+    }
 }
