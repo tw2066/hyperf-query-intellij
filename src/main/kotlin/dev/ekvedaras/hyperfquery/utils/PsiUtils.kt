@@ -4,7 +4,7 @@ import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReference
-import com.intellij.psi.search.ProjectScope
+import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.elementType
 import com.intellij.psi.util.parentOfType
@@ -84,10 +84,13 @@ class PsiUtils private constructor() {
             }
             return null
         }
+        // 查询构建器变量几乎都在同文件内流转,文件范围搜索避免全项目索引扫描。
+        // 作用域取 originalElement 所在文件: 补全场景元素来自副本文件,
+        // 以其 containingFile 为范围会搜不到真实文件中的引用
         fun Variable.references(): @NotNull Query<PsiReference> =
-            ReferencesSearch.search(this.originalElement, ProjectScope.getProjectScope(this.project), false)
+            ReferencesSearch.search(this.originalElement, LocalSearchScope(this.originalElement.containingFile), false)
         fun Parameter.references(): @NotNull Query<PsiReference> =
-            ReferencesSearch.search(this.originalElement, ProjectScope.getProjectScope(this.project), false)
+            ReferencesSearch.search(this.originalElement, LocalSearchScope(this.originalElement.containingFile), false)
 
         fun PsiReference.statementFirstPsiChild(): PsiElement? = this.element.parentOfType<Statement>()?.firstPsiChild
         private fun PsiElement.typeAsInt(): Int = this.elementType?.index?.toInt() ?: 0

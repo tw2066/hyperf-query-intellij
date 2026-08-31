@@ -50,12 +50,12 @@ class UnknownColumnInspection : PhpInspection() {
 
                 if (method.isRawExpressionMethod()) {
                     expression.text.simpleColumnExpressionSegments().forEach { segment ->
-                        inspect(DbReferenceExpression(expression, DbReferenceExpression.Companion.Type.Column, segment), expression)
+                        inspect(DbReferenceExpression.create(expression, DbReferenceExpression.Companion.Type.Column, segment), expression)
                     }
                     return
                 }
 
-                inspect(DbReferenceExpression(expression, DbReferenceExpression.Companion.Type.Column), expression)
+                inspect(DbReferenceExpression.create(expression, DbReferenceExpression.Companion.Type.Column), expression)
             }
 
             private fun inspect(target: DbReferenceExpression, expression: StringLiteralExpression) {

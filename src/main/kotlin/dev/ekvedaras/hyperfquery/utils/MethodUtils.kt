@@ -5,7 +5,12 @@ import com.intellij.database.util.isInstanceOf
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiManager
+import com.intellij.psi.util.CachedValue
+import com.intellij.psi.util.CachedValueProvider
+import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.parentOfType
 import com.intellij.util.ArrayUtil
 import com.jetbrains.php.PhpIndex
@@ -23,6 +28,13 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isJoinOrRelation
 
 class MethodUtils private constructor() {
     companion object {
+        private val MethodTypeClassesKey = Key<CachedValue<List<PhpClassImpl>>>(
+            "hyperfquery.method.type.classes"
+        )
+        private val MethodClassesKey = Key<CachedValue<List<PhpClassImpl>>>(
+            "hyperfquery.method.classes"
+        )
+
         fun resolveMethodReference(element: PsiElement?, depthLimit: Int = 10): MethodReference? {
             if (element == null || depthLimit <= 0) {
                 return null
@@ -35,6 +47,8 @@ class MethodUtils private constructor() {
             return resolveMethodReference(element.parent, depthLimit - 1)
         }
 
+        // 同一方法引用会被多个门控检查(isInteresting/isBlueprintMethod/...)反复解析类型,
+        // 按 MethodReference 缓存,PSI 变更后失效;dumb mode 不缓存避免残留空结果
         fun resolveMethodTypeClasses(method: MethodReference, project: Project): List<PhpClassImpl> {
             if (
                 DumbService.isDumb(project) ||
@@ -43,6 +57,20 @@ class MethodUtils private constructor() {
                 return listOf()
             }
 
+            return CachedValuesManager.getManager(project).getCachedValue(
+                method,
+                MethodTypeClassesKey,
+                {
+                    CachedValueProvider.Result.create(
+                        computeTypeClasses(method, project),
+                        PsiManager.getInstance(project).modificationTracker,
+                    )
+                },
+                false,
+            )
+        }
+
+        private fun computeTypeClasses(method: MethodReference, project: Project): List<PhpClassImpl> {
             val classes = mutableListOf<PhpClassImpl>()
 
             PhpIndex
@@ -64,6 +92,20 @@ class MethodUtils private constructor() {
                 return listOf()
             }
 
+            return CachedValuesManager.getManager(project).getCachedValue(
+                method,
+                MethodClassesKey,
+                {
+                    CachedValueProvider.Result.create(
+                        computeClasses(method, project),
+                        PsiManager.getInstance(project).modificationTracker,
+                    )
+                },
+                false,
+            )
+        }
+
+        private fun computeClasses(method: MethodReference, project: Project): List<PhpClassImpl> {
             val classes = mutableListOf<PhpClassImpl>()
 
             PhpIndex

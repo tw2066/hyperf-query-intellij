@@ -48,7 +48,6 @@ import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.references
 import dev.ekvedaras.hyperfquery.utils.SchemaMethod.Companion.blueprintTableParam
 import dev.ekvedaras.hyperfquery.utils.SchemaMethod.Companion.statementsForTable
 import icons.DatabaseIcons
-import java.util.Collections
 
 class NewMigrationCompletionProvider : CompletionProvider<CompletionParameters>() {
     override fun addCompletions(
@@ -63,12 +62,12 @@ class NewMigrationCompletionProvider : CompletionProvider<CompletionParameters>(
             return
         }
 
-        val target = DbReferenceExpression(parameters.position, DbReferenceExpression.Companion.Type.Column)
+        val target = DbReferenceExpression.create(parameters.position, DbReferenceExpression.Companion.Type.Column)
         if (target.tablesAndAliases.isEmpty()) {
             return
         }
 
-        val items = Collections.synchronizedList(mutableListOf<LookupElement>())
+        val items = mutableListOf<LookupElement>()
 
         var table: DasTable? = null;
 

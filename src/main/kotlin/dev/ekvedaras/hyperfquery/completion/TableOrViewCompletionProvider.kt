@@ -9,9 +9,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.ProcessingContext
 import com.jetbrains.php.lang.psi.elements.MethodReference
 import dev.ekvedaras.hyperfquery.models.DbReferenceExpression
-import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.dbDataSourcesInParallel
-import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.schemasInParallel
-import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.tablesInParallel
+import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.dbDataSources
+import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.schemas
+import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.tables
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBuilderMethodForTableByName
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isDbFacadeSqlBindingMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isEloquentModel
@@ -24,7 +24,6 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.shouldCompleteSchem
 import dev.ekvedaras.hyperfquery.utils.LookupUtils.Companion.buildLookup
 import dev.ekvedaras.hyperfquery.utils.MethodUtils
 import dev.ekvedaras.hyperfquery.utils.isJoinOrRelation
-import java.util.Collections
 
 class TableOrViewCompletionProvider : CompletionProvider<CompletionParameters>() {
     override fun addCompletions(
@@ -39,8 +38,8 @@ class TableOrViewCompletionProvider : CompletionProvider<CompletionParameters>()
             return
         }
 
-        val target = DbReferenceExpression(parameters.position, DbReferenceExpression.Companion.Type.Table)
-        val items = Collections.synchronizedList(mutableListOf<LookupElement>())
+        val target = DbReferenceExpression.create(parameters.position, DbReferenceExpression.Companion.Type.Table)
+        val items = mutableListOf<LookupElement>()
 
         if (ApplicationManager.getApplication().isReadAccessAllowed) {
             ApplicationManager.getApplication().runReadAction {
@@ -64,9 +63,9 @@ class TableOrViewCompletionProvider : CompletionProvider<CompletionParameters>()
         target: DbReferenceExpression,
         result: MutableList<LookupElement>
     ) {
-        project.dbDataSourcesInParallel().forEach dataSources@{ dataSource ->
+        project.dbDataSources().forEach dataSources@{ dataSource ->
             if (method.shouldCompleteSchemas(project)) {
-                dataSource.schemasInParallel(target.connectionSchema).forEach { schema ->
+                dataSource.schemas(target.connectionSchema).forEach { schema ->
                     result.add(schema.buildLookup(project, dataSource))
                 }
 
@@ -75,7 +74,7 @@ class TableOrViewCompletionProvider : CompletionProvider<CompletionParameters>()
                 }
             }
 
-            dataSource.tablesInParallel(target.connectionSchema, target.connectionPrefix).forEach { table ->
+            dataSource.tables(target.connectionSchema, target.connectionPrefix).forEach { table ->
                 result.add(table.buildLookup(project, connectionPrefix = target.connectionPrefix))
             }
         }
@@ -86,8 +85,8 @@ class TableOrViewCompletionProvider : CompletionProvider<CompletionParameters>()
         target: DbReferenceExpression,
         result: MutableList<LookupElement>,
     ) {
-        target.schema.parallelStream().forEach { schema ->
-            schema.tablesInParallel(project, target.connectionPrefix).forEach { table ->
+        target.schema.forEach { schema ->
+            schema.tables(project, target.connectionPrefix).forEach { table ->
                 result.add(table.buildLookup(project, true, connectionPrefix = target.connectionPrefix))
             }
         }

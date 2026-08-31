@@ -13,7 +13,7 @@ class TableOrViewPsiReference(
     private val segment: TextRange? = null,
 ) : PsiReferenceBase<PsiElement>(element) {
     override fun resolve(): PsiElement? {
-        val target = DbReferenceExpression(element, type, segment)
+        val target = DbReferenceExpression.create(element, type, segment)
 
         rangeInElement = if (target.schema.isNotEmpty() && target.ranges.size > 1) {
             target.ranges[1]

@@ -7,16 +7,15 @@ import com.intellij.database.model.DasNamespace
 import com.intellij.database.model.DasTable
 import com.intellij.database.model.DasTableKey
 import com.intellij.openapi.application.ReadAction
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiManager
-import com.intellij.psi.PsiTreeChangeAdapter
-import com.intellij.psi.PsiTreeChangeEvent
+import com.intellij.psi.util.CachedValue
+import com.intellij.psi.util.CachedValueProvider
+import com.intellij.psi.util.CachedValuesManager
 import dev.ekvedaras.hyperfquery.services.HyperfQuerySettings
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.dbDataSources
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.schemas
@@ -25,6 +24,7 @@ import dev.ekvedaras.hyperfquery.utils.DatabasesConnection
 import dev.ekvedaras.hyperfquery.utils.DbReferenceResolver
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.unquoteAndCleanup
 import dev.ekvedaras.hyperfquery.utils.TableAndAliasCollector
+import java.util.Collections
 
 class DbReferenceExpression(
     val expression: PsiElement,
@@ -40,9 +40,40 @@ class DbReferenceExpression(
             Key,
             ForeignKey,
         }
-        
-        private val LOG = Logger.getInstance(DbReferenceExpression::class.java)
-        private const val TIMEOUT_SECONDS = 5L
+
+        private val ResolutionCacheKey = Key<CachedValue<MutableMap<String, DbReferenceExpression>>>(
+            "hyperfquery.db.reference.resolutions"
+        )
+
+        /**
+         * 按 (字符串元素, 引用类型, raw 分段) 缓存解析结果,任意 PSI 变更后整体失效。
+         * 同一字符串的 inspection / reference / completion 共享一次解析,避免重复扫描。
+         * 数据库模型变更不会触发失效(回退到下一次 PSI 变更时刷新),与既有行为一致可接受。
+         */
+        @JvmStatic
+        fun create(expression: PsiElement, type: Type, segment: TextRange? = null): DbReferenceExpression {
+            // dumb mode 下解析结果必然为空,直接返回不缓存,避免索引就绪后残留空结果
+            if (DumbService.isDumb(expression.project)) {
+                return DbReferenceExpression(expression, type, segment)
+            }
+
+            val resolutions = CachedValuesManager.getManager(expression.project).getCachedValue(
+                expression,
+                ResolutionCacheKey,
+                {
+                    CachedValueProvider.Result.create(
+                        Collections.synchronizedMap(mutableMapOf<String, DbReferenceExpression>()),
+                        PsiManager.getInstance(expression.project).modificationTracker,
+                    )
+                },
+                false,
+            )
+
+            val key = "${type.name}:${segment?.startOffset ?: -1}:${segment?.endOffset ?: -1}"
+            return synchronized(resolutions) {
+                resolutions.getOrPut(key) { DbReferenceExpression(expression, type, segment) }
+            }
+        }
     }
 
     val project: Project = expression.project
@@ -119,35 +150,10 @@ class DbReferenceExpression(
         }
 
         if (!DumbService.isDumb(project)) {
-            val expressionDisposable = Disposer.newDisposable()
-            PsiManager.getInstance(project).addPsiTreeChangeListener(object : PsiTreeChangeAdapter() {
-                override fun childrenChanged(event: PsiTreeChangeEvent) {
-                    expressionDisposable.dispose()
-                }
-            }, expressionDisposable)
-            
-            try {
-                ReadAction.nonBlocking<Unit> {
-                    try {
-                        TableAndAliasCollector(this).collect()
-                        DbReferenceResolver(this).resolve()
-                    } catch (_: ProcessCanceledException) {
-                        // Process canceled, skip resolution
-                    }
-                }
-                .inSmartMode(project)
-                .expireWith(expressionDisposable)
-                .executeSynchronously()
-            } catch (e: IllegalStateException) {
-                // Handle inSmartMode constraint failure (issue #120)
-                if (e.message?.contains("inSmartMode") == true) {
-                    LOG.debug("Cannot satisfy inSmartMode constraint, skipping DB reference resolution")
-                } else {
-                    LOG.warn("Unexpected error during DB reference resolution", e)
-                }
-            } catch (_: ProcessCanceledException) {
-                // Process was canceled, skip resolution
-                LOG.debug("Process canceled during DB reference resolution")
+            // ProcessCanceledException 向上抛出: 取消时不缓存半成品结果,由平台重试
+            ReadAction.compute<Unit, RuntimeException> {
+                TableAndAliasCollector(this).collect()
+                DbReferenceResolver(this).resolve()
             }
         }
     }

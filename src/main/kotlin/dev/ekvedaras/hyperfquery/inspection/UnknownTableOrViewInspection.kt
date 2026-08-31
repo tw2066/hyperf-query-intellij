@@ -33,7 +33,7 @@ class UnknownTableOrViewInspection : PhpInspection() {
                     return
                 }
 
-                val target = DbReferenceExpression(expression, DbReferenceExpression.Companion.Type.Table)
+                val target = DbReferenceExpression.create(expression, DbReferenceExpression.Companion.Type.Table)
 
                 if (target.table.isEmpty()) {
                     holder.registerProblem(

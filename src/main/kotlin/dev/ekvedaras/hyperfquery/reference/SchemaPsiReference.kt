@@ -13,7 +13,7 @@ class SchemaPsiReference(
     private val segment: TextRange? = null,
 ) : PsiReferenceBase<PsiElement>(element) {
     override fun resolve(): PsiElement? {
-        val target = DbReferenceExpression(element, type, segment)
+        val target = DbReferenceExpression.create(element, type, segment)
 
         rangeInElement = target.ranges.first()
 

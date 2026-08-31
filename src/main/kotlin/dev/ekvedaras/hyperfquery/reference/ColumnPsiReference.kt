@@ -12,7 +12,7 @@ import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.tableNameWithoutP
 class ColumnPsiReference(element: PsiElement, private val segment: TextRange? = null) :
     PsiReferenceBase<PsiElement>(element) {
     override fun resolve(): PsiElement? {
-        val target = DbReferenceExpression(element, DbReferenceExpression.Companion.Type.Column, segment)
+        val target = DbReferenceExpression.create(element, DbReferenceExpression.Companion.Type.Column, segment)
         val tables = target.tablesAndAliases.values.map { it.first }
 
         rangeInElement = target.ranges.last()

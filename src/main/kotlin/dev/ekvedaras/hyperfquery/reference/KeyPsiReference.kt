@@ -9,7 +9,7 @@ import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.nameWithoutPrefix
 
 class KeyPsiReference(element: PsiElement) : PsiReferenceBase<PsiElement>(element) {
     override fun resolve(): PsiElement? {
-        val target = DbReferenceExpression(element, DbReferenceExpression.Companion.Type.Key)
+        val target = DbReferenceExpression.create(element, DbReferenceExpression.Companion.Type.Key)
         val tables = target.tablesAndAliases.values.map { it.first }
 
         rangeInElement = target.ranges.last()

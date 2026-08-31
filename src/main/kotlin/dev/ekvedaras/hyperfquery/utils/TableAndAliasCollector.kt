@@ -28,7 +28,6 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.tableName
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsAlias
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.statementFirstPsiChild
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.unquoteAndCleanup
-import java.util.Collections
 
 class TableAndAliasCollector(private val reference: DbReferenceExpression) {
     private val aliasCollector = AliasCollector(reference)
@@ -45,7 +44,7 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
             }
             return
         }
-        val methods = Collections.synchronizedList(mutableListOf<MethodReference>())
+        val methods = mutableListOf<MethodReference>()
 
         ProgressManager.checkCanceled()
 

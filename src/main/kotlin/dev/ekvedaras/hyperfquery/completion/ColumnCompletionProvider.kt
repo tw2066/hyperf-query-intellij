@@ -14,12 +14,11 @@ import dev.ekvedaras.hyperfquery.models.DbReferenceExpression
 import dev.ekvedaras.hyperfquery.utils.BlueprintMethod.Companion.createsTable
 import dev.ekvedaras.hyperfquery.utils.BlueprintMethod.Companion.isColumnDefinition
 import dev.ekvedaras.hyperfquery.utils.BlueprintMethod.Companion.isInsideUpMigration
-import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.columnsInParallel
-import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.dbDataSourcesInParallel
+import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.columns
+import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.dbDataSources
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.nameWithoutPrefix
-import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.schemasInParallel
+import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.schemas
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.tables
-import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.tablesInParallel
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.canHaveColumnsInArrayValues
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.canOnlyHaveColumnsInArrayValues
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isAssocArrayValue
@@ -40,7 +39,6 @@ import dev.ekvedaras.hyperfquery.utils.LookupUtils.Companion.buildLookup
 import dev.ekvedaras.hyperfquery.utils.MethodUtils
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.completableCaretColumnSegment
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsVariable
-import java.util.Collections
 
 class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
     CompletionProvider<CompletionParameters>() {
@@ -79,8 +77,8 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         } else {
             null
         }
-        val target = DbReferenceExpression(parameters.position, DbReferenceExpression.Companion.Type.Column, rawSegment)
-        val items = Collections.synchronizedList(mutableListOf<LookupElement>())
+        val target = DbReferenceExpression.create(parameters.position, DbReferenceExpression.Companion.Type.Column, rawSegment)
+        val items = mutableListOf<LookupElement>()
 
         if (ApplicationManager.getApplication().isReadAccessAllowed) {
             ApplicationManager.getApplication().runReadAction {
@@ -110,19 +108,21 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         val project = parameters.position.project
         parameters.position.modelColumnPropertyClass() ?: return
 
-        val target = DbReferenceExpression(parameters.position, DbReferenceExpression.Companion.Type.Column)
+        val target = DbReferenceExpression.create(parameters.position, DbReferenceExpression.Companion.Type.Column)
         if (target.parts.size != 1) {
             return
         }
 
-        val items = Collections.synchronizedList(mutableListOf<LookupElement>())
+        val items = mutableListOf<LookupElement>()
         ApplicationManager.getApplication().runReadAction {
-            project.dbDataSourcesInParallel().forEach { dataSource ->
+            project.dbDataSources().forEach { dataSource ->
+                // 每个数据源只物化一次表列表,再逐个别名匹配
+                val tables = dataSource.tables(target.connectionSchema, target.connectionPrefix).toList()
                 target.tablesAndAliases.forEach { tableAlias ->
-                    dataSource.tables(target.connectionSchema, target.connectionPrefix).firstOrNull { dasTable ->
+                    tables.firstOrNull { dasTable ->
                         dasTable.nameWithoutPrefix(project, target.connectionPrefix) == tableAlias.value.first &&
                             (tableAlias.value.second == null || dasTable.dasParent?.name == tableAlias.value.second)
-                    }?.columnsInParallel()?.forEach { column ->
+                    }?.columns()?.forEach { column ->
                         items.add(column.buildLookup(project, connectionPrefix = target.connectionPrefix))
                     }
                 }
@@ -145,9 +145,9 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
             method.isColumnDefinitionMethod(project) ||
             method.shouldCompleteOnlyColumns()
 
-        project.dbDataSourcesInParallel().forEach { dataSource ->
+        project.dbDataSources().forEach { dataSource ->
             if (!onlyColumns) {
-                dataSource.schemasInParallel(target.connectionSchema).filter {
+                dataSource.schemas(target.connectionSchema).filter {
                     shouldCompleteAll || schemas.isEmpty() || schemas.contains(it.name)
                 }.forEach { schema ->
                     addSchemaAndItsTables(items, schema, project, dataSource, target)
@@ -170,7 +170,7 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         items.add(schema.buildLookup(project, dataSource))
 
         if (shouldCompleteAll || target.tablesAndAliases.isEmpty()) {
-            schema.tablesInParallel(project, target.connectionPrefix).forEach { table ->
+            schema.tables(project, target.connectionPrefix).forEach { table ->
                 items.add(
                     table.buildLookup(
                         project,
@@ -192,8 +192,10 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         rawInsertionPrefix: String? = null,
     ) {
         result.addLookupAdvertisement("CTRL(CMD) + SHIFT + Space to see all options")
+        // 每个数据源只物化一次表列表,再逐个别名匹配
+        val tables = dataSource.tables(target.connectionSchema, target.connectionPrefix).toList()
         target.tablesAndAliases.forEach { tableAlias ->
-            val table = dataSource.tables(target.connectionSchema, target.connectionPrefix).firstOrNull { dasTable ->
+            val table = tables.firstOrNull { dasTable ->
                 dasTable.nameWithoutPrefix(project, target.connectionPrefix) == tableAlias.value.first &&
                     (tableAlias.value.second == null || dasTable.dasParent?.name == tableAlias.value.second)
             }
@@ -204,7 +206,7 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
                 )
             }
 
-            table?.columnsInParallel()?.forEach { column ->
+            table?.columns()?.forEach { column ->
                 items.add(
                     column.buildLookup(project, connectionPrefix = target.connectionPrefix, verbatimInsertPrefix = rawInsertionPrefix)
                 )
@@ -218,7 +220,7 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         result: MutableList<LookupElement>,
         rawInsertionPrefix: String? = null,
     ) {
-        project.dbDataSourcesInParallel().forEach {
+        project.dbDataSources().forEach {
             if (target.schema.isNotEmpty()) {
                 addTables(target, result, project)
             } else {
@@ -233,7 +235,7 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         project: Project,
         rawInsertionPrefix: String? = null,
     ) {
-        target.table.parallelStream().forEach { table ->
+        target.table.forEach { table ->
             // raw 段里插入文本保留光标前已输入的内容,列名前不再加表名/别名前缀
             val alias = if (target.isRawExpression) {
                 null
@@ -243,7 +245,7 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
                     .firstOrNull { it.value.first == table.nameWithoutPrefix(project, target.connectionPrefix) }?.key
             }
 
-            table.columnsInParallel().forEach { column ->
+            table.columns().forEach { column ->
                 result.add(
                     column.buildLookup(
                         project,
@@ -263,8 +265,8 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         result: MutableList<LookupElement>,
         project: Project
     ) {
-        target.schema.parallelStream().forEach { schema ->
-            schema.tablesInParallel(project, target.connectionPrefix).forEach { table ->
+        target.schema.forEach { schema ->
+            schema.tables(project, target.connectionPrefix).forEach { table ->
                 result.add(
                     table.buildLookup(
                         project,
@@ -283,8 +285,8 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
         result: MutableList<LookupElement>,
         rawInsertionPrefix: String? = null,
     ) {
-        target.table.parallelStream().forEach { table ->
-            table.columnsInParallel().forEach { column ->
+        target.table.forEach { table ->
+            table.columns().forEach { column ->
                 result.add(
                     column.buildLookup(
                         project,

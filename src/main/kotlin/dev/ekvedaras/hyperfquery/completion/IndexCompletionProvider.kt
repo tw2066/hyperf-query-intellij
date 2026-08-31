@@ -10,13 +10,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.ProcessingContext
 import com.jetbrains.php.lang.psi.elements.MethodReference
 import dev.ekvedaras.hyperfquery.models.DbReferenceExpression
-import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.dbDataSourcesInParallel
-import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.foreignKeysInParallel
-import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.indexesInParallel
-import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.keysInParallel
+import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.dbDataSources
+import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.foreignKeys
+import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.indexes
+import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.keys
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.nameWithoutPrefix
-import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.schemasInParallel
-import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.tablesInParallel
+import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.schemas
+import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.tables
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.canOnlyHaveColumnsInArrayValues
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBlueprintMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBuilderMethodForForeignKeys
@@ -35,7 +35,6 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isUniqueIndexIn
 import dev.ekvedaras.hyperfquery.utils.LookupUtils.Companion.buildLookup
 import dev.ekvedaras.hyperfquery.utils.MethodUtils
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsVariable
-import java.util.Collections
 import java.util.function.Consumer
 
 class IndexCompletionProvider : CompletionProvider<CompletionParameters>() {
@@ -51,7 +50,7 @@ class IndexCompletionProvider : CompletionProvider<CompletionParameters>() {
             return
         }
 
-        val target = DbReferenceExpression(
+        val target = DbReferenceExpression.create(
             parameters.position,
             when {
                 method.isForIndexes() || method.isForUniqueIndexes() -> DbReferenceExpression.Companion.Type.Index
@@ -60,7 +59,7 @@ class IndexCompletionProvider : CompletionProvider<CompletionParameters>() {
             }
         )
 
-        val items = Collections.synchronizedList(mutableListOf<LookupElement>())
+        val items = mutableListOf<LookupElement>()
 
         if (ApplicationManager.getApplication().isReadAccessAllowed) {
             ApplicationManager.getApplication().runReadAction {
@@ -88,20 +87,20 @@ class IndexCompletionProvider : CompletionProvider<CompletionParameters>() {
 
         when {
             method.isForIndexes() -> completeFor(project, schemas, tables, target.connectionPrefix) { table ->
-                table.indexesInParallel()
+                table.indexes()
                     .filter { !it.isUnique }
                     .forEach { result.add(it.buildLookup(project)) }
             }
             method.isForUniqueIndexes() -> completeFor(project, schemas, tables, target.connectionPrefix) { table ->
-                table.indexesInParallel()
+                table.indexes()
                     .filter { it.isUnique }
                     .forEach { result.add(it.buildLookup(project)) }
             }
             method.isForKeys() -> completeFor(project, schemas, tables, target.connectionPrefix) { table ->
-                table.keysInParallel().forEach { result.add(it.buildLookup(project)) }
+                table.keys().forEach { result.add(it.buildLookup(project)) }
             }
             else -> completeFor(project, schemas, tables, target.connectionPrefix) { table ->
-                table.foreignKeysInParallel().forEach { result.add(it.buildLookup(project)) }
+                table.foreignKeys().forEach { result.add(it.buildLookup(project)) }
             }
         }
     }
@@ -113,11 +112,11 @@ class IndexCompletionProvider : CompletionProvider<CompletionParameters>() {
         connectionPrefix: String?,
         scanTableUsing: Consumer<DasTable>
     ) {
-        project.dbDataSourcesInParallel().forEach { dataSource ->
-            dataSource.schemasInParallel().filter {
+        project.dbDataSources().forEach { dataSource ->
+            dataSource.schemas().filter {
                 schemas.isEmpty() || schemas.contains(it.name)
             }.forEach { schema ->
-                schema.tablesInParallel(project, connectionPrefix)
+                schema.tables(project, connectionPrefix)
                     .filter { tables.contains(it.nameWithoutPrefix(project, connectionPrefix)) }
                     .forEach(scanTableUsing)
             }

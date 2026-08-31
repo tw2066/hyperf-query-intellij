@@ -21,21 +21,10 @@ private val SchemasToSkip = listOf(
 
 class DatabaseUtils private constructor() {
     companion object {
-        fun Project.dbDataSourcesInParallel(): Stream<out DbDataSource> =
-            DbUtil.getDataSources(this).toList().parallelStream().filter {
-                HyperfQuerySettings.getInstance(this).interestedIn(it)
-            }
-
         fun Project.dbDataSources(): Stream<out DbDataSource> =
             DbUtil.getDataSources(this).toList().stream().filter {
                 HyperfQuerySettings.getInstance(this).interestedIn(it)
             }
-
-        fun DbDataSource.schemasInParallel(onlySchema: String? = null): Stream<out DasNamespace> =
-            DasUtil.getSchemas(this).toList().parallelStream().filter {
-                HyperfQuerySettings.getInstance(this.project).interestedIn(it, this)
-            }.filter { !SchemasToSkip.contains(it.name) }
-                .filter { onlySchema == null || it.name == onlySchema }
 
         fun DbDataSource.schemas(onlySchema: String? = null): Stream<out DasNamespace> =
             DasUtil.getSchemas(this).toList().stream().filter {
@@ -50,14 +39,6 @@ class DatabaseUtils private constructor() {
                 it.isPrefixed(this.project, connectionPrefix)
             }.filter { onlySchema == null || it.dasParent?.name == onlySchema }
 
-        fun DbDataSource.tablesInParallel(onlySchema: String? = null, connectionPrefix: String? = null): Stream<out DasTable> =
-            DasUtil.getTables(this).toList().parallelStream().filter {
-                HyperfQuerySettings.getInstance(this.project).interestedIn(it, this)
-            }.filter {
-                !it.isSystem && !SchemasToSkip.contains(it.dasParent?.name)
-            }.filter { it.isPrefixed(this.project, connectionPrefix) }
-                .filter { onlySchema == null || it.dasParent?.name == onlySchema }
-
         fun DbDataSource.tablesSequential(onlySchema: String? = null, connectionPrefix: String? = null): Stream<out DasTable> =
             DasUtil.getTables(this).toList().stream().filter {
                 HyperfQuerySettings.getInstance(this.project).interestedIn(it, this)
@@ -66,38 +47,20 @@ class DatabaseUtils private constructor() {
             }.filter { it.isPrefixed(this.project, connectionPrefix) }
                 .filter { onlySchema == null || it.dasParent?.name == onlySchema }
 
-        fun DasNamespace.tablesInParallel(project: Project, connectionPrefix: String? = null): Stream<out DasTable> =
-            this.getDasChildren(ObjectKind.TABLE).toList().parallelStream()
-                .map { it as DasTable }
-                .filter { !it.isSystem }
-                .filter { it.isPrefixed(project, connectionPrefix) }
-
         fun DasNamespace.tables(project: Project, connectionPrefix: String? = null): Stream<out DasTable> =
             this.getDasChildren(ObjectKind.TABLE).toList().stream()
                 .map { it as DasTable }
                 .filter { !it.isSystem }
                 .filter { it.isPrefixed(project, connectionPrefix) }
 
-        fun DasTable.columnsInParallel(): Stream<out DasColumn> =
-            this.getDasChildren(ObjectKind.COLUMN).toList().parallelStream().map { it as DasColumn }
-
         fun DasTable.columns(): Stream<out DasColumn> =
             this.getDasChildren(ObjectKind.COLUMN).toList().stream().map { it as DasColumn }
-
-        fun DasTable.indexesInParallel(): Stream<out DasIndex> =
-            this.getDasChildren(ObjectKind.INDEX).toList().parallelStream().map { it as DasIndex }
 
         fun DasTable.indexes(): Stream<out DasIndex> =
             this.getDasChildren(ObjectKind.INDEX).toList().stream().map { it as DasIndex }
 
-        fun DasTable.keysInParallel(): Stream<out DasTableKey> =
-            this.getDasChildren(ObjectKind.KEY).toList().parallelStream().map { it as DasTableKey }
-
         fun DasTable.keys(): Stream<out DasTableKey> =
             this.getDasChildren(ObjectKind.KEY).toList().stream().map { it as DasTableKey }
-
-        fun DasTable.foreignKeysInParallel(): Stream<out DasForeignKey> =
-            this.getDasChildren(ObjectKind.FOREIGN_KEY).toList().parallelStream().map { it as DasForeignKey }
 
         fun DasTable.foreignKeys(): Stream<out DasForeignKey> =
             this.getDasChildren(ObjectKind.FOREIGN_KEY).toList().stream().map { it as DasForeignKey }

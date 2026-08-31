@@ -16,28 +16,20 @@ import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.keys
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.nameWithoutPrefix
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.schemas
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.tablesSequential
-import java.util.Collections
 
 class DbReferenceResolver(private val reference: DbReferenceExpression) {
     fun resolve() {
-        val schemas = Collections.synchronizedList(reference.schema)
-        val tables = Collections.synchronizedList(reference.table)
-        val columns = Collections.synchronizedList(reference.column)
-        val indexes = Collections.synchronizedList(reference.index)
-        val keys = Collections.synchronizedList(reference.key)
-        val foreignKeys = Collections.synchronizedList(reference.foreignKey)
-
         when (reference.type) {
             DbReferenceExpression.Companion.Type.Table ->
-                ResolverForTableMethods(reference, schemas, tables).resolve()
+                ResolverForTableMethods(reference, reference.schema, reference.table).resolve()
             DbReferenceExpression.Companion.Type.Column ->
-                ResolverForColumnMethods(reference, schemas, tables, columns).resolve()
+                ResolverForColumnMethods(reference, reference.schema, reference.table, reference.column).resolve()
             DbReferenceExpression.Companion.Type.Index ->
-                ResolverForIndexMethods(reference, indexes).resolve()
+                ResolverForIndexMethods(reference, reference.index).resolve()
             DbReferenceExpression.Companion.Type.Key ->
-                ResolverForKeyMethods(reference, keys).resolve()
+                ResolverForKeyMethods(reference, reference.key).resolve()
             DbReferenceExpression.Companion.Type.ForeignKey ->
-                ResolverForForeignKeyMethods(reference, foreignKeys).resolve()
+                ResolverForForeignKeyMethods(reference, reference.foreignKey).resolve()
         }
     }
 }
@@ -161,15 +153,22 @@ private class ResolverForColumnMethods(
             dataSource.tablesSequential(reference.connectionSchema, reference.connectionPrefix).forEach { dasTable ->
                 ProgressManager.checkCanceled()
 
+                val unprefixed = dasTable.nameWithoutPrefix(reference.project, reference.connectionPrefix)
+
                 if (dasTable.matchesTablePart(reference.parts.first()) ||
-                    matchesAlias(reference.parts.first(), dasTable.nameWithoutPrefix(reference.project, reference.connectionPrefix))
+                    matchesAlias(reference.parts.first(), unprefixed)
                 ) {
                     tables.add(dasTable)
                 }
 
-                dasTable.columns()
-                    .filter { it.name == reference.parts.first() }
-                    .forEach { columns.add(it) }
+                // 已有命中后只剩别名相关表的列对调用方有意义(inspection 只判存在性,
+                // 引用跳转只取别名表内的列),其余表的列枚举全部跳过
+                val aliasRelevant = reference.tablesAndAliases.values.any { it.first == unprefixed }
+                if (columns.isEmpty() || aliasRelevant) {
+                    dasTable.columns()
+                        .filter { it.name == reference.parts.first() }
+                        .forEach { columns.add(it) }
+                }
             }
         }
     }
