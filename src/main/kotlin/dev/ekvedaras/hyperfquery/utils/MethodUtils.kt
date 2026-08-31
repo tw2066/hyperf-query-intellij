@@ -15,13 +15,17 @@ import com.intellij.psi.util.parentOfType
 import com.intellij.util.ArrayUtil
 import com.jetbrains.php.PhpIndex
 import com.jetbrains.php.lang.psi.elements.ArrayHashElement
+import com.jetbrains.php.lang.psi.elements.Field
 import com.jetbrains.php.lang.psi.elements.MethodReference
 import com.jetbrains.php.lang.psi.elements.ParameterList
 import com.jetbrains.php.lang.psi.elements.PhpPsiElement
 import com.jetbrains.php.lang.psi.elements.PhpTypedElement
 import com.jetbrains.php.lang.psi.elements.Statement
 import com.jetbrains.php.lang.psi.elements.impl.ArrayCreationExpressionImpl
+import com.jetbrains.php.lang.psi.elements.impl.ClassConstantReferenceImpl
+import com.jetbrains.php.lang.psi.elements.impl.FieldReferenceImpl
 import com.jetbrains.php.lang.psi.elements.impl.FunctionImpl
+import com.jetbrains.php.lang.psi.elements.impl.MethodReferenceImpl
 import com.jetbrains.php.lang.psi.elements.impl.PhpClassAliasImpl
 import com.jetbrains.php.lang.psi.elements.impl.PhpClassImpl
 import dev.ekvedaras.hyperfquery.utils.ClassUtils.Companion.isChildOf
@@ -249,3 +253,22 @@ fun PhpTypedElement.getClass(project: Project): PhpClassImpl? =
     PhpIndex.getInstance(project)
         .getClassesByFQN(this.declaredType.types.firstOrNull() ?: "")
         .firstOrNull() as? PhpClassImpl
+
+/**
+ * 把模型引用解析为模型类:类常量/变量走类型推断;$this->model 属性引用先看
+ * @var 注解类型,再回退默认值里的 ModelClass::class 类常量;
+ * $this->getModel() 方法调用取返回类型(@return 与原生返回类型等价)。
+ */
+fun PhpTypedElement.resolveModelClass(project: Project): PhpClassImpl? =
+    when (this) {
+        is PhpClassImpl -> this
+        is FieldReferenceImpl ->
+            getClass(project)
+                ?: ((resolve() as? Field)?.defaultValue as? ClassConstantReferenceImpl)
+                    ?.classReference
+                    ?.getClass(project)
+        is MethodReferenceImpl ->
+            MethodUtils.resolveMethodTypeClasses(this, project)
+                .firstOrNull { it.isChildOf(HyperfClasses.Model) }
+        else -> getClass(project)
+    }

@@ -29,6 +29,22 @@ internal class ModelReferenceTest : BaseTestCase() {
         this.assertResolvesUsersTable("model/modelInsideScope.php")
     }
 
+    fun testResolveTableNameFromThisModelPropertyStaticQuery() {
+        this.assertResolvesUsersTable("model/modelThisPropertyStaticQuery.php")
+    }
+
+    fun testResolveTableNameFromThisTypedPropertyStaticQuery() {
+        this.assertResolvesUsersTable("model/modelThisTypedPropertyStaticQuery.php")
+    }
+
+    fun testResolveTableNameFromThisGetModelInstanceQuery() {
+        this.assertResolvesUsersTable("model/modelThisGetModelInstanceQuery.php")
+    }
+
+    fun testResolveTableNameFromThisGetModelDocblockQuery() {
+        this.assertResolvesUsersTable("model/modelThisGetModelDocblockQuery.php")
+    }
+
     fun testResolveRelationTableName() {
         myFixture.configureByFile("model/modelWithRelation.php")
 

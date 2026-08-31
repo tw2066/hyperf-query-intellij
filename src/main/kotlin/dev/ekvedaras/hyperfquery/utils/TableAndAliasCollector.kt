@@ -9,6 +9,8 @@ import com.jetbrains.php.lang.psi.elements.PhpTypedElement
 import com.jetbrains.php.lang.psi.elements.Statement
 import com.jetbrains.php.lang.psi.elements.impl.AssignmentExpressionImpl
 import com.jetbrains.php.lang.psi.elements.impl.ClassReferenceImpl
+import com.jetbrains.php.lang.psi.elements.impl.FieldReferenceImpl
+import com.jetbrains.php.lang.psi.elements.impl.MethodReferenceImpl
 import com.jetbrains.php.lang.psi.elements.impl.ParenthesizedExpressionImpl
 import com.jetbrains.php.lang.psi.elements.impl.PhpClassImpl
 import com.jetbrains.php.lang.psi.elements.impl.StringLiteralExpressionImpl
@@ -64,7 +66,7 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
 
         // 模型语境(Model::query() 链、作用域方法等)下取模型 $connection 声明的连接
         reference.connectionName = resolveModelReference(methods)
-            ?.let { (it as? PhpClass) ?: it.getClass(reference.project) }
+            ?.resolveModelClass(reference.project)
             ?.connectionName()
 
         // 链上显式 connection('name') 优先于模型声明
@@ -212,6 +214,14 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
             is VariableImpl -> (methodReference.firstChild as VariableImpl)
                 .getClass(reference.project)
                 ?.isChildOf(HyperfClasses.Model) ?: false
+            // $this->model::query() — 属性持有模型类(@var ModelClass 或默认值 ModelClass::class)
+            is FieldReferenceImpl -> (methodReference.firstChild as FieldReferenceImpl)
+                .resolveModelClass(reference.project)
+                ?.isChildOf(HyperfClasses.Model) ?: false
+            // $this->getModel()->… — 被调方法返回类型(@return 或原生)是模型子类
+            is MethodReferenceImpl -> MethodUtils.resolveMethodTypeClasses(
+                methodReference.firstChild as MethodReference, reference.project
+            ).any { it.isChildOf(HyperfClasses.Model) }
             else -> false
         }
     }
