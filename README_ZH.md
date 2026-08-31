@@ -149,7 +149,7 @@ class Goods extends Model
 - **连接名补全**:`Db::connection()` / `Schema::connection()` 的第一个参数、模型 `$connection` 属性默认值,补全 `databases.php` 中定义的连接名;`env('KEY', 'default')` 形式的值解析为其默认值
 - **Ctrl+Click** 连接名可跳转到 `databases.php` 中对应的数组键
 - **作用域隔离**:指定了连接的链式调用(或声明了 `$connection` 的模型),其表/列补全、引用解析、未知元素检查都**只针对该连接配置的 `database` schema**;未指定连接时使用 `default` 连接
-- **表前缀**:连接的 `prefix` 配置会被遵守,例如连接配置 `'prefix' => 'jc_'` 时,`table('goods')` 解析为 `jc_goods`;连接未配置 `prefix` 时使用插件设置中的全局表前缀,显式设置 `'prefix' => ''` 可为该连接关闭前缀
+- **表前缀**:连接的 `prefix` 配置会被遵守,例如连接配置 `'prefix' => 'pre_'` 时,`table('goods')` 解析为 `pre_goods`;连接未配置 `prefix` 时使用插件设置中的全局表前缀,显式设置 `'prefix' => ''` 可为该连接关闭前缀
 - **回退行为**:连接无法解析时(缺少配置、`env()` 无默认值、schema 不在 IDE 数据源中),回退为扫描全部数据源
 
 ### 6. Raw SQL 片段支持
@@ -163,8 +163,8 @@ User::query()
     ->orderByRaw('created_at desc');
 ```
 
-- 支持 `column`、`table.column`、`schema.table.column`、`... as alias` 形式,以及逗号分隔的列表(`selectRaw('id, jc_a.id')`)
-- 带连接表前缀的表/别名引用也能解析(如前缀为 `jc_` 时 `jc_a.id` 可解析别名 `a`)
+- 支持 `column`、`table.column`、`schema.table.column`、`... as alias` 形式,以及逗号分隔的列表(`selectRaw('id, pre_a.id')`)
+- 带连接表前缀的表/别名引用也能解析(如前缀为 `pre_` 时 `pre_a.id` 可解析别名 `a`)
 - **复杂 SQL(函数、算术运算、子查询)会被跳过**,不报误警
 - Raw 片段**不提供悬停文档**(有意为之)
 
