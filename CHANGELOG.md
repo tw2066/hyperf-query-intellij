@@ -19,6 +19,7 @@
 - 原生 SQL 片段中简单列表达式的列补全、Ctrl+Click 跳转与未知列检查：覆盖 `selectRaw()`、`whereRaw()`、`orWhereRaw()`、`havingRaw()`、`orHavingRaw()`、`orderByRaw()`、`groupByRaw()` 以及 `Db::raw()` 包裹的表达式。匹配 `column`、`table.column`、`schema.table.column` 或 `... as alias` 形式的字符串会基于查询的表上下文解析，支持逗号分隔列表（`selectRaw('id, jc_a.id')`）以及带连接表前缀的表/别名引用（连接前缀为 `jc_` 时，`jc_a.id` 解析别名 `a`）；复杂 SQL（函数、运算、子查询）会被跳过，以避免误报"未知列"警告。原生片段有意不提供悬停文档
 
 ### 修复
+- 设置面板修改表前缀或数据源过滤后，已缓存的表/列/索引解析结果立即失效，不再等到下一次文件编辑才刷新
 - 设置面板："Filter data sources" 下的数据源复选框现在可以直接点击勾选。此前该单元格同时注册了布尔编辑器和行点击监听器，每次点击切换两次，导致永远无法显示为已勾选
 - 表名悬停不再渲染完整的 `CREATE TABLE` DDL（宽表上很慢），改为显示轻量摘要：带 schema 限定的表名和表注释。完整 DDL 仍可通过 Ctrl+Click 进入数据库工具窗口查看
 - 通过 `Db::connection(...)`（`Hyperf\Database\ConnectionInterface`）的查询构建器链现在可以被补全和检查识别

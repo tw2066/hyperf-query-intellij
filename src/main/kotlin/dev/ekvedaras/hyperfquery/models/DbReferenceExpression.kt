@@ -64,6 +64,8 @@ class DbReferenceExpression(
                     CachedValueProvider.Result.create(
                         Collections.synchronizedMap(mutableMapOf<String, DbReferenceExpression>()),
                         PsiManager.getInstance(expression.project).modificationTracker,
+                        // 设置(tablePrefix / 数据源过滤)变更也需要刷新解析结果
+                        HyperfQuerySettings.getInstance(expression.project),
                     )
                 },
                 false,
