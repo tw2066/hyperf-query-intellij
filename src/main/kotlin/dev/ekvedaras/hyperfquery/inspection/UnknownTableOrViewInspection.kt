@@ -19,19 +19,56 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsideRegularFunc
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isSchemaBuilderMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isTableParam
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelTablePropertyClass
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.shouldCompleteOnlyColumns
 import dev.ekvedaras.hyperfquery.utils.MethodUtils
+import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsVariable
 
 class UnknownTableOrViewInspection : PhpInspection() {
     override fun buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor {
         return object : PhpElementVisitor() {
             override fun visitPhpStringLiteralExpression(expression: StringLiteralExpression?) {
-                val method = MethodUtils.resolveMethodReference(expression ?: return) ?: return
+                expression ?: return
+                val method = MethodUtils.resolveMethodReference(expression)
+                if (method == null) {
+                    inspectModelTableProperty(expression)
+                    return
+                }
                 val project = method.project
 
                 if (shouldNotInspect(project, method, expression)) {
                     return
                 }
+
+                val target = DbReferenceExpression.create(expression, DbReferenceExpression.Companion.Type.Table)
+
+                if (target.table.isEmpty()) {
+                    holder.registerProblem(
+                        expression,
+                        MyBundle.message("unknownTableOrViewDescription"),
+                        ProblemHighlightType.WARNING,
+                        target.ranges.last()
+                    )
+                }
+
+                if (target.parts.size > 1 && target.schema.isEmpty()) {
+                    holder.registerProblem(
+                        expression,
+                        MyBundle.message("unknownSchemaDescription"),
+                        ProblemHighlightType.WARNING,
+                        target.ranges.first()
+                    )
+                }
+            }
+
+            /**
+             * Model $table 属性默认值:与方法参数同规则检查表/schema 是否存在。
+             */
+            private fun inspectModelTableProperty(expression: StringLiteralExpression) {
+                if (!ApplicationManager.getApplication().isReadAccessAllowed || expression.containsVariable()) {
+                    return
+                }
+                expression.modelTablePropertyClass() ?: return
 
                 val target = DbReferenceExpression.create(expression, DbReferenceExpression.Companion.Type.Table)
 

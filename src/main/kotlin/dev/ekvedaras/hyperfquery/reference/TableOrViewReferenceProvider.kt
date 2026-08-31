@@ -14,12 +14,29 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isEloquentModel
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsideRegularFunction
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isTableParam
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelTablePropertyClass
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.shouldCompleteOnlyColumns
 import dev.ekvedaras.hyperfquery.utils.MethodUtils
+import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsVariable
 
 class TableOrViewReferenceProvider : PsiReferenceProvider() {
     override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<PsiReference> {
-        val method = MethodUtils.resolveMethodReference(element) ?: return PsiReference.EMPTY_ARRAY
+        val method = MethodUtils.resolveMethodReference(element)
+        if (method == null) {
+            // Model $table 属性默认值
+            return if (
+                ApplicationManager.getApplication().isReadAccessAllowed &&
+                !element.containsVariable() &&
+                element.modelTablePropertyClass() != null
+            ) {
+                arrayOf(
+                    SchemaPsiReference(element, DbReferenceExpression.Companion.Type.Table),
+                    TableOrViewPsiReference(element, DbReferenceExpression.Companion.Type.Table),
+                )
+            } else {
+                PsiReference.EMPTY_ARRAY
+            }
+        }
         val project = method.project
 
         if (shouldNotInspect(project, method, element)) {

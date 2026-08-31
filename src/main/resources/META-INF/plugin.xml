@@ -81,6 +81,15 @@
                          key="unknownColumnDisplayName"
                          implementationClass="dev.ekvedaras.hyperfquery.inspection.UnknownColumnInspection"
         />
+        <localInspection language="PHP"
+                         groupPath="PHP"
+                         groupKey="databaseGroupName"
+                         shortName="UnknownConnectionInspection"
+                         enabledByDefault="true"
+                         bundle="messages.MyBundle"
+                         key="unknownConnectionDisplayName"
+                         implementationClass="dev.ekvedaras.hyperfquery.inspection.UnknownConnectionInspection"
+        />
     </extensions>
 
     <applicationListeners>

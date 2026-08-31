@@ -24,6 +24,7 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.connectionName
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isConnectionCall
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelColumnPropertyClass
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelTablePropertyClass
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.tableName
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsAlias
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.statementFirstPsiChild
@@ -40,6 +41,10 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
             // Model 属性数组($fillable/$guarded/$casts 等)没有方法调用上下文,直接注入模型表名
             reference.expression.modelColumnPropertyClass()?.let {
                 resolveTableName(it)
+                reference.connectionName = it.connectionName()
+            }
+            // Model $table 属性默认值: 字符串自身即表名,只需模型 $connection 声明做连接过滤
+            reference.expression.modelTablePropertyClass()?.let {
                 reference.connectionName = it.connectionName()
             }
             return

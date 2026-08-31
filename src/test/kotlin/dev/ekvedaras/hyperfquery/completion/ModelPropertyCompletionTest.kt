@@ -57,6 +57,29 @@ internal class ModelPropertyCompletionTest : BaseTestCase() {
         assertNoCompletion(*usersColumns().toTypedArray())
     }
 
+    fun testCompletesTablesAndSchemasInTableProperty() {
+        myFixture.configureByFile("model/modelTableProperty.php")
+
+        myFixture.completeBasic()
+        assertCompletion(*schemasAndTables.toTypedArray())
+    }
+
+    fun testDoesNotCompleteTablesInTablePropertyOutsideModel() {
+        myFixture.configureByFile("model/notModelTableProperty.php")
+
+        myFixture.completeBasic()
+        assertNoCompletion(*schemasAndTables.toTypedArray())
+    }
+
+    fun testCompletesOnlyConnectionTablesInTableProperty() {
+        addDatabasesConfig()
+        myFixture.configureByFile("model/modelTablePropertyOnConnection.php")
+
+        myFixture.completeBasic()
+        assertCompletion("failed_jobs", "migrations", "jc_goods")
+        assertNoCompletion("users", "customers")
+    }
+
     private fun assertCompletesUsersColumns(@TestDataFile filePath: String) {
         myFixture.configureByFile(filePath)
 

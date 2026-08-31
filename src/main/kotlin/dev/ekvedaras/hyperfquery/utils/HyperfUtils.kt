@@ -582,6 +582,24 @@ class HyperfUtils private constructor() {
             return clazz.isChildOf(HyperfClasses.Model)
         }
 
+        /**
+         * 若该元素是 Model 子类 $table 属性的默认值字符串,返回所属模型类,否则返回 null。
+         */
+        fun PsiElement.modelTablePropertyClass(): PhpClass? {
+            val literal = when (this) {
+                is StringLiteralExpression -> this
+                else -> this.parent as? StringLiteralExpression ?: return null
+            }
+
+            val field = literal.parent as? Field ?: return null
+            if (field.name != "table") {
+                return null
+            }
+
+            val clazz = field.containingClass as? PhpClassImpl ?: return null
+            return clazz.takeIf { it.isChildOf(HyperfClasses.Model) }
+        }
+
         fun PsiElement.isInsideRelationClosure(): Boolean =
             this is ArrayHashElementImpl && this.parentOfType<MethodReferenceImpl>()?.name == "with"
 

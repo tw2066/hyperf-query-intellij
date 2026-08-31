@@ -18,11 +18,13 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isEloquentModel
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInsideRegularFunction
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isTableParam
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelTablePropertyClass
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.shouldCompleteOnlyColumns
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.shouldCompleteOnlySchemas
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.shouldCompleteSchemas
 import dev.ekvedaras.hyperfquery.utils.LookupUtils.Companion.buildLookup
 import dev.ekvedaras.hyperfquery.utils.MethodUtils
+import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsVariable
 import dev.ekvedaras.hyperfquery.utils.isJoinOrRelation
 
 class TableOrViewCompletionProvider : CompletionProvider<CompletionParameters>() {
@@ -31,7 +33,11 @@ class TableOrViewCompletionProvider : CompletionProvider<CompletionParameters>()
         context: ProcessingContext,
         result: CompletionResultSet
     ) {
-        val method = MethodUtils.resolveMethodReference(parameters.position) ?: return
+        val method = MethodUtils.resolveMethodReference(parameters.position)
+        if (method == null) {
+            addModelTablePropertyCompletions(parameters, result)
+            return
+        }
         val project = method.project
 
         if (shouldNotComplete(project, method, parameters)) {
@@ -55,6 +61,39 @@ class TableOrViewCompletionProvider : CompletionProvider<CompletionParameters>()
         )
 
 //        result.stopHere()
+    }
+
+    /**
+     * Model $table 属性默认值补全:无方法调用上下文,提示 schema 和表,效果同 Db::table('...')。
+     */
+    private fun addModelTablePropertyCompletions(
+        parameters: CompletionParameters,
+        result: CompletionResultSet
+    ) {
+        if (!ApplicationManager.getApplication().isReadAccessAllowed || parameters.containsVariable()) {
+            return
+        }
+        val project = parameters.position.project
+        parameters.position.modelTablePropertyClass() ?: return
+
+        val target = DbReferenceExpression.create(parameters.position, DbReferenceExpression.Companion.Type.Table)
+        val items = mutableListOf<LookupElement>()
+
+        ApplicationManager.getApplication().runReadAction {
+            when (target.parts.size) {
+                1 -> project.dbDataSources().forEach { dataSource ->
+                    dataSource.schemas(target.connectionSchema).forEach { schema ->
+                        items.add(schema.buildLookup(project, dataSource))
+                    }
+                    dataSource.tables(target.connectionSchema, target.connectionPrefix).forEach { table ->
+                        items.add(table.buildLookup(project, connectionPrefix = target.connectionPrefix))
+                    }
+                }
+                else -> populateWithTwoParts(project, target, items)
+            }
+        }
+
+        result.addAllElements(items.distinctBy { it.lookupString })
     }
 
     private fun populateWithOnePart(

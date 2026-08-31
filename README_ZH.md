@@ -21,7 +21,7 @@
   - [数据库连接感知](#5-数据库连接感知)
   - [Raw SQL 片段支持](#6-raw-sql-片段支持)
   - [SQL 命名占位符绑定](#7-sql-命名占位符绑定)
-  - [未知表 / 列检查](#8-未知表--列检查inspection)
+  - [未知表 / 列 / 连接检查](#8-未知表--列--连接检查inspection)
   - [Ctrl+Click 跳转](#9-ctrlclick-跳转)
   - [悬停文档](#10-悬停文档)
 - [插件设置](#插件设置)
@@ -107,6 +107,8 @@ User::query()
 ```php
 class User extends Model
 {
+    protected $table = 'users';                        // 表名补全 + Ctrl+Click 跳转 + 未知表检查
+
     protected array $fillable = ['name', 'email'];   // 补全列名
     protected array $guarded = ['id'];
     protected array $hidden = ['password'];
@@ -120,6 +122,8 @@ class User extends Model
 ```
 
 `$casts` 的**值**补全 Hyperf 属性 cast 类型:`int`、`integer`、`real`、`float`、`double`、`string`、`bool`、`boolean`、`object`、`array`、`json`、`collection`、`date`、`datetime`、`timestamp`,以及带参数形式 `decimal:<digits>`、`date:<format>`、`datetime:<format>`。
+
+`$table` 属性的表名字符串本身也支持补全、Ctrl+Click 跳转与未知表检查(效果同 `Db::table('...')`,支持 `schema.table` 两段式写法);声明了 `$connection` 的模型会限定到该连接 `database` 配置对应的 schema,并应用连接表前缀。
 
 模型表名解析规则:优先读取 `$table` 属性(含父类继承),否则按类名约定推导。
 
@@ -148,6 +152,7 @@ class Goods extends Model
 
 - **连接名补全**:`Db::connection()` / `Schema::connection()` 的第一个参数、模型 `$connection` 属性默认值,补全 `databases.php` 中定义的连接名;`env('KEY', 'default')` 形式的值解析为其默认值
 - **Ctrl+Click** 连接名可跳转到 `databases.php` 中对应的数组键
+- **未知连接检查**:不在 `databases.php` 中的连接名会给出 "Unknown database connection" 警告;项目中没有该配置文件时不告警(无从判断)
 - **作用域隔离**:指定了连接的链式调用(或声明了 `$connection` 的模型),其表/列补全、引用解析、未知元素检查都**只针对该连接配置的 `database` schema**;未指定连接时使用 `default` 连接
 - **表前缀**:连接的 `prefix` 配置会被遵守,例如连接配置 `'prefix' => 'pre_'` 时,`table('goods')` 解析为 `pre_goods`;连接未配置 `prefix` 时使用插件设置中的全局表前缀,显式设置 `'prefix' => ''` 可为该连接关闭前缀
 - **回退行为**:连接无法解析时(缺少配置、`env()` 无默认值、schema 不在 IDE 数据源中),回退为扫描全部数据源
@@ -183,14 +188,15 @@ Db::select($sql, ['id' => 1, ':status' => 1]);
 - Ctrl+Click 绑定键跳转到 SQL 字符串中对应的占位符
 - 这些原生 SQL 方法上**不会**触发列/表补全与未知元素检查(避免把 SQL 文本误报为列名)
 
-### 8. 未知表 / 列检查(Inspection)
+### 8. 未知表 / 列 / 连接检查(Inspection)
 
-两个默认开启的检查,位于 <kbd>Settings</kbd> > <kbd>Editor</kbd> > <kbd>Inspections</kbd> > <kbd>PHP</kbd> > <kbd>Database</kbd>:
+三个默认开启的检查,位于 <kbd>Settings</kbd> > <kbd>Editor</kbd> > <kbd>Inspections</kbd> > <kbd>PHP</kbd> > <kbd>Database</kbd>:
 
 | 检查 | 作用 |
 | --- | --- |
-| **Unknown table or view** | 表/视图名在数据源中不存在时告警 |
+| **Unknown table or view** | 表/视图名在数据源中不存在时告警(含模型 `$table` 属性) |
 | **Unknown column** | 列名在已解析的表中不存在时告警 |
+| **Unknown database connection** | 连接名不在 `config/autoload/databases.php` 中时告警(`Db::connection()` / `Schema::connection()` 参数与模型 `$connection` 属性) |
 
 检查与补全共用同一套解析逻辑,连接感知、表前缀、别名、raw 简单表达式等规则全部生效。可在 Inspections 设置中调整严重级别或关闭。
 
@@ -198,7 +204,7 @@ Db::select($sql, ['id' => 1, ':status' => 1]);
 
 以下字符串字面量可以 Ctrl+Click(或 Ctrl+B)直接跳转:
 
-- 表/视图名 → Database 工具窗口中的表
+- 表/视图名 → Database 工具窗口中的表(含模型 `$table` 属性)
 - 列名 → 对应的列定义
 - Schema 名、索引名、外键名
 - 连接名 → `config/autoload/databases.php` 中的配置项
@@ -240,12 +246,12 @@ Db::select($sql, ['id' => 1, ':status' => 1]);
 - **Raw 片段无悬停文档**:raw 中的列只有补全/跳转/检查,没有 hover
 - **位置占位符 `?` 不支持**:`Db::select('... WHERE id = ?', [1])` 的位置绑定没有补全与跳转(仅支持 `:name` 命名占位符)
 - **子查询的表推导有限**:`fromSub`/`selectSub`/`joinSub` 支持别名提取,但闭包/构建器实例子查询内部的列**不会**向外层 SELECT 传播
-- **无索引/外键的未知检查**:检查只有 Unknown table/view 与 Unknown column 两项;写错索引名(如 `dropIndex('xxx')`)目前不告警
+- **无索引/外键的未知检查**:检查有 Unknown table/view、Unknown column 与 Unknown database connection 三项;写错索引名(如 `dropIndex('xxx')`)目前不告警
 - **Laravel 专属能力已移除**(Hyperf 无对应物):`assertDatabaseHas` / `assertDeleted` 等测试断言补全、`\DB` / `\Schema` 全局 facade 别名
 - **不读取 `.env` / `config` 运行时值**:除 `databases.php` 的连接名/`database`/`prefix` 外,不做其他配置文件的动态求值
 - **模型表名只识别静态声明**:`$table` 属性或类名约定;通过构造函数/方法动态设置表名的模型无法解析
 
-## 与上游 laravel 版本的差异
+## 与上游 Laravel 版本的差异
 
 | 差异点 | 说明 |
 | --- | --- |

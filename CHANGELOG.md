@@ -12,7 +12,9 @@
 - 性能：移除了补全/高亮线程上的 `parallelStream` 使用（这些工作此前跑在读锁之外的共享 common pool 上）；补全现在每个数据源只物化一次表列表，不再按表别名逐个重复获取
 
 ### 新增
+- 模型 `$table` 属性默认值支持表名/schema 补全、Ctrl+Click 跳转与未知表检查，效果同 `Db::table('...')`；声明了 `$connection` 的模型会限定到该连接 `database` 配置对应的 schema 并应用连接表前缀
 - 数据库连接名补全：为 `Db::connection()` / `Schema::connection()` 的第一个参数以及模型 `$connection` 属性默认值提供补全，数据来源于项目的 `config/autoload/databases.php`（`env('KEY', 'default')` 形式的值解析为 env 默认值）
+- 未知连接名检查：`Db::connection()` / `Schema::connection()` 参数和模型 `$connection` 属性中不在 `config/autoload/databases.php` 里的连接名会给出警告；项目中没有该配置文件时不告警
 - 支持从连接名 Ctrl+Click 跳转到 `config/autoload/databases.php` 中对应的数组键
 - 连接感知的表/列补全、引用解析与未知元素检查：使用 `Db::connection('name')` / `Schema::connection('name')` 的链以及声明了 `$connection` 的模型，会限定到该连接 `database` 配置对应的 schema。未指定连接时使用 `default` 连接的 schema。若连接或其 schema 无法解析（缺少配置、`env()` 无默认值、IDE 数据源中不存在该 schema），则回退为原先扫描全部数据源的行为
 - 按连接的表前缀支持：在该连接上解析和补全表名时会使用 `config/autoload/databases.php` 中该连接的 `prefix`（例如 `table('goods')` 解析为 `pre_goods`）。连接未定义 `prefix` 时使用全局表前缀设置；可设置 `'prefix' => ''` 为该连接显式关闭前缀

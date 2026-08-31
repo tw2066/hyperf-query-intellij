@@ -146,4 +146,64 @@ internal class DasObjectsInspectionTest : BaseTestCase() {
         addDatabasesConfig()
         assertInspection("inspection/knownColumnOnConnection.php", UnknownColumnInspection())
     }
+
+    fun testDoesNotWarnAboutKnownDbFacadeTable() {
+        assertInspection("inspection/knownDbTable.php", UnknownTableOrViewInspection())
+    }
+
+    fun testWarnsAboutUnknownDbFacadeTable() {
+        assertInspection("inspection/unknownDbTable.php", UnknownTableOrViewInspection())
+    }
+
+    fun testDoesNotWarnAboutKnownModelTableProperty() {
+        assertInspection("inspection/knownModelTableProperty.php", UnknownTableOrViewInspection())
+    }
+
+    fun testWarnsAboutUnknownModelTableProperty() {
+        assertInspection("inspection/unknownModelTableProperty.php", UnknownTableOrViewInspection())
+    }
+
+    fun testDoesNotWarnAboutKnownModelTablePropertyOnConnection() {
+        addDatabasesConfig()
+        assertInspection("inspection/knownModelTablePropertyOnConnection.php", UnknownTableOrViewInspection())
+    }
+
+    fun testWarnsAboutModelTablePropertyFromOtherConnectionSchema() {
+        addDatabasesConfig()
+        assertInspection("inspection/unknownModelTablePropertyOnConnection.php", UnknownTableOrViewInspection())
+    }
+
+    fun testWarnsAboutUnknownSchemaInModelTableProperty() {
+        assertInspection("inspection/unknownModelSchemaTableProperty.php", UnknownTableOrViewInspection())
+    }
+
+    fun testDoesNotWarnAboutKnownConnection() {
+        addDatabasesConfig()
+        assertInspection("inspection/knownConnection.php", UnknownConnectionInspection())
+    }
+
+    fun testWarnsAboutUnknownConnection() {
+        addDatabasesConfig()
+        assertInspection("inspection/unknownConnection.php", UnknownConnectionInspection())
+    }
+
+    fun testDoesNotWarnAboutConnectionWithoutConfigFile() {
+        assertInspection("inspection/connectionWithoutConfig.php", UnknownConnectionInspection())
+    }
+
+    fun testDoesNotWarnAboutKnownModelConnectionProperty() {
+        addDatabasesConfig()
+        assertInspection("inspection/knownModelConnectionProperty.php", UnknownConnectionInspection())
+    }
+
+    fun testWarnsAboutUnknownModelConnectionProperty() {
+        addDatabasesConfig()
+        assertInspection("inspection/unknownModelConnectionProperty.php", UnknownConnectionInspection())
+    }
+
+    fun testDoesNotWarnAboutPropertiesOutsideModel() {
+        addDatabasesConfig()
+        assertInspection("inspection/notModelProperties.php", UnknownConnectionInspection())
+        assertInspection("inspection/notModelProperties.php", UnknownTableOrViewInspection())
+    }
 }
