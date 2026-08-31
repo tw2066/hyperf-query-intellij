@@ -14,6 +14,7 @@ import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.parentOfType
 import com.intellij.util.ArrayUtil
 import com.jetbrains.php.PhpIndex
+import com.jetbrains.php.lang.psi.elements.ArrayHashElement
 import com.jetbrains.php.lang.psi.elements.MethodReference
 import com.jetbrains.php.lang.psi.elements.ParameterList
 import com.jetbrains.php.lang.psi.elements.PhpPsiElement
@@ -195,7 +196,10 @@ fun PsiElement.findParamIndex(allowArray: Boolean = false): Int {
 
     return if (parent is ParameterList) {
         ArrayUtil.indexOf(parent.parameters, this)
-    } else if (allowArray && parent is ArrayCreationExpressionImpl) {
+    } else if (allowArray && parent is ArrayCreationExpressionImpl && this !is ArrayHashElement) {
+        // 嵌套数组写法 where([['col', 'op', 'val']]): 返回元素在数组内的位置(0=列, 1/2=操作符)。
+        // 关联数组 where(['col' => 'val']) 的键/值经由 ArrayHashElement 上溯,
+        // 不能取哈希元素在数组中的序号(否则第二个键起丢失列语义),继续上溯到参数列表。
         parent.children.indexOfFirst { it === this }
     } else {
         this.parent?.findParamIndex(allowArray) ?: -1

@@ -10,6 +10,8 @@ import com.intellij.testFramework.UsefulTestCase
 import dev.ekvedaras.hyperfquery.BaseTestCase
 import dev.ekvedaras.hyperfquery.inspection.UnknownColumnInspection
 import dev.ekvedaras.hyperfquery.inspection.UnknownTableOrViewInspection
+import dev.ekvedaras.hyperfquery.reference.ColumnPsiReference
+import junit.framework.TestCase
 
 internal class EdgeCasesTest : BaseTestCase() {
     fun testClassCastException1() {
@@ -174,6 +176,32 @@ internal class EdgeCasesTest : BaseTestCase() {
 
     fun testDoesNotWarnAboutUnknownOperatorInNestedArrayWhere() {
         assertInspection("edgeCases/arrayNestedWhere.php", UnknownColumnInspection())
+    }
+
+    fun testCompletesColumnsOnSecondWhereArrayKey() {
+        myFixture.configureByFile("edgeCases/whereAssociativeArraySecondKey.php")
+        myFixture.completeBasic()
+        assertCompletion("first_name", "last_name", "email")
+        assertNoCompletion("trial_ends_at", "billable_id")
+    }
+
+    fun testResolvesColumnReferenceOnSecondWhereArrayKey() {
+        myFixture.configureByFile("edgeCases/whereAssociativeArraySecondKeyReference.php")
+
+        val column = DasUtil.getTables(dataSource())
+            .first { it.name == "users" }
+            .getDasChildren(ObjectKind.COLUMN)
+            .first { it.name == "email" }
+        val dbColumn = DbImplUtil.findElement(DbUtil.getDataSources(project).first(), column)
+            ?: return fail("Failed to resolve DB column")
+
+        val usages = myFixture.findUsages(dbColumn)
+
+        UsefulTestCase.assertSize(1, usages)
+        TestCase.assertEquals(ColumnPsiReference::class.java, usages.first().referenceClass)
+        val expectedStart = myFixture.file.text.indexOf("'email'") + 1
+        TestCase.assertEquals(expectedStart, usages.first().navigationRange.startOffset)
+        TestCase.assertEquals(expectedStart + column.name.length, usages.first().navigationRange.endOffset)
     }
 
     fun testDoesNotWarnAboutUnknownTableInCreateMethod() {
