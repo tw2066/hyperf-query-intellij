@@ -85,7 +85,7 @@ class MethodUtils private constructor() {
                 .toList()
                 .forEach { collectClasses(project, it, classes) }
 
-            return classes
+            return classes.sortedBy { it.fqn }
         }
 
         fun resolveMethodClasses(method: MethodReference, project: Project): List<PhpClassImpl> {
@@ -110,6 +110,8 @@ class MethodUtils private constructor() {
             )
         }
 
+        // PhpIndex.completeType 返回的 types 集合顺序不稳定(同一方法两次计算可能不同序),
+        // CachedValue 幂等性校验会按 List.equals 比较,必须排序保证确定性顺序
         private fun computeClasses(method: MethodReference, project: Project): List<PhpClassImpl> {
             val classes = mutableListOf<PhpClassImpl>()
 
@@ -120,7 +122,7 @@ class MethodUtils private constructor() {
                 .toList()
                 .forEach { collectClasses(project, it, classes) }
 
-            return classes
+            return classes.sortedBy { it.fqn }
         }
 
         private fun collectClasses(
