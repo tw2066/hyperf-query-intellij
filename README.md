@@ -2,9 +2,6 @@
 
 English | [中文文档](README_ZH.md)
 
-This is a fork of [laravel-query-intellij](https://github.com/ekvedaras/laravel-query-intellij) (MIT licensed), adapted to target `Hyperf\Database\*` instead of `Illuminate\Database\*`.
-
-<!-- Plugin description -->
 This plugin provides database integration for Hyperf query builder. It works with DataGrip to provide autocompletion for database schemas, tables, views, and columns.
 
 ## Features
@@ -23,7 +20,6 @@ This plugin provides database integration for Hyperf query builder. It works wit
 * Database connection names from `config/autoload/databases.php` complete in `Db::connection()` / `Schema::connection()` and the model `$connection` property, with Ctrl+Click navigation to the config entry and an inspection warning for unknown connection names; table/column completion, references and inspections on a chain (or model) using a connection are scoped to that connection's configured `database` schema (falling back to the `default` connection when none is specified), and the connection's `prefix` is honored for table names
 * Raw SQL fragments (`selectRaw()`, `whereRaw()`, `orderByRaw()`, `havingRaw()`, `groupByRaw()`, `Db::raw()`, ...) get column completion, navigation and inspection for simple column expressions — including comma-separated lists and table/alias references carrying the connection's table prefix — while complex SQL (functions, arithmetic) is left untouched to avoid false warnings
 * Configurable table prefix and datasource filtering
-<!-- Plugin description end -->
 
 ## Installation
 
@@ -41,3 +37,4 @@ This plugin provides database integration for Hyperf query builder. It works wit
 Plugin based on the [IntelliJ Platform Plugin Template][template].
 
 [template]: https://github.com/JetBrains/intellij-platform-plugin-template
+Acknowledgements:[laravel-query-intellij](https://github.com/ekvedaras/laravel-query-intellij)
