@@ -1,4 +1,4 @@
-This plugin provides database‑integration for the Hyperf query builder. When used together with the IDE’s data‑source tool (DataGrip database tool), it delivers auto‑completion, unknown‑element validation, Ctrl‑Click navigation and hover documentation for schemas, tables, views and columns.
+This plugin provides database-integration for the Hyperf query builder. When used together with the IDE's data-source tool (DataGrip database tool), it delivers auto-completion, unknown-element validation, Ctrl-Click navigation and hover documentation for schemas, tables, views and columns.
 
 本插件为 **Hyperf** 查询构建器提供数据库集成,配合 IDE 的数据源(DataGrip 数据库工具)为 schema、表、视图与列提供自动补全、未知元素检查、Ctrl+Click 跳转与悬停文档。
 
