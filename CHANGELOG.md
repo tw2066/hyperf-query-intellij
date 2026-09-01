@@ -2,7 +2,7 @@
 
 # Hyperf Query 更新日志
 
-## 1.0.6 Unreleased
+## 1.1.0 - 2026-09-01
 
 ### 变更
 - 性能：数据库引用解析（`DbReferenceExpression`）现在按字符串字面量缓存，并在检查（inspection）、引用解析与补全之间共享——此前同一个 `'users.email'` 字符串在每轮高亮中最多被重复解析 5 次，每次都要重新走一遍方法链收集并重新扫描所有数据源的表/列。缓存在任意 PSI 变更后失效
@@ -21,6 +21,7 @@
 - 原生 SQL 片段中简单列表达式的列补全、Ctrl+Click 跳转与未知列检查：覆盖 `selectRaw()`、`whereRaw()`、`orWhereRaw()`、`havingRaw()`、`orHavingRaw()`、`orderByRaw()`、`groupByRaw()` 以及 `Db::raw()` 包裹的表达式。匹配 `column`、`table.column`、`schema.table.column` 或 `... as alias` 形式的字符串会基于查询的表上下文解析，支持逗号分隔列表（`selectRaw('id, jc_a.id')`）以及带连接表前缀的表/别名引用（连接前缀为 `jc_` 时，`jc_a.id` 解析别名 `a`）；复杂 SQL（函数、运算、子查询）会被跳过，以避免误报"未知列"警告。原生片段有意不提供悬停文档
 
 ### 修复
+- 修复方法类型缓存偶发的 `Non-idempotent computation` 异常：`PhpIndex.completeType()` 返回的类集合顺序不稳定，缓存重算结果与原结果仅顺序不同即被 IDE 判定为非幂等；现在缓存前按类 FQN 排序，保证确定性顺序
 - 设置面板修改表前缀或数据源过滤后，已缓存的表/列/索引解析结果立即失效，不再等到下一次文件编辑才刷新
 - 设置面板："Filter data sources" 下的数据源复选框现在可以直接点击勾选。此前该单元格同时注册了布尔编辑器和行点击监听器，每次点击切换两次，导致永远无法显示为已勾选
 - 表名悬停不再渲染完整的 `CREATE TABLE` DDL（宽表上很慢），改为显示轻量摘要：带 schema 限定的表名和表注释。完整 DDL 仍可通过 Ctrl+Click 进入数据库工具窗口查看
