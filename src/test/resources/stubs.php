@@ -888,6 +888,83 @@ class Builder
     }
 
     /**
+     * Add a new "raw" select expression to the query.
+     *
+     * @param  string  $expression
+     * @param  array  $bindings
+     * @return $this
+     */
+    public function selectRaw($expression, array $bindings = [])
+    {
+    }
+
+    /**
+     * Add a raw where clause to the query.
+     *
+     * @param  string  $sql
+     * @param  array  $bindings
+     * @return $this
+     */
+    public function whereRaw($sql, $bindings = [])
+    {
+    }
+
+    /**
+     * Add a raw or where clause to the query.
+     *
+     * @param  string  $sql
+     * @param  array  $bindings
+     * @return $this
+     */
+    public function orWhereRaw($sql, $bindings = [])
+    {
+    }
+
+    /**
+     * Add a raw having clause to the query.
+     *
+     * @param  string  $sql
+     * @param  array  $bindings
+     * @return $this
+     */
+    public function havingRaw($sql, array $bindings = [])
+    {
+    }
+
+    /**
+     * Add a raw or having clause to the query.
+     *
+     * @param  string  $sql
+     * @param  array  $bindings
+     * @return $this
+     */
+    public function orHavingRaw($sql, array $bindings = [])
+    {
+    }
+
+    /**
+     * Add a raw order by clause to the query.
+     *
+     * @param  string  $sql
+     * @param  array  $bindings
+     * @return $this
+     */
+    public function orderByRaw($sql, $bindings = [])
+    {
+    }
+
+    /**
+     * Add a raw group by clause to the query.
+     *
+     * @param  string  $sql
+     * @param  array  $bindings
+     * @return $this
+     */
+    public function groupByRaw($sql, array $bindings = [])
+    {
+    }
+
+    /**
      * Add a new select column to the query.
      *
      * @param  array|mixed  $column
@@ -3206,11 +3283,13 @@ class ColumnDefinition
 }
 
 namespace Hyperf\DbConnection {
+/**
+ * @method static \Hyperf\Database\Schema\Builder connection(string $name)
+ */
 class Schema extends \Hyperf\Database\Schema\Builder {}
 
 /**
  * @method static \Hyperf\Database\ConnectionInterface connection(string $name = null)
- * @method static \Hyperf\Database\Query\Builder table(string $table, string $as = null)
  * @method static \Hyperf\Database\Query\Expression raw($value)
  * @method static array prepareBindings(array $bindings)
  * @method static array pretend(\Closure $callback)
@@ -3251,4 +3330,24 @@ class DB {
 namespace {
     class DB extends \Hyperf\DbConnection\Db {}
     class Schema extends \Hyperf\DbConnection\Schema {}
+}
+
+namespace Hyperf\Database {
+    interface ConnectionInterface
+    {
+        /**
+         * @return \Hyperf\Database\Query\Builder
+         */
+        public function table(string $table, string $as = null);
+
+        /**
+         * @return \Hyperf\Database\Query\Builder
+         */
+        public function query();
+
+        /**
+         * @return array
+         */
+        public function select(string $query, array $bindings = []);
+    }
 }

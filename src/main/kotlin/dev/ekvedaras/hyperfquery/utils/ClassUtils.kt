@@ -45,29 +45,35 @@ class ClassUtils private constructor() {
 
         @JvmStatic
         fun PhpClassImpl.isChildOf(clazz: String, depth: Int = 1): Boolean {
-            if (this.fqn == clazz.asPhpClass(project)?.fqn) {
-                return true
+            // 目标类只解析一次,沿继承链比较 fqn;原先每层递归都重复查 PhpIndex
+            val targetFqn = clazz.asPhpClass(project)?.fqn ?: return false
+
+            var current: PhpClass? = this
+            var level = depth
+            while (current != null) {
+                if (current is PhpClassAliasImpl) {
+                    current = current.original as? PhpClassImpl ?: return false
+                    continue
+                }
+
+                if (current.fqn == targetFqn) {
+                    return true
+                }
+
+                if (level > 20) {
+                    return false
+                }
+
+                current = (current as? PhpClassImpl)?.superClass
+                level++
             }
 
-            if (superClass == null) {
-                return false
-            }
-
-            if (superClass is PhpClassAliasImpl) {
-                val original = (superClass as PhpClassAliasImpl).original ?: return false
-                return (original as PhpClassImpl).isChildOf(clazz)
-            }
-
-            if (depth > 20) {
-                return false
-            }
-
-            return (superClass as PhpClassImpl).isChildOf(clazz, depth + 1)
+            return false
         }
 
         @JvmStatic
         fun String.asPhpClass(project: Project): PhpClass? {
-            return PhpIndex.getInstance(project).getClassesByFQN(this).firstOrNull()
+            return PhpIndex.getInstance(project).getAnyByFQN(this).firstOrNull()
         }
 
         @JvmStatic

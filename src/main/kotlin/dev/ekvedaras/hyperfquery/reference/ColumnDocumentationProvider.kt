@@ -11,6 +11,7 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBuilderMethodForC
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isColumnIn
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isDbFacadeSqlBindingMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isRawExpressionMethod
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelColumnPropertyClass
 import dev.ekvedaras.hyperfquery.utils.MethodUtils
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsVariable
@@ -69,8 +70,10 @@ class ColumnDocumentationProvider : AbstractDocumentationProvider() {
             ?: return literal.modelColumnPropertyClass() != null
         val project = method.project
 
+        // raw SQL 片段(selectRaw / Db::raw 等)不提供悬浮文档: 内容是任意 SQL,解析不准
         return method.isInteresting(project) &&
             method.isBuilderMethodForColumns() &&
+            !method.isRawExpressionMethod() &&
             literal.isColumnIn(method, allowArray = method.name?.startsWith("where") == true) &&
             !method.isDbFacadeSqlBindingMethod(project)
     }

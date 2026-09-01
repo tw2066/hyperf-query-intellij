@@ -21,7 +21,7 @@ class ModelRelationResolver(
 ) {
     fun resolveModelAndRelationTables(methods: MutableList<MethodReference>, method: MethodReference) {
         val modelReference: PhpTypedElement = tableAndAliasCollector.resolveModelReference(methods) ?: return
-        val model = modelReference.getClass(reference.project) ?: return
+        val model = modelReference.resolveModelClass(reference.project) ?: return
 
         // $user->customer()->create(['']). Detect customer() and resolve table name as customers table only
         val relationMethod = methods.lastOrNull { mm ->

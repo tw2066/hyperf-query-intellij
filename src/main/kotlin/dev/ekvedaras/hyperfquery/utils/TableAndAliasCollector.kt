@@ -9,6 +9,8 @@ import com.jetbrains.php.lang.psi.elements.PhpTypedElement
 import com.jetbrains.php.lang.psi.elements.Statement
 import com.jetbrains.php.lang.psi.elements.impl.AssignmentExpressionImpl
 import com.jetbrains.php.lang.psi.elements.impl.ClassReferenceImpl
+import com.jetbrains.php.lang.psi.elements.impl.FieldReferenceImpl
+import com.jetbrains.php.lang.psi.elements.impl.MethodReferenceImpl
 import com.jetbrains.php.lang.psi.elements.impl.ParenthesizedExpressionImpl
 import com.jetbrains.php.lang.psi.elements.impl.PhpClassImpl
 import com.jetbrains.php.lang.psi.elements.impl.StringLiteralExpressionImpl
@@ -20,13 +22,15 @@ import dev.ekvedaras.hyperfquery.utils.ClassUtils.Companion.isChildOf
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.dbDataSources
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.nameWithoutPrefix
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.tables
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.connectionName
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isConnectionCall
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isInteresting
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelColumnPropertyClass
+import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelTablePropertyClass
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.tableName
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.containsAlias
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.statementFirstPsiChild
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.unquoteAndCleanup
-import java.util.Collections
 
 class TableAndAliasCollector(private val reference: DbReferenceExpression) {
     private val aliasCollector = AliasCollector(reference)
@@ -37,10 +41,17 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
         val method = MethodUtils.resolveMethodReference(reference.expression)
         if (method == null) {
             // Model 属性数组($fillable/$guarded/$casts 等)没有方法调用上下文,直接注入模型表名
-            reference.expression.modelColumnPropertyClass()?.let { resolveTableName(it) }
+            reference.expression.modelColumnPropertyClass()?.let {
+                resolveTableName(it)
+                reference.connectionName = it.connectionName()
+            }
+            // Model $table 属性默认值: 字符串自身即表名,只需模型 $connection 声明做连接过滤
+            reference.expression.modelTablePropertyClass()?.let {
+                reference.connectionName = it.connectionName()
+            }
             return
         }
-        val methods = Collections.synchronizedList(mutableListOf<MethodReference>())
+        val methods = mutableListOf<MethodReference>()
 
         ProgressManager.checkCanceled()
 
@@ -50,6 +61,18 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
         ProgressManager.checkCanceled()
 
         relationResolver.resolveModelAndRelationTables(methods, method)
+
+        ProgressManager.checkCanceled()
+
+        // 模型语境(Model::query() 链、作用域方法等)下取模型 $connection 声明的连接
+        reference.connectionName = resolveModelReference(methods)
+            ?.resolveModelClass(reference.project)
+            ?.connectionName()
+
+        // 链上显式 connection('name') 优先于模型声明
+        methods.firstOrNull { it.isConnectionCall(reference.project) }
+            ?.let { (it.getParameter(0) as? StringLiteralExpressionImpl)?.contents }
+            ?.let { reference.connectionName = it }
 
         ProgressManager.checkCanceled()
 
@@ -191,6 +214,14 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
             is VariableImpl -> (methodReference.firstChild as VariableImpl)
                 .getClass(reference.project)
                 ?.isChildOf(HyperfClasses.Model) ?: false
+            // $this->model::query() — 属性持有模型类(@var ModelClass 或默认值 ModelClass::class)
+            is FieldReferenceImpl -> (methodReference.firstChild as FieldReferenceImpl)
+                .resolveModelClass(reference.project)
+                ?.isChildOf(HyperfClasses.Model) ?: false
+            // $this->getModel()->… — 被调方法返回类型(@return 或原生)是模型子类
+            is MethodReferenceImpl -> MethodUtils.resolveMethodTypeClasses(
+                methodReference.firstChild as MethodReference, reference.project
+            ).any { it.isChildOf(HyperfClasses.Model) }
             else -> false
         }
     }
@@ -209,7 +240,9 @@ class TableAndAliasCollector(private val reference: DbReferenceExpression) {
 
         if (referencedSchema == null) {
             reference.project.dbDataSources().forEach { dataSource ->
-                dataSource.tables().firstOrNull { it.nameWithoutPrefix(reference.project) == referencedTable }?.let {
+                dataSource.tables(reference.connectionSchema, reference.connectionPrefix).firstOrNull {
+                    it.nameWithoutPrefix(reference.project, reference.connectionPrefix) == referencedTable
+                }?.let {
                     referencedSchema = it.dasParent?.name
                 }
             }

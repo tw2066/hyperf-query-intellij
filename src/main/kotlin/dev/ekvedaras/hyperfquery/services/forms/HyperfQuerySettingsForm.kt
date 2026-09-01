@@ -86,7 +86,8 @@ class HyperfQuerySettingsForm(val project: Project) {
             }
         )
 
-        dataSources!!.columnModel.getColumn(0).cellEditor = JBTable.createBooleanEditor()
+        // No cell editor on purpose: with a boolean editor the click toggles twice
+        // (editor commits on release, then mouseClicked fires) and the box never checks.
         dataSources!!.columnModel.getColumn(0).cellRenderer = BooleanTableCellRenderer()
 
         @SuppressWarnings("MagicNumber")

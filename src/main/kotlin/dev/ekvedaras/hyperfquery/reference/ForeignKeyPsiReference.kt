@@ -9,7 +9,7 @@ import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.nameWithoutPrefix
 
 class ForeignKeyPsiReference(element: PsiElement) : PsiReferenceBase<PsiElement>(element) {
     override fun resolve(): PsiElement? {
-        val target = DbReferenceExpression(element, DbReferenceExpression.Companion.Type.ForeignKey)
+        val target = DbReferenceExpression.create(element, DbReferenceExpression.Companion.Type.ForeignKey)
         val tables = target.tablesAndAliases.values.map { it.first }
 
         rangeInElement = target.ranges.last()
@@ -18,7 +18,7 @@ class ForeignKeyPsiReference(element: PsiElement) : PsiReferenceBase<PsiElement>
             HyperfQuerySettings.getInstance(element.project).interestedIn(it)
         }.forEach { dataSource ->
             val dbForeignKey = dataSource.findElement(target.foreignKey.find {
-                tables.contains(it.table?.nameWithoutPrefix(element.project))
+                tables.contains(it.table?.nameWithoutPrefix(element.project, target.connectionPrefix))
             })
             if (dbForeignKey != null) {
                 return dbForeignKey

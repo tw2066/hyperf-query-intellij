@@ -57,6 +57,66 @@ internal class ModelPropertyCompletionTest : BaseTestCase() {
         assertNoCompletion(*usersColumns().toTypedArray())
     }
 
+    fun testCompletesTablesAndSchemasInTableProperty() {
+        myFixture.configureByFile("model/modelTableProperty.php")
+
+        myFixture.completeBasic()
+        assertCompletion(*schemasAndTables.toTypedArray())
+    }
+
+    fun testDoesNotCompleteTablesInTablePropertyOutsideModel() {
+        myFixture.configureByFile("model/notModelTableProperty.php")
+
+        myFixture.completeBasic()
+        assertNoCompletion(*schemasAndTables.toTypedArray())
+    }
+
+    fun testCompletesOnlyConnectionTablesInTableProperty() {
+        addDatabasesConfig()
+        myFixture.configureByFile("model/modelTablePropertyOnConnection.php")
+
+        myFixture.completeBasic()
+        assertCompletion("failed_jobs", "migrations", "jc_goods")
+        assertNoCompletion("users", "customers")
+    }
+
+    fun testCompletesColumnsInModelStaticWhere() {
+        assertCompletesUsersColumnsInQuery("model/modelWhere.php")
+    }
+
+    fun testCompletesColumnsInThisModelPropertyStaticQuery() {
+        assertCompletesUsersColumnsInQuery("model/modelThisPropertyStaticQuery.php")
+    }
+
+    fun testCompletesColumnsInThisTypedPropertyStaticQuery() {
+        assertCompletesUsersColumnsInQuery("model/modelThisTypedPropertyStaticQuery.php")
+    }
+
+    fun testCompletesColumnsInThisGetModelInstanceQuery() {
+        assertCompletesUsersColumnsInQuery("model/modelThisGetModelInstanceQuery.php")
+    }
+
+    fun testCompletesColumnsInThisGetModelDocblockQuery() {
+        assertCompletesUsersColumnsInQuery("model/modelThisGetModelDocblockQuery.php")
+    }
+
+    private fun assertCompletesUsersColumnsInQuery(@TestDataFile filePath: String) {
+        myFixture.configureByFile(filePath)
+
+        val usersColumns = usersColumns()
+        val otherTable = DasUtil.getTables(dataSource())
+            .filterNot { it.name == "users" }
+            .lastOrNull() ?: return fail("Did not find any tables.")
+        val otherColumns = DasUtil.getColumns(otherTable)
+            .filterNot { usersColumns.contains(it.name) }
+            .map { it.name }
+            .toList()
+
+        myFixture.completeBasic()
+        assertCompletion(*usersColumns.toTypedArray())
+        assertNoCompletion(*otherColumns.toTypedArray())
+    }
+
     private fun assertCompletesUsersColumns(@TestDataFile filePath: String) {
         myFixture.configureByFile(filePath)
 

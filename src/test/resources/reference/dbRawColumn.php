@@ -1,0 +1,1 @@
+<?php (new Hyperf\Database\Query\Builder())->from('testProject1.users')->select(Hyperf\DbConnection\Db::raw('id'));

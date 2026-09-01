@@ -5,17 +5,27 @@ import com.intellij.database.util.isInstanceOf
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiManager
+import com.intellij.psi.util.CachedValue
+import com.intellij.psi.util.CachedValueProvider
+import com.intellij.psi.util.CachedValuesManager
 import com.intellij.psi.util.parentOfType
 import com.intellij.util.ArrayUtil
 import com.jetbrains.php.PhpIndex
+import com.jetbrains.php.lang.psi.elements.ArrayHashElement
+import com.jetbrains.php.lang.psi.elements.Field
 import com.jetbrains.php.lang.psi.elements.MethodReference
 import com.jetbrains.php.lang.psi.elements.ParameterList
 import com.jetbrains.php.lang.psi.elements.PhpPsiElement
 import com.jetbrains.php.lang.psi.elements.PhpTypedElement
 import com.jetbrains.php.lang.psi.elements.Statement
 import com.jetbrains.php.lang.psi.elements.impl.ArrayCreationExpressionImpl
+import com.jetbrains.php.lang.psi.elements.impl.ClassConstantReferenceImpl
+import com.jetbrains.php.lang.psi.elements.impl.FieldReferenceImpl
 import com.jetbrains.php.lang.psi.elements.impl.FunctionImpl
+import com.jetbrains.php.lang.psi.elements.impl.MethodReferenceImpl
 import com.jetbrains.php.lang.psi.elements.impl.PhpClassAliasImpl
 import com.jetbrains.php.lang.psi.elements.impl.PhpClassImpl
 import dev.ekvedaras.hyperfquery.utils.ClassUtils.Companion.isChildOf
@@ -23,6 +33,13 @@ import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isJoinOrRelation
 
 class MethodUtils private constructor() {
     companion object {
+        private val MethodTypeClassesKey = Key<CachedValue<List<PhpClassImpl>>>(
+            "hyperfquery.method.type.classes"
+        )
+        private val MethodClassesKey = Key<CachedValue<List<PhpClassImpl>>>(
+            "hyperfquery.method.classes"
+        )
+
         fun resolveMethodReference(element: PsiElement?, depthLimit: Int = 10): MethodReference? {
             if (element == null || depthLimit <= 0) {
                 return null
@@ -35,6 +52,8 @@ class MethodUtils private constructor() {
             return resolveMethodReference(element.parent, depthLimit - 1)
         }
 
+        // 同一方法引用会被多个门控检查(isInteresting/isBlueprintMethod/...)反复解析类型,
+        // 按 MethodReference 缓存,PSI 变更后失效;dumb mode 不缓存避免残留空结果
         fun resolveMethodTypeClasses(method: MethodReference, project: Project): List<PhpClassImpl> {
             if (
                 DumbService.isDumb(project) ||
@@ -43,6 +62,20 @@ class MethodUtils private constructor() {
                 return listOf()
             }
 
+            return CachedValuesManager.getManager(project).getCachedValue(
+                method,
+                MethodTypeClassesKey,
+                {
+                    CachedValueProvider.Result.create(
+                        computeTypeClasses(method, project),
+                        PsiManager.getInstance(project).modificationTracker,
+                    )
+                },
+                false,
+            )
+        }
+
+        private fun computeTypeClasses(method: MethodReference, project: Project): List<PhpClassImpl> {
             val classes = mutableListOf<PhpClassImpl>()
 
             PhpIndex
@@ -52,7 +85,7 @@ class MethodUtils private constructor() {
                 .toList()
                 .forEach { collectClasses(project, it, classes) }
 
-            return classes
+            return classes.sortedBy { it.fqn }
         }
 
         fun resolveMethodClasses(method: MethodReference, project: Project): List<PhpClassImpl> {
@@ -64,6 +97,22 @@ class MethodUtils private constructor() {
                 return listOf()
             }
 
+            return CachedValuesManager.getManager(project).getCachedValue(
+                method,
+                MethodClassesKey,
+                {
+                    CachedValueProvider.Result.create(
+                        computeClasses(method, project),
+                        PsiManager.getInstance(project).modificationTracker,
+                    )
+                },
+                false,
+            )
+        }
+
+        // PhpIndex.completeType 返回的 types 集合顺序不稳定(同一方法两次计算可能不同序),
+        // CachedValue 幂等性校验会按 List.equals 比较,必须排序保证确定性顺序
+        private fun computeClasses(method: MethodReference, project: Project): List<PhpClassImpl> {
             val classes = mutableListOf<PhpClassImpl>()
 
             PhpIndex
@@ -73,7 +122,7 @@ class MethodUtils private constructor() {
                 .toList()
                 .forEach { collectClasses(project, it, classes) }
 
-            return classes
+            return classes.sortedBy { it.fqn }
         }
 
         private fun collectClasses(
@@ -82,7 +131,7 @@ class MethodUtils private constructor() {
             classes: MutableList<PhpClassImpl>
         ) {
             PhpIndex.getInstance(project)
-                .getClassesByFQN(className)
+                .getAnyByFQN(className)
                 .forEach classLoop@{ clazz ->
                     when (clazz) {
                         is PhpClassAliasImpl -> {
@@ -154,7 +203,14 @@ fun PsiElement.findParamIndex(allowArray: Boolean = false): Int {
     return if (parent is ParameterList) {
         ArrayUtil.indexOf(parent.parameters, this)
     } else if (allowArray && parent is ArrayCreationExpressionImpl) {
-        parent.children.indexOfFirst { it === this }
+        // where() 数组参数分三种:
+        // 关联数组 ['col' => 'val'] 的键/值、顶层数组的裸值 ['col', ...] —— 解析为数组本身的参数位(列);
+        // 嵌套数组 [['col', 'op', 'val']] —— 取元素在数组内的序号(0=列, 1/2=操作符)。
+        if (this is ArrayHashElement || parent.parent is ParameterList) {
+            parent.findParamIndex(allowArray)
+        } else {
+            parent.children.indexOfFirst { it === this }
+        }
     } else {
         this.parent?.findParamIndex(allowArray) ?: -1
     }
@@ -199,3 +255,22 @@ fun PhpTypedElement.getClass(project: Project): PhpClassImpl? =
     PhpIndex.getInstance(project)
         .getClassesByFQN(this.declaredType.types.firstOrNull() ?: "")
         .firstOrNull() as? PhpClassImpl
+
+/**
+ * 把模型引用解析为模型类:类常量/变量走类型推断;$this->model 属性引用先看
+ * @var 注解类型,再回退默认值里的 ModelClass::class 类常量;
+ * $this->getModel() 方法调用取返回类型(@return 与原生返回类型等价)。
+ */
+fun PhpTypedElement.resolveModelClass(project: Project): PhpClassImpl? =
+    when (this) {
+        is PhpClassImpl -> this
+        is FieldReferenceImpl ->
+            getClass(project)
+                ?: ((resolve() as? Field)?.defaultValue as? ClassConstantReferenceImpl)
+                    ?.classReference
+                    ?.getClass(project)
+        is MethodReferenceImpl ->
+            MethodUtils.resolveMethodTypeClasses(this, project)
+                .firstOrNull { it.isChildOf(HyperfClasses.Model) }
+        else -> getClass(project)
+    }
