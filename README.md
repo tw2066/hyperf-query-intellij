@@ -19,7 +19,7 @@ This plugin provides database integration for Hyperf query builder. It works wit
 * SQL named-placeholder (`:name`) completion and navigation for `Db::select()`, `Db::update()` and other `Hyperf\DbConnection\Db` methods with `$bindings` — binding array keys complete against the placeholders in the query string (both `name` and `:name` forms), and Ctrl+Click on a key navigates to the placeholder in the SQL
 * Database connection names from `config/autoload/databases.php` complete in `Db::connection()` / `Schema::connection()` and the model `$connection` property, with Ctrl+Click navigation to the config entry and an inspection warning for unknown connection names; table/column completion, references and inspections on a chain (or model) using a connection are scoped to that connection's configured `database` schema (falling back to the `default` connection when none is specified), and the connection's `prefix` is honored for table names
 * Raw SQL fragments (`selectRaw()`, `whereRaw()`, `orderByRaw()`, `havingRaw()`, `groupByRaw()`, `Db::raw()`, ...) get column completion, navigation and inspection for simple column expressions — including comma-separated lists and table/alias references carrying the connection's table prefix — while complex SQL (functions, arithmetic) is left untouched to avoid false warnings
-* Configurable table prefix and datasource filtering
+* Configurable table prefix and datasource filtering, plus a global enable/disable switch at the top of the settings panel (on by default; turning it off deactivates all plugin features)
 
 ## Installation
 

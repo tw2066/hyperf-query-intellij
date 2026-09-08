@@ -19,7 +19,7 @@ This plugin provides database-integration for the Hyperf query builder. When use
 * `Db::select()`、`Db::update()` 等 `Hyperf\DbConnection\Db` 带 `$bindings` 方法的 SQL 命名占位符(`:name`)补全与跳转 —— 绑定数组键基于查询字符串中的占位符补全(`name` 与 `:name` 两种写法均可),Ctrl+Click 键名可跳转到 SQL 中的占位符
 * `config/autoload/databases.php` 中的数据库连接名在 `Db::connection()` / `Schema::connection()` 与模型 `$connection` 属性中补全,支持 Ctrl+Click 跳转到配置项与未知连接名检查告警;使用指定连接的链式调用(或模型)上的表/列补全、引用解析与检查都限定在该连接配置的 `database` schema 内(未指定时回退 `default` 连接),表名遵守连接的 `prefix`
 * 原生 SQL 片段(`selectRaw()`、`whereRaw()`、`orderByRaw()`、`havingRaw()`、`groupByRaw()`、`Db::raw()` 等)中的简单列表达式获得列补全、跳转与检查 —— 支持逗号分隔列表与带连接表前缀的表/别名引用;复杂 SQL(函数、算术运算)保持跳过,避免误报
-* 可配置表前缀与数据源过滤
+* 可配置表前缀与数据源过滤;设置面板顶部提供全局开关,可整体停用插件功能
 
 ## 注意事项
 
