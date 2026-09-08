@@ -8,6 +8,7 @@ import com.intellij.psi.PsiReferenceProvider
 import com.intellij.util.ProcessingContext
 import com.jetbrains.php.lang.psi.elements.MethodReference
 import dev.ekvedaras.hyperfquery.models.DbReferenceExpression
+import dev.ekvedaras.hyperfquery.services.HyperfQuerySettings
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.canHaveColumnsInArrayValues
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isBuilderMethodForColumns
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isDbFacadeSqlBindingMethod
@@ -28,7 +29,11 @@ class ColumnReferenceProvider : PsiReferenceProvider() {
         val method = MethodUtils.resolveMethodReference(element)
         if (method == null) {
             // Model 属性数组($fillable/$guarded/$casts 等)中的列名
-            return if (!element.containsVariable() && element.modelColumnPropertyClass() != null) {
+            return if (
+                HyperfQuerySettings.getInstance(element.project).enabled &&
+                !element.containsVariable() &&
+                element.modelColumnPropertyClass() != null
+            ) {
                 arrayOf(ColumnPsiReference(element))
             } else {
                 PsiReference.EMPTY_ARRAY

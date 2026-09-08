@@ -11,6 +11,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.ProcessingContext
 import com.jetbrains.php.lang.psi.elements.MethodReference
 import dev.ekvedaras.hyperfquery.models.DbReferenceExpression
+import dev.ekvedaras.hyperfquery.services.HyperfQuerySettings
 import dev.ekvedaras.hyperfquery.utils.BlueprintMethod.Companion.createsTable
 import dev.ekvedaras.hyperfquery.utils.BlueprintMethod.Companion.isColumnDefinition
 import dev.ekvedaras.hyperfquery.utils.BlueprintMethod.Companion.isInsideUpMigration
@@ -106,6 +107,9 @@ class ColumnCompletionProvider(private val shouldCompleteAll: Boolean = false) :
             return
         }
         val project = parameters.position.project
+        if (!HyperfQuerySettings.getInstance(project).enabled) {
+            return
+        }
         parameters.position.modelColumnPropertyClass() ?: return
 
         val target = DbReferenceExpression.create(parameters.position, DbReferenceExpression.Companion.Type.Column)

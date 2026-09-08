@@ -5,12 +5,17 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReference
 import com.intellij.psi.PsiReferenceProvider
 import com.intellij.util.ProcessingContext
+import dev.ekvedaras.hyperfquery.services.HyperfQuerySettings
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isConnectionParam
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isModelConnectionProperty
 
 class ConnectionReferenceProvider : PsiReferenceProvider() {
     override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<PsiReference> {
         if (!ApplicationManager.getApplication().isReadAccessAllowed) {
+            return PsiReference.EMPTY_ARRAY
+        }
+
+        if (!HyperfQuerySettings.getInstance(element.project).enabled) {
             return PsiReference.EMPTY_ARRAY
         }
 

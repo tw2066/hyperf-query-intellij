@@ -6,6 +6,7 @@ import com.intellij.codeInsight.completion.CompletionResultSet
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.util.ProcessingContext
+import dev.ekvedaras.hyperfquery.services.HyperfQuerySettings
 import dev.ekvedaras.hyperfquery.utils.DatabasesConfig.Companion.databaseConnections
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isConnectionParam
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isModelConnectionProperty
@@ -27,6 +28,9 @@ class ConnectionCompletionProvider : CompletionProvider<CompletionParameters>() 
         }
 
         val project = parameters.position.project
+        if (!HyperfQuerySettings.getInstance(project).enabled) {
+            return
+        }
         if (!parameters.position.isConnectionParam(project) && !parameters.position.isModelConnectionProperty()) {
             return
         }

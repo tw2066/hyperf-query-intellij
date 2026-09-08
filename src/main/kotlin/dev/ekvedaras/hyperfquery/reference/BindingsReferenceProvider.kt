@@ -6,6 +6,7 @@ import com.intellij.psi.PsiReference
 import com.intellij.psi.PsiReferenceProvider
 import com.intellij.util.ProcessingContext
 import com.jetbrains.php.lang.psi.elements.impl.StringLiteralExpressionImpl
+import dev.ekvedaras.hyperfquery.services.HyperfQuerySettings
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isDbFacadeSqlBindingMethod
 import dev.ekvedaras.hyperfquery.utils.MethodUtils
 import dev.ekvedaras.hyperfquery.utils.isBindingsArrayKey
@@ -18,6 +19,10 @@ class BindingsReferenceProvider : PsiReferenceProvider() {
         val project = method.project
 
         if (!ApplicationManager.getApplication().isReadAccessAllowed) {
+            return PsiReference.EMPTY_ARRAY
+        }
+
+        if (!HyperfQuerySettings.getInstance(project).enabled) {
             return PsiReference.EMPTY_ARRAY
         }
 

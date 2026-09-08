@@ -9,6 +9,7 @@ import com.jetbrains.php.lang.inspections.PhpInspection
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression
 import com.jetbrains.php.lang.psi.visitors.PhpElementVisitor
 import dev.ekvedaras.hyperfquery.MyBundle
+import dev.ekvedaras.hyperfquery.services.HyperfQuerySettings
 import dev.ekvedaras.hyperfquery.utils.DatabasesConfig.Companion.databaseConnections
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isConnectionParam
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isModelConnectionProperty
@@ -28,6 +29,9 @@ class UnknownConnectionInspection : PhpInspection() {
                 }
 
                 val project = expression.project
+                if (!HyperfQuerySettings.getInstance(project).enabled) {
+                    return
+                }
                 if (!expression.isConnectionParam(project) && !expression.isModelConnectionProperty()) {
                     return
                 }

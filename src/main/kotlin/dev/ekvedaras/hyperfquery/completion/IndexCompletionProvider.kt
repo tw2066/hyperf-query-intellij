@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.ProcessingContext
 import com.jetbrains.php.lang.psi.elements.MethodReference
 import dev.ekvedaras.hyperfquery.models.DbReferenceExpression
+import dev.ekvedaras.hyperfquery.services.HyperfQuerySettings
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.dbDataSources
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.foreignKeys
 import dev.ekvedaras.hyperfquery.utils.DatabaseUtils.Companion.indexes
@@ -124,7 +125,8 @@ class IndexCompletionProvider : CompletionProvider<CompletionParameters>() {
     }
 
     private fun shouldNotComplete(project: Project, method: MethodReference, parameters: CompletionParameters) =
-        !ApplicationManager.getApplication().isReadAccessAllowed ||
+        !HyperfQuerySettings.getInstance(project).enabled ||
+            !ApplicationManager.getApplication().isReadAccessAllowed ||
             parameters.containsVariable() ||
             parameters.isInsidePhpArrayOrValue() ||
             (

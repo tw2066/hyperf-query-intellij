@@ -329,7 +329,8 @@ class NewMigrationCompletionProvider : CompletionProvider<CompletionParameters>(
     }
 
     private fun shouldNotComplete(project: Project, method: MethodReference, parameters: CompletionParameters) =
-        !ApplicationManager.getApplication().isReadAccessAllowed ||
+        !HyperfQuerySettings.getInstance(project).enabled ||
+            !ApplicationManager.getApplication().isReadAccessAllowed ||
             !method.isBlueprintMethod(project) ||
             parameters.isInsideRegularFunction() ||
             method.firstPsiChild !is VariableImpl

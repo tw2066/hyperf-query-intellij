@@ -16,6 +16,7 @@ import com.jetbrains.php.lang.psi.elements.StringLiteralExpression
 import com.jetbrains.php.lang.psi.elements.impl.ArrayHashElementImpl
 import com.jetbrains.php.lang.psi.elements.impl.MethodReferenceImpl
 import com.jetbrains.php.lang.psi.elements.impl.PhpClassImpl
+import dev.ekvedaras.hyperfquery.services.HyperfQuerySettings
 import dev.ekvedaras.hyperfquery.utils.ClassUtils.Companion.asTableName
 import dev.ekvedaras.hyperfquery.utils.ClassUtils.Companion.isChildOf
 import dev.ekvedaras.hyperfquery.utils.PsiUtils.Companion.isArrayKey
@@ -446,11 +447,12 @@ class HyperfUtils private constructor() {
         // </editor-fold>
 
         fun MethodReference.isInteresting(project: Project): Boolean =
-            MethodUtils.resolveMethodClasses(this, project).any { clazz ->
-                InterestingClasses.any {
-                    clazz.isChildOf(it)
+            HyperfQuerySettings.getInstance(project).enabled &&
+                MethodUtils.resolveMethodClasses(this, project).any { clazz ->
+                    InterestingClasses.any {
+                        clazz.isChildOf(it)
+                    }
                 }
-            }
 
         fun MethodReference.isEloquentModel(project: Project): Boolean =
             MethodUtils.resolveMethodClasses(this, project).any { clazz ->

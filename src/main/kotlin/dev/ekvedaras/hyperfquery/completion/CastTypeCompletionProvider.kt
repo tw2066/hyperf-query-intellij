@@ -7,6 +7,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.util.ProcessingContext
+import dev.ekvedaras.hyperfquery.services.HyperfQuerySettings
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.ModelCastTypes
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.ModelParameterizedCastTypes
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.modelCastsValueClass
@@ -22,6 +23,9 @@ class CastTypeCompletionProvider : CompletionProvider<CompletionParameters>() {
         result: CompletionResultSet
     ) {
         if (!ApplicationManager.getApplication().isReadAccessAllowed || parameters.containsVariable()) {
+            return
+        }
+        if (!HyperfQuerySettings.getInstance(parameters.position.project).enabled) {
             return
         }
         parameters.position.modelCastsValueClass() ?: return

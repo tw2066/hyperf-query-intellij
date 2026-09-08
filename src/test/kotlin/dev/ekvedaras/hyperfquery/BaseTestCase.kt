@@ -30,6 +30,8 @@ internal abstract class BaseTestCase : BasePlatformTestCase() {
         myFixture.copyFileToProject("stubs.php")
 
         HyperfQuerySettings.getInstance(project).filterDataSources = false
+        HyperfQuerySettings.getInstance(project).filteredDataSources = emptySet()
+        HyperfQuerySettings.getInstance(project).enabled = true
 
         db = SqlCommonTestUtils.createDataSourceFromSql(
             project,

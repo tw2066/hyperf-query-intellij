@@ -17,9 +17,11 @@ import java.util.concurrent.atomic.AtomicLong
 
 @State(name = "HyperfQuerySettings", storages = [Storage("hyperf-query-settings.xml")])
 class HyperfQuerySettings : PersistentStateComponent<HyperfQuerySettings>, ModificationTracker {
+    var enabled = true
     var filterDataSources = false
     var filteredDataSources = setOf<String>()
     var ignoreSettings = false
+    var configureSettingsNotificationShown = false
     var tablePrefix = ""
 
     private val modificationCounter = AtomicLong(0L)

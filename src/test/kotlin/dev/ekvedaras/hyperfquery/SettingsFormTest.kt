@@ -13,7 +13,7 @@ internal class SettingsFormTest : BaseTestCase() {
         val configurable = HyperfQuerySettingsConfigurable(project)
         val component = configurable.createComponent()!!
 
-        val master = findComponent(component, JCheckBox::class.java)!!
+        val master = findComponents(component, JCheckBox::class.java).first { it.text == "Filter data sources" }
         master.isSelected = true
 
         val table = findComponent(component, JTable::class.java)!!
@@ -47,13 +47,47 @@ internal class SettingsFormTest : BaseTestCase() {
         assertCompletion(*(schemaTables["testProject1"]!! + "testProject1").toTypedArray())
     }
 
-    private fun <T> findComponent(root: Component, cls: Class<T>): T? {
-        if (cls.isInstance(root)) return cls.cast(root)
+    fun testPluginEnabledByDefaultAndCanBeDisabled() {
+        val configurable = HyperfQuerySettingsConfigurable(project)
+        val component = configurable.createComponent()!!
+
+        val enableSwitch = findComponents(component, JCheckBox::class.java).first { it.text == "Enable Hyperf Query" }
+        val filterCheckbox = findComponents(component, JCheckBox::class.java).first { it.text == "Filter data sources" }
+
+        assertTrue(enableSwitch.isSelected)
+        assertFalse(configurable.isModified)
+
+        enableSwitch.isSelected = false
+        assertFalse(filterCheckbox.isEnabled)
+        assertTrue(configurable.isModified)
+
+        configurable.apply()
+        assertFalse(HyperfQuerySettings.getInstance(project).enabled)
+    }
+
+    fun testDisabledPluginSkipsCompletion() {
+        HyperfQuerySettings.getInstance(project).enabled = false
+
+        myFixture.configureByText(
+            "test.php",
+            "<?php (new Hyperf\\Database\\Query\\Builder())->from('<caret>')"
+        )
+        myFixture.completeBasic()
+
+        assertNoCompletion(*schemasAndTables.toTypedArray())
+    }
+
+    private fun <T> findComponent(root: Component, cls: Class<T>): T? =
+        findComponents(root, cls).firstOrNull()
+
+    private fun <T> findComponents(root: Component, cls: Class<T>): List<T> {
+        val found = mutableListOf<T>()
+        if (cls.isInstance(root)) found.add(cls.cast(root))
         if (root is Container) {
             root.components.forEach { child ->
-                findComponent(child, cls)?.let { return it }
+                found.addAll(findComponents(child, cls))
             }
         }
-        return null
+        return found
     }
 }

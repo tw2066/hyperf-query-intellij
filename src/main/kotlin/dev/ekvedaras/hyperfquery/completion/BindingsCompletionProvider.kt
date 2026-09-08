@@ -7,6 +7,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.util.ProcessingContext
 import com.intellij.psi.util.parentOfType
 import com.jetbrains.php.lang.psi.elements.impl.StringLiteralExpressionImpl
+import dev.ekvedaras.hyperfquery.services.HyperfQuerySettings
 import dev.ekvedaras.hyperfquery.utils.HyperfUtils.Companion.isDbFacadeSqlBindingMethod
 import dev.ekvedaras.hyperfquery.utils.MethodUtils
 import dev.ekvedaras.hyperfquery.utils.bindingsKeys
@@ -22,6 +23,10 @@ class BindingsCompletionProvider : CompletionProvider<CompletionParameters>() {
     ) {
         val method = MethodUtils.resolveMethodReference(parameters.position) ?: return
         val project = method.project
+
+        if (!HyperfQuerySettings.getInstance(project).enabled) {
+            return
+        }
 
         if (!method.isDbFacadeSqlBindingMethod(project)) {
             return

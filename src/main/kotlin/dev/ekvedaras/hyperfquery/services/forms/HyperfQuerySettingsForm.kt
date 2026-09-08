@@ -19,6 +19,7 @@ import javax.swing.table.DefaultTableModel
 
 class HyperfQuerySettingsForm(val project: Project) {
     private var panel: JPanel? = null
+    private var pluginEnabled: JCheckBox? = null
     private var filterDataSources: JCheckBox? = null
     private var dataSources: JTable? = null
     private var tablePrefix: JTextField? = null
@@ -28,6 +29,7 @@ class HyperfQuerySettingsForm(val project: Project) {
     fun component(): JComponent? = panel
 
     fun tablePrefix() = this.tablePrefix?.text ?: ""
+    fun isPluginEnabled() = pluginEnabled?.isSelected ?: true
     fun shouldFilterDataSources() = filterDataSources?.isSelected
     fun filteredDataSources(): Set<String> {
         var selected = setOf<String>()
@@ -44,11 +46,15 @@ class HyperfQuerySettingsForm(val project: Project) {
     }
 
     val isModified: Boolean
-        get() = shouldFilterDataSources() != settings.filterDataSources ||
+        get() = isPluginEnabled() != settings.enabled ||
+            shouldFilterDataSources() != settings.filterDataSources ||
             filteredDataSources() != settings.filteredDataSources ||
             tablePrefix() != settings.tablePrefix
 
     init {
+        pluginEnabled?.addChangeListener {
+            updateInputsEnabled()
+        }
         loadSettings()
     }
 
@@ -101,14 +107,22 @@ class HyperfQuerySettingsForm(val project: Project) {
 
         filterDataSources = JBCheckBox()
         filterDataSources!!.addChangeListener {
-            dataSources!!.isEnabled = filterDataSources!!.isSelected
+            updateInputsEnabled()
         }
     }
 
+    private fun updateInputsEnabled() {
+        val enabled = pluginEnabled?.isSelected ?: true
+        filterDataSources?.isEnabled = enabled
+        tablePrefix?.isEnabled = enabled
+        dataSources?.isEnabled = enabled && (filterDataSources?.isSelected ?: false)
+    }
+
     fun loadSettings() {
+        pluginEnabled?.isSelected = settings.enabled
         tablePrefix?.text = settings.tablePrefix
         filterDataSources?.isSelected = settings.filterDataSources
-        dataSources?.isEnabled = filterDataSources?.isSelected ?: false
+        updateInputsEnabled()
 
         for (row in 0 until (dataSources?.rowCount ?: 0)) {
             val schema = dataSources?.getValueAt(row, 1) as SettingsSchema

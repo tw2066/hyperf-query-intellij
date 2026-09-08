@@ -10,7 +10,13 @@ class Startup : StartupActivity {
     override fun runActivity(project: Project) {
         val settings = HyperfQuerySettings.getInstance(project)
 
-        if (!settings.filterDataSources && !settings.ignoreSettings && HyperfClasses.QueryBuilder.asPhpClass(project) != null) {
+        if (settings.enabled &&
+            !settings.filterDataSources &&
+            !settings.ignoreSettings &&
+            !settings.configureSettingsNotificationShown &&
+            HyperfClasses.QueryBuilder.asPhpClass(project) != null
+        ) {
+            settings.configureSettingsNotificationShown = true
             ConfigureSettingsNotification().notify(
                 project,
                 "Hyperf query now allows you to configure which schemas to inspect and reduce the noise!"

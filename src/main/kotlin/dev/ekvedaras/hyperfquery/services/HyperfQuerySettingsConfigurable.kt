@@ -20,6 +20,7 @@ class HyperfQuerySettingsConfigurable(val project: Project) : SearchableConfigur
     @Throws(ConfigurationException::class)
     override fun apply() {
         val settings = HyperfQuerySettings.getInstance(project)
+        settings.enabled = settingsForm?.isPluginEnabled() ?: true
         settings.filterDataSources = settingsForm?.shouldFilterDataSources() ?: false
         settings.filteredDataSources = settingsForm?.filteredDataSources() ?: setOf()
         settings.tablePrefix = settingsForm?.tablePrefix()?.trim() ?: ""
