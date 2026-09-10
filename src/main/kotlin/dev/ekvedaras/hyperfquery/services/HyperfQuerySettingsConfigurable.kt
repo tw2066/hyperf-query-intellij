@@ -24,7 +24,6 @@ class HyperfQuerySettingsConfigurable(val project: Project) : SearchableConfigur
         settings.filterDataSources = settingsForm?.shouldFilterDataSources() ?: false
         settings.filteredDataSources = settingsForm?.filteredDataSources() ?: setOf()
         settings.tablePrefix = settingsForm?.tablePrefix()?.trim() ?: ""
-        settings.touch()
     }
 
     override fun reset() {

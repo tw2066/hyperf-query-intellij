@@ -1,5 +1,6 @@
 package dev.ekvedaras.hyperfquery.services
 
+import com.intellij.ide.SaveAndSyncHandler
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
 import dev.ekvedaras.hyperfquery.notifications.ConfigureSettingsNotification
@@ -17,6 +18,9 @@ class Startup : StartupActivity {
             HyperfClasses.QueryBuilder.asPhpClass(project) != null
         ) {
             settings.configureSettingsNotificationShown = true
+            SaveAndSyncHandler
+                .getInstance()
+                .scheduleSave(SaveAndSyncHandler.SaveTask(project, true))
             ConfigureSettingsNotification().notify(
                 project,
                 "Hyperf query now allows you to configure which schemas to inspect and reduce the noise!"

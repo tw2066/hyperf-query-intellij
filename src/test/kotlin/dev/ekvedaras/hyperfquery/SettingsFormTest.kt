@@ -1,5 +1,7 @@
 package dev.ekvedaras.hyperfquery
 
+import com.intellij.openapi.util.JDOMUtil
+import com.intellij.util.xmlb.XmlSerializer
 import dev.ekvedaras.hyperfquery.models.SettingsSchema
 import dev.ekvedaras.hyperfquery.services.HyperfQuerySettings
 import dev.ekvedaras.hyperfquery.services.HyperfQuerySettingsConfigurable
@@ -75,6 +77,29 @@ internal class SettingsFormTest : BaseTestCase() {
         myFixture.completeBasic()
 
         assertNoCompletion(*schemasAndTables.toTypedArray())
+    }
+
+    fun testSettingsFlagsSerializeRoundTrip() {
+        val settings = HyperfQuerySettings()
+        val initialModificationCount = settings.modificationCount
+        settings.enabled = false
+        settings.ignoreSettings = true
+        settings.configureSettingsNotificationShown = true
+
+        assertEquals(initialModificationCount + 3, settings.modificationCount)
+
+        val element = XmlSerializer.serialize(settings)
+        val xml = JDOMUtil.writeElement(element)
+
+        assertTrue(xml.contains("""name="enabled" value="false""""))
+        assertTrue(xml.contains("""name="ignoreSettings" value="true""""))
+        assertTrue(xml.contains("""name="configureSettingsNotificationShown" value="true""""))
+
+        val restored = HyperfQuerySettings()
+        XmlSerializer.deserializeInto(restored, element)
+        assertFalse(restored.enabled)
+        assertTrue(restored.ignoreSettings)
+        assertTrue(restored.configureSettingsNotificationShown)
     }
 
     private fun <T> findComponent(root: Component, cls: Class<T>): T? =

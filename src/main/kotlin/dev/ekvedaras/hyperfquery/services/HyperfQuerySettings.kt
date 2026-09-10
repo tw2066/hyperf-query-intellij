@@ -17,21 +17,57 @@ import java.util.concurrent.atomic.AtomicLong
 
 @State(name = "HyperfQuerySettings", storages = [Storage("hyperf-query-settings.xml")])
 class HyperfQuerySettings : PersistentStateComponent<HyperfQuerySettings>, ModificationTracker {
-    var enabled = true
-    var filterDataSources = false
-    var filteredDataSources = setOf<String>()
-    var ignoreSettings = false
-    var configureSettingsNotificationShown = false
-    var tablePrefix = ""
-
     private val modificationCounter = AtomicLong(0L)
+
+    var enabled = true
+        set(value) {
+            if (field != value) {
+                field = value
+                touch()
+            }
+        }
+    var filterDataSources = false
+        set(value) {
+            if (field != value) {
+                field = value
+                touch()
+            }
+        }
+    var filteredDataSources = setOf<String>()
+        set(value) {
+            if (field != value) {
+                field = value
+                touch()
+            }
+        }
+    var ignoreSettings = false
+        set(value) {
+            if (field != value) {
+                field = value
+                touch()
+            }
+        }
+    var configureSettingsNotificationShown = false
+        set(value) {
+            if (field != value) {
+                field = value
+                touch()
+            }
+        }
+    var tablePrefix = ""
+        set(value) {
+            if (field != value) {
+                field = value
+                touch()
+            }
+        }
 
     /** 设置修改计数,作为 CachedValue 依赖:设置变更后使数据库引用解析缓存失效 */
     @Transient
     override fun getModificationCount(): Long = modificationCounter.get()
 
-    /** 设置被写入后调用(Configurable.apply / loadState) */
-    fun touch() {
+    /** 持久化字段变化时同时通知状态存储与 CachedValue 依赖 */
+    private fun touch() {
         modificationCounter.incrementAndGet()
     }
 
