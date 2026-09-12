@@ -121,6 +121,10 @@ internal class DasObjectsInspectionTest : BaseTestCase() {
         assertInspection("inspection/joinWithOperator.php", UnknownColumnInspection())
     }
 
+    fun testDoesNotWarnAboutOperatorInJoinSubCallWithOperator() {
+        assertInspection("inspection/joinSubWithOperator.php", UnknownColumnInspection())
+    }
+
     fun testDoesNotWarnAboutUnknownColumnForWhereInMethodValuesList() {
         assertInspection("inspection/noInspectionsForValuesInWhereIn.php", UnknownColumnInspection())
     }

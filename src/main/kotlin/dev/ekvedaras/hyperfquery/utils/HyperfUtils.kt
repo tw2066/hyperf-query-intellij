@@ -442,8 +442,9 @@ class HyperfUtils private constructor() {
             "not similar to", "not ilike", "~~*", "!~~*", "distinct from",
         )
 
+        // where(col, op, val) op 在 1;join(table, first, op, second) 在 2;joinSub(query, as, first, op, second) 在 3
         @JvmStatic
-        private val OperatorPositions = listOf(1, 2)
+        private val OperatorPositions = listOf(1, 2, 3)
         // </editor-fold>
 
         fun MethodReference.isInteresting(project: Project): Boolean =
