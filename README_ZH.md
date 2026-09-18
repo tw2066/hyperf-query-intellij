@@ -6,6 +6,8 @@
 
 本项目 fork 自 [ekvedaras/laravel-query-intellij](https://github.com/ekvedaras/laravel-query-intellij)(MIT 协议),识别目标已从 `Illuminate\Database\*` 全面迁移到 `Hyperf\Database\*`。
 
+> 详细使用文档(快速入门 / 功能示例 / 配置 / 适配性):[docs/](docs/README.md)
+
 ---
 
 ## 目录
